@@ -1,0 +1,22 @@
+{
+    "name": "TouchAction",
+    "maps": [
+        {
+            "name": "InGame",
+            "id": "9d68fce1-a1c2-4f5f-aae9-4cbdb3f7754c",
+            "actions": [
+                {
+                    "name": "Touch",
+                    "type": "Button",
+                    "id": "670d8252-26a5-4db7-abb5-9ebc99c6dcd1",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": []
+        }
+    ],
+    "controlSchemes": []
+}
