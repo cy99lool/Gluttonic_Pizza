@@ -355,8 +355,8 @@ MonoBehaviour:
   shootPoint: {fileID: 174066306}
   arrowPrefab: {fileID: 1295740862}
   stringRenderer: {fileID: 1973940869}
-  maxPullDistance: 2
-  maxForce: 30
+  maxPullDistance: 4
+  maxForce: 35
 --- !u!4 &440679301
 Transform:
   m_ObjectHideFlags: 0
