@@ -8,11 +8,13 @@ public class FoodMove : MonoBehaviour
     [Header("重力"), SerializeField] float gravity = 0.98f;
     [Header("一秒あたりの減速率"), SerializeField] float brakeRate = 0.4f;
     [Header("地面についている判定の距離"), SerializeField] float onGroundDistance = 0.2f;
+    [Header("消えるまでの時間"), SerializeField] float eraseLimit = 5f;
     [Header("ブレーキをかけるレイヤー"), SerializeField] LayerMask brakeMask;
     [Header("ぶつかるレイヤー"), SerializeField] LayerMask hitMask;
     [Header("ぶつかったときの速度保持率"), Range(0f, 1f), SerializeField] float myReflectRate = 0.4f;
 
     StageManager stageManager;
+    float eraseTimer = 0f;
 
     float BrakePower => 1f - brakeRate * Time.deltaTime;
 
@@ -26,14 +28,21 @@ public class FoodMove : MonoBehaviour
     {
         Ray groundRay = new Ray(transform.position + Vector3.up * 0.5f, Vector3.down);
         float size = 0.5f;
-        if (Physics.Raycast(groundRay, onGroundDistance + size, brakeMask))
+        if (Physics.Raycast(groundRay, out RaycastHit hit, onGroundDistance + size, brakeMask))
         {
+            transform.position = hit.point;// 貫通対策
             StopFalling();
             Brake();// 床についているときのみにする
+
+            if(eraseTimer > 0f) eraseTimer = 0f;
         }
         else// 浮いているとき
         {
             Fall();
+
+            // 一定時間以上浮いていたら消す
+            eraseTimer += Time.deltaTime;
+            if(eraseTimer >= eraseLimit) Destroy(gameObject);
         }
 
     }
@@ -81,19 +90,6 @@ public class FoodMove : MonoBehaviour
 
         myRb.velocity = velocity;
     }
-
-    //void OnCollisionEnter(Collision collision)
-    //{
-    //    if(CompareLayer(hitMask, collision.gameObject.layer))
-    //    {
-    //        // 衝突時の処理（エフェクトの再生等、マネージャーに衝突を知らせるだけにする予定（お互いで衝突処理が呼び出されて異常な速度でふっとばし合うため））
-    //        if (collision.gameObject.TryGetComponent<Rigidbody>(out Rigidbody opponentRb))// 相手にもRigidBodyがあるなら
-    //        {
-    //            //Reflect(myRb, oppoentRb);
-    //            stageManager.AddReflectList(myRb, opponentRb, myReflectRate);
-    //        }
-    //    }
-    //}
 
     void OnTriggerEnter(Collider other)
     {
