@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e5f087a06f8a79d4cb14db860576c6ab
+guid: 4f034f5082b8d8941847ddeb43074934
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
@@ -7,13 +7,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: GUZAI3
-    second: {fileID: 2100000, guid: 89d168d86970a3e45aa6bcf4e6297558, type: 2}
+      name: avocado
+    second: {fileID: 2100000, guid: ccf1e0c242e9d5a4cb903d05aa33950b, type: 2}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
-      name: g2
-    second: {fileID: 2800000, guid: 02b57f51e6f06d54e9a85ad254226cce, type: 3}
+      name: avocado_tex
+    second: {fileID: 2800000, guid: 85026f3d7c03b5b48b433648a1829732, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -47,13 +47,13 @@ ModelImporter:
     lODScreenPercentages: []
     globalScale: 1
     meshCompression: 0
-    addColliders: 1
+    addColliders: 0
     useSRGBMaterialColor: 1
-    sortHierarchyByName: 0
-    importVisibility: 0
-    importBlendShapes: 0
-    importCameras: 0
-    importLights: 0
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
     nodeNameCollisionStrategy: 1
     fileIdsGeneration: 2
     swapUVChannels: 0
@@ -61,8 +61,8 @@ ModelImporter:
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 1
-    bakeAxisConversion: 1
-    preserveHierarchy: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
     skinWeightsMode: 0
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
