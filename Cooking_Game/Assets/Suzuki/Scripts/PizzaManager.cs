@@ -5,6 +5,9 @@ using UnityEngine;
 public class PizzaManager : MonoBehaviour
 {
     [SerializeField]List<PizzaSlice> pizzaSlices;
+    [Header("回転速度"), SerializeField] float rotateSpeed = 20f;
+
+    bool canSpin = true;
     // Start is called before the first frame update
     void Start()
     {
@@ -14,7 +17,7 @@ public class PizzaManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (canSpin) Spin(rotateSpeed);
     }
 
     /// <summary>
@@ -35,5 +38,15 @@ public class PizzaManager : MonoBehaviour
         foodList.Clear();
 
         pizzaSlices.RemoveAt(index);// ピザのリストから除外
+    }
+
+    /// <summary>
+    /// ピザを回転させる
+    /// </summary>
+    void Spin(float speed)
+    {
+        Vector3 angles = transform.eulerAngles;
+        angles.y += speed * Time.deltaTime;
+        transform.eulerAngles = angles;
     }
 }

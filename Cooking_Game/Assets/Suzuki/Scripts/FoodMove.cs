@@ -31,6 +31,11 @@ public class FoodMove : MonoBehaviour
         if (Physics.Raycast(groundRay, out RaycastHit hit, onGroundDistance + size, brakeMask))
         {
             transform.position = hit.point;// 貫通対策
+            // ピザの子にする
+            if(transform.parent == null || transform.parent != hit.transform)
+            {
+                transform.parent = hit.transform;
+            }
             StopFalling();
             Brake();// 床についているときのみにする
 
