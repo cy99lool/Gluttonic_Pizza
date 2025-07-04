@@ -10,6 +10,7 @@ public class FoodMove : MonoBehaviour
     [Header("地面についている判定の距離"), SerializeField] float onGroundDistance = 0.2f;
     [Header("消えるまでの時間"), SerializeField] float eraseLimit = 5f;
     [Header("ブレーキをかけるレイヤー"), SerializeField] LayerMask brakeMask;
+    [Header("落下しないレイヤー"), SerializeField] LayerMask groundMask;
     [Header("ぶつかるレイヤー"), SerializeField] LayerMask hitMask;
     [Header("ぶつかったときの速度保持率"), Range(0f, 1f), SerializeField] float myReflectRate = 0.4f;
 
@@ -41,7 +42,7 @@ public class FoodMove : MonoBehaviour
 
             if(eraseTimer > 0f) eraseTimer = 0f;
         }
-        else// 浮いているとき
+        else if(!Physics.Raycast(groundRay, onGroundDistance + size, groundMask))// 浮いているとき
         {
             Fall();
 
