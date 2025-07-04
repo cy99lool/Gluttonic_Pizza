@@ -6,27 +6,18 @@ public class PizzaSlice : MonoBehaviour
 {
     List<FoodMove> foodList;// 食べ物のステータスを設定するスクリプトを別に作ったなら型をそちらに変更すること
 
-    public List<FoodMove> FoodList => foodList;
-    void Start()
+    public List<FoodMove> FoodList
     {
-        foodList = new List<FoodMove>();
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        if(other.TryGetComponent<FoodMove>(out FoodMove food)) foodList.Add(food);   
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        // リストに含まれていれば除去
-        for(int i = foodList.Count - 1; i >= 0; i--)
+        get
         {
-            if(foodList[i].gameObject == other)
+            foodList = new List<FoodMove>();
+
+            // 自身の子の食べ物を取得
+            foreach(FoodMove foodMove in GetComponentsInChildren<FoodMove>())
             {
-                foodList.RemoveAt(i);
-                return;
+                foodList.Add(foodMove);
             }
+            return foodList;
         }
     }
 }

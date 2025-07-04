@@ -11,7 +11,7 @@ public class PizzaManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        StartCoroutine(DebugPick(5f));
     }
 
     // Update is called once per frame
@@ -29,14 +29,18 @@ public class PizzaManager : MonoBehaviour
         if (index > pizzaSlices.Count) return;
 
         List<FoodMove> foodList = pizzaSlices[index].FoodList;// リストをコピー
-        for(int i = foodList.Count - 1; i >= 0; i--)
+        if (foodList.Count > 0)
         {
-            // 消去処理、ポイント獲得処理等を書く
-            Debug.Log(foodList[i].name);
-            pizzaSlices[i].gameObject.SetActive(false);
+            for (int i = foodList.Count - 1; i >= 0; i--)
+            {
+                // 消去処理、ポイント獲得処理等を書く
+                Debug.Log(foodList[i].name);
+                pizzaSlices[i].gameObject.SetActive(false);
+            }
+            foodList.Clear();
         }
-        foodList.Clear();
 
+        pizzaSlices[index].gameObject.SetActive(false);// 仮の除去処理
         pizzaSlices.RemoveAt(index);// ピザのリストから除外
     }
 
@@ -48,5 +52,15 @@ public class PizzaManager : MonoBehaviour
         Vector3 angles = transform.eulerAngles;
         angles.y += speed * Time.deltaTime;
         transform.eulerAngles = angles;
+    }
+
+    IEnumerator DebugPick(float time)
+    {
+        int pickIndex = Random.Range(0, pizzaSlices.Count);
+        Debug.Log($"{pickIndex}が選ばれた");
+        yield return new WaitForSeconds(time);
+
+        Debug.Log("取得");
+        TakePizzaSlice(pickIndex);
     }
 }
