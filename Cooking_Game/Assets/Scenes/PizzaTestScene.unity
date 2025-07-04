@@ -1047,6 +1047,8 @@ MonoBehaviour:
   - ip: 192.168.100.68
     port: 3000
     trackObject: {fileID: 0}
+  disconnectThreshold: 3
+  connectedPlayerInfos: []
 --- !u!114 &48061076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15296,6 +15298,8 @@ MonoBehaviour:
   - ip: 192.168.100.80
     port: 3004
     trackObject: {fileID: 1241167008}
+  disconnectThreshold: 30
+  connectedPlayerInfos: []
 --- !u!1 &927386111
 GameObject:
   m_ObjectHideFlags: 0
@@ -15485,6 +15489,8 @@ MonoBehaviour:
   - ip: 192.168.100.68
     port: 3000
     trackObject: {fileID: 0}
+  disconnectThreshold: 3
+  connectedPlayerInfos: []
 --- !u!114 &930116244
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21794,6 +21800,8 @@ MonoBehaviour:
   - ip: 192.168.100.68
     port: 3000
     trackObject: {fileID: 0}
+  disconnectThreshold: 3
+  connectedPlayerInfos: []
 --- !u!114 &1244875565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33040,6 +33048,8 @@ MonoBehaviour:
   - ip: 192.168.100.68
     port: 3000
     trackObject: {fileID: 0}
+  disconnectThreshold: 3
+  connectedPlayerInfos: []
 --- !u!114 &2010540779
 MonoBehaviour:
   m_ObjectHideFlags: 0

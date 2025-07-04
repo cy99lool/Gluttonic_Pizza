@@ -11,7 +11,7 @@ public class PizzaManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(DebugPick(5f));
+        //StartCoroutine(DebugPick(5f));
     }
 
     // Update is called once per frame

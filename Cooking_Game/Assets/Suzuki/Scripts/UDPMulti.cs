@@ -17,14 +17,24 @@ public class UDPMulti : MonoBehaviour
         [Header("同期するオブジェクト"), SerializeField] GameObject trackObject;
 
         IPEndPoint endPoint;
+        float disconnectTimer;
         public string IP => ip;
         public int Port => port;
         public GameObject TrackObject => trackObject;
 
         public IPEndPoint EndPoint => endPoint;
+        public float DisconnectTimer => disconnectTimer;
         public void SetEP(IPEndPoint iPEndPoint)
         {
             endPoint = iPEndPoint;
+        }
+        public void ElapseDiscconectTimer()
+        {
+            disconnectTimer += Time.deltaTime;
+        }
+        public void ResetDiscconectTimer()
+        {
+            if(disconnectTimer > 0f) disconnectTimer = 0f;
         }
     }
 
@@ -66,7 +76,6 @@ public class UDPMulti : MonoBehaviour
 
     class ReceivedUnit
     {
-        //IPEndPoint senderEp;
         ClientInfo clientInfo;
         byte[] message;
         public IPEndPoint SenderEP => clientInfo.EndPoint;
@@ -81,10 +90,9 @@ public class UDPMulti : MonoBehaviour
         }
     }
 
-    //[Header("自分のポート"), SerializeField] int myPort;
     [Header("自分の情報"), SerializeField] ClientInfo myInfo;
     [Header("接続する相手たち"), SerializeField] List<ClientInfo> clients = new List<ClientInfo>();
-    //[Header("同期するオブジェクト"), SerializeField] Transform myTrackObject;
+    [Header("接続が切れた判定をするまでの時間"), SerializeField] float disconnectThreshold = 3f;
 
     int sendPerSecond = 20;                                            // 送信レート（秒間）
     UdpClient client;
@@ -92,13 +100,10 @@ public class UDPMulti : MonoBehaviour
     Thread sendThread;                                              // 送信用スレッド
     bool isSendTiming = false;                                      // 送信タイミングかどうかのフラグ
     List<IPEndPoint> answerWaiting = new List<IPEndPoint>(4);       // 応答待機のリスト
-    //List<IPEndPoint> connectedPlayerEPs = new List<IPEndPoint>(4);  // 接続できたプレイヤーのリスト
-    List<ClientInfo> connectedPlayerInfos = new List<ClientInfo>(4);  // 接続できたプレイヤーのリスト
+    [SerializeField] List<ClientInfo> connectedPlayerInfos = new List<ClientInfo>(4);  // 接続できたプレイヤーのリスト
     List<ReceivedUnit> messageStack = new List<ReceivedUnit>(15);       // メッセージの待機列
     // ゲーム情報
     List<PositionAndRotation> otherPlayerObjectInfo = new List<PositionAndRotation>(3);
-
-    //[Header("相手のポート"), SerializeField] int opponentPort;
 
     void Start()
     {
@@ -138,6 +143,21 @@ public class UDPMulti : MonoBehaviour
         //    // 位置を反映
 
         //}
+
+        // 通信が切断されているかの確認
+        for(int i = connectedPlayerInfos.Count - 1; i >= 0; i--)
+        {
+            connectedPlayerInfos[i].ElapseDiscconectTimer();// 通信ができていない時間を計測
+            if (connectedPlayerInfos[i].DisconnectTimer >= disconnectThreshold)
+            {
+                // 再接続を要求
+                RegisterOpponentPort(connectedPlayerInfos[i].IP, connectedPlayerInfos[i].Port);
+                Debug.Log("再接続を要求");
+
+                // 接続リストから削除
+                connectedPlayerInfos.RemoveAt(i);
+            }
+        }
     }
 
     /// <summary>
@@ -202,7 +222,6 @@ public class UDPMulti : MonoBehaviour
                     try
                     {
                         // 接続時
-                        //ClientInfo clientInfo = receivedBytes.ToClientInfo(sizeof(Int32));// ClientInfoを取得
                         ClientInfo clientInfo = SearchClientInfo(receivedBytes.ToClientInfo(sizeof(Int32)));// ClientInfoを取得
 
                         //Debug.Log($"受け取ったメッセージ長: {receivedBytes.Length}");
@@ -267,6 +286,10 @@ public class UDPMulti : MonoBehaviour
 
         int answerWaitRegisterIndex = answerWaiting.IndexOfPort(unit.SenderEP.Port);
         int connectedIndex = connectedPlayerInfos.IndexOfPort(unit.SenderEP.Port);
+
+        // 接続している状況の更新
+        CheckConnect(unit);
+
         //Debug.Log("メッセージを受信");
         switch (type)
         {
@@ -288,6 +311,7 @@ public class UDPMulti : MonoBehaviour
                     client.SendAsync(message, message.Length, unit.SenderEP);
 
                     ActivateTrackObject(unit);
+                    CheckConnect(unit);
                     break;
                 }
             case UDPMessageType.Answered:
@@ -303,6 +327,7 @@ public class UDPMulti : MonoBehaviour
                     Debug.Log("他の人から接続がありました:" + unit.Info.Port);
 
                     ActivateTrackObject(unit);
+                    CheckConnect(unit);
                     break;
                 }
             case UDPMessageType.PositionUpdate:
@@ -315,11 +340,29 @@ public class UDPMulti : MonoBehaviour
                     //Debug.Log("位置を受信：" + unit.Info.Port);
                     break;
                 }
-            default:
+            case UDPMessageType.ConnectCheck:
                 {
-                    Debug.LogError("形式が違いますネ！！！！！！！！！！");
+                    // 接続しているかの確認のみなので何もしない
                     break;
                 }
+            default:
+                {
+                    Debug.LogError("形式が違います！");
+                    break;
+                }
+        }
+    }
+
+    void CheckConnect(ReceivedUnit unit)
+    {
+        foreach (ClientInfo connectedPlayer in connectedPlayerInfos)
+        {
+            // 接続を確認したのでタイマーをリセット
+            if (unit.Info.IP == connectedPlayer.IP)
+            {
+                connectedPlayer.ResetDiscconectTimer();
+                break;
+            }
         }
     }
 
@@ -330,7 +373,8 @@ public class UDPMulti : MonoBehaviour
     {
         // 送信処理
         // (これから自分の番かの判定を追加予定)
-        if(myInfo.TrackObject != null) SendPosition();
+        if(myInfo.TrackObject != null) SendPosition();  // 位置を送る
+        else SendOnlyConnection();                      // 接続しているかどうかの情報のみを送る
     }
 
     /// <summary>
@@ -344,13 +388,31 @@ public class UDPMulti : MonoBehaviour
         string myObjectInfoJson = JsonUtility.ToJson(myObjectInfo);
         byte[] myObjectInfoMessage = System.Text.Encoding.UTF8.GetBytes(myObjectInfoJson);// StringをByte配列に変換
 
-        byte[] PosMessage = MergeBytes(udpMessage, myObjectInfoMessage);// 結合
+        byte[] posMessage = MergeBytes(udpMessage, myObjectInfoMessage);// 結合
 
-        foreach (ClientInfo clientInfo in connectedPlayerInfos)
+        SendAsyncToPlayers(posMessage);
+    }
+    /// <summary>
+    /// 接続状況の送信を行う
+    /// </summary>
+    void SendOnlyConnection()
+    {
+        byte[] udpMessage = UDPMessageType.ConnectCheck.ToByte();// 接続状況送信モード
+
+        SendAsyncToPlayers(udpMessage);
+    }
+
+    /// <summary>
+    /// つながっているプレイヤー全員にメッセージを送信する
+    /// </summary>
+    void SendAsyncToPlayers(byte[] message)
+    {
+        foreach(ClientInfo clientInfo in connectedPlayerInfos)
         {
-            client.SendAsync(PosMessage, PosMessage.Length, clientInfo.EndPoint);
+            client.SendAsync(message, message.Length, clientInfo.EndPoint);
         }
     }
+
     void SendThreadStart()
     {
         sendThread = new Thread(new ThreadStart(ThreadSend));
@@ -360,14 +422,7 @@ public class UDPMulti : MonoBehaviour
     void ActivateTrackObject(ReceivedUnit unit)
     {
         if (unit.Info.TrackObject == null) return;
-        /*for (int i = 0; i < clients.Count; i++)
-        {
-            if (clients[i].IP == unit.SenderEP.Address.ToString())// 応答があったIPアドレスなら
-            {
-                clients[i].TrackObject.SetActive(true);
-                break;
-            }
-        }*/
+
         for(int i = 0; i < connectedPlayerInfos.Count; i++)
         {
             if (connectedPlayerInfos[i].IP == unit.Info.IP && !connectedPlayerInfos[i].TrackObject.activeSelf)// 応答があったIPアドレスなら
@@ -393,7 +448,7 @@ enum UDPMessageType
     AnswerWait = 100001,
     Answered,
     PositionUpdate,
-    //AnimationUpdate,
+    ConnectCheck,
 }
 
 /// <summary>
