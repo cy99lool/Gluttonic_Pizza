@@ -160,7 +160,7 @@ GameObject:
   - component: {fileID: 4620713960909046799}
   - component: {fileID: 4168431771810243711}
   m_Layer: 8
-  m_Name: Food_Pepper
+  m_Name: Food_Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -225,11 +225,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myRb: {fileID: 4620713960909046799}
   gravity: 9.8
-  brakeRate: 1.8
+  brakeRate: 1.6
   onGroundDistance: 0.15
+  eraseLimit: 5
   brakeMask:
     serializedVersion: 2
     m_Bits: 512
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 640
   hitMask:
     serializedVersion: 2
     m_Bits: 256

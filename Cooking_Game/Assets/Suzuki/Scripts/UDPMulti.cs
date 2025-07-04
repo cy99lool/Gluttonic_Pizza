@@ -51,6 +51,8 @@ public class UDPMulti : MonoBehaviour
 
         public void UpdateTransformInfo()
         {
+            if (clientInfo.TrackObject == null) return;// 設定されていないなら動かさない
+
             clientInfo.TrackObject.transform.position = position;
             Vector3 eulerAngles = clientInfo.TrackObject.transform.eulerAngles;
             eulerAngles.y = yRot;
@@ -328,7 +330,7 @@ public class UDPMulti : MonoBehaviour
     {
         // 送信処理
         // (これから自分の番かの判定を追加予定)
-        SendPosition();
+        if(myInfo.TrackObject != null) SendPosition();
     }
 
     /// <summary>
@@ -357,6 +359,7 @@ public class UDPMulti : MonoBehaviour
 
     void ActivateTrackObject(ReceivedUnit unit)
     {
+        if (unit.Info.TrackObject == null) return;
         /*for (int i = 0; i < clients.Count; i++)
         {
             if (clients[i].IP == unit.SenderEP.Address.ToString())// 応答があったIPアドレスなら
