@@ -3,7 +3,9 @@ using UnityEngine;
 public class LineRendererExample : MonoBehaviour
 {
     private LineRenderer lineRenderer;
-
+    public float minZ = -45f; // 回転できる最小角度（左）
+    public float maxZ = 45f;  // 回転できる最大角度（右）
+    
     void Start()
     {
         // LineRendererコンポーネントを取得

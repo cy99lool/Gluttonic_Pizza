@@ -3,6 +3,8 @@ using UnityEngine;
 public class Bow : MonoBehaviour
 {
     public float rotationSpeed = 5f; // 回転の感度
+    public float minZ = -45f; // 回転できる最小角度（左）
+    public float maxZ = 45f;  // 回転できる最大角度（右）
 
     private bool isDragging = false;
     private Vector3 lastMousePosition;
@@ -34,5 +36,7 @@ public class Bow : MonoBehaviour
 
             lastMousePosition = currentMousePosition;
         }
+       
+
     }
 }
