@@ -9,16 +9,17 @@ public class BowController : MonoBehaviour
     public LineRenderer stringRenderer;
     public float maxPullDistance = 2f;
     public float maxForce = 30f;
-
+   
     private GameObject currentArrow;
     private bool isAiming = false;
     private Vector3 startMousePos;
+
 
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            startMousePos = GetMouseWorldPosition();
+           startMousePos = GetMouseWorldPosition();
             currentArrow = Instantiate(arrowPrefab, shootPoint.position, shootPoint.rotation);
             currentArrow.GetComponent<Rigidbody>().isKinematic = true;
             isAiming = true;
@@ -65,6 +66,7 @@ public class BowController : MonoBehaviour
         Vector3 mouseScreenPos = Input.mousePosition;
         mouseScreenPos.z = 10f; // カメラからの距離に応じて調整
         return Camera.main.ScreenToWorldPoint(mouseScreenPos);
+        
     }
 
     void UpdateStringRenderer(Vector3 centerPoint)
