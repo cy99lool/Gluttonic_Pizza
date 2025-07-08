@@ -1047,6 +1047,8 @@ MonoBehaviour:
   - ip: 192.168.100.68
     port: 3000
     trackObject: {fileID: 0}
+  disconnectThreshold: 3
+  connectedPlayerInfos: []
 --- !u!114 &48061076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7584,24 +7586,48 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -5590496282752808231, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+      propertyPath: m_Name
+      value: Slice2
+      objectReference: {fileID: 0}
+    - target: {fileID: -5590496282752808231, guid: 2830afb84634853478d54cde76f88af3, type: 3}
       propertyPath: m_Layer
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: -4353983969481367956, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+      propertyPath: m_Name
+      value: Slice7
       objectReference: {fileID: 0}
     - target: {fileID: -4353983969481367956, guid: 2830afb84634853478d54cde76f88af3, type: 3}
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
     - target: {fileID: -2759078979853235728, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+      propertyPath: m_Name
+      value: Slice5
+      objectReference: {fileID: 0}
+    - target: {fileID: -2759078979853235728, guid: 2830afb84634853478d54cde76f88af3, type: 3}
       propertyPath: m_Layer
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: -1917636709593900573, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+      propertyPath: m_Name
+      value: Slice6
       objectReference: {fileID: 0}
     - target: {fileID: -1917636709593900573, guid: 2830afb84634853478d54cde76f88af3, type: 3}
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
     - target: {fileID: -789496868103424677, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+      propertyPath: m_Name
+      value: Slice8
+      objectReference: {fileID: 0}
+    - target: {fileID: -789496868103424677, guid: 2830afb84634853478d54cde76f88af3, type: 3}
       propertyPath: m_Layer
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: -699061816213275291, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+      propertyPath: m_Name
+      value: Slice3
       objectReference: {fileID: 0}
     - target: {fileID: -699061816213275291, guid: 2830afb84634853478d54cde76f88af3, type: 3}
       propertyPath: m_Layer
@@ -7611,9 +7637,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: pizza_tex_2
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2319304204447384273, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+      propertyPath: m_Name
+      value: Slice4
+      objectReference: {fileID: 0}
     - target: {fileID: 2319304204447384273, guid: 2830afb84634853478d54cde76f88af3, type: 3}
       propertyPath: m_Layer
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 5813780112508874520, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+      propertyPath: m_Name
+      value: Slice1
       objectReference: {fileID: 0}
     - target: {fileID: 5813780112508874520, guid: 2830afb84634853478d54cde76f88af3, type: 3}
       propertyPath: m_Layer
@@ -7740,15 +7778,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pizzaSlices:
-  - {fileID: 998422194}
-  - {fileID: 657205805}
-  - {fileID: 193477064}
-  - {fileID: 1158334840}
-  - {fileID: 784521363}
-  - {fileID: 1308458994}
-  - {fileID: 1234741210}
-  - {fileID: 1275121437}
-  rotateSpeed: 20
+  - {fileID: 415189333}
+  - {fileID: 1739029493}
+  - {fileID: 839532379}
+  - {fileID: 415189332}
+  - {fileID: 1939489460}
+  - {fileID: 451519604}
+  - {fileID: 1303400099}
+  - {fileID: 1301756388}
+  rotateSpeed: 60
+--- !u!114 &415189332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415189316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &415189333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415189319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &421360859
 GameObject:
   m_ObjectHideFlags: 0
@@ -8630,6 +8692,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 435432450}
   m_CullTransparentMesh: 1
+--- !u!114 &451519604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415189314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &464598766
 GameObject:
   m_ObjectHideFlags: 0
@@ -13964,6 +14038,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 833684542}
   m_CullTransparentMesh: 1
+--- !u!114 &839532379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415189317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &844235005
 GameObject:
   m_ObjectHideFlags: 0
@@ -15212,6 +15298,8 @@ MonoBehaviour:
   - ip: 192.168.100.80
     port: 3004
     trackObject: {fileID: 1241167008}
+  disconnectThreshold: 30
+  connectedPlayerInfos: []
 --- !u!1 &927386111
 GameObject:
   m_ObjectHideFlags: 0
@@ -15401,6 +15489,8 @@ MonoBehaviour:
   - ip: 192.168.100.68
     port: 3000
     trackObject: {fileID: 0}
+  disconnectThreshold: 3
+  connectedPlayerInfos: []
 --- !u!114 &930116244
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21710,6 +21800,8 @@ MonoBehaviour:
   - ip: 192.168.100.68
     port: 3000
     trackObject: {fileID: 0}
+  disconnectThreshold: 3
+  connectedPlayerInfos: []
 --- !u!114 &1244875565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23532,6 +23624,18 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4732937762076777578, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+--- !u!114 &1301756388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415189312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!64 &1303400095
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -23546,6 +23650,18 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7843526606762953986, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+--- !u!114 &1303400099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415189313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1308458987
 GameObject:
   m_ObjectHideFlags: 0
@@ -29137,6 +29253,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1735367765}
   m_CullTransparentMesh: 1
+--- !u!114 &1739029493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415189318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1749342046
 GameObject:
   m_ObjectHideFlags: 0
@@ -32390,6 +32518,18 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4545423930167495100, guid: 2830afb84634853478d54cde76f88af3, type: 3}
+--- !u!114 &1939489460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415189315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1955668689
 GameObject:
   m_ObjectHideFlags: 0
@@ -32908,6 +33048,8 @@ MonoBehaviour:
   - ip: 192.168.100.68
     port: 3000
     trackObject: {fileID: 0}
+  disconnectThreshold: 3
+  connectedPlayerInfos: []
 --- !u!114 &2010540779
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -29,28 +29,48 @@ public class FoodMove : MonoBehaviour
     {
         Ray groundRay = new Ray(transform.position + Vector3.up * 0.5f, Vector3.down);
         float size = 0.5f;
-        if (Physics.Raycast(groundRay, out RaycastHit hit, onGroundDistance + size, brakeMask))
-        {
-            transform.position = hit.point;// 貫通対策
-            // ピザの子にする
-            if(transform.parent == null || transform.parent != hit.transform)
-            {
-                transform.parent = hit.transform;
-            }
-            StopFalling();
-            Brake();// 床についているときのみにする
 
-            if(eraseTimer > 0f) eraseTimer = 0f;
-        }
-        else if(!Physics.Raycast(groundRay, onGroundDistance + size, groundMask))// 浮いているとき
+        if(Physics.Raycast(groundRay, out RaycastHit groundHit, onGroundDistance + size, groundMask))// 地面についているとき
         {
+            transform.position = groundHit.point;// 貫通対策
+            
+            StopFalling();
+
+            EraseCheck();// 一定時間以上浮いていたら消す
+        }
+
+        if (Physics.Raycast(groundRay, onGroundDistance + size, brakeMask))// ブレーキをかけるレイヤーのとき
+        {
+            // ピザの子にする
+            if (transform.parent == null || transform.parent != groundHit.transform)
+            {
+                transform.parent = groundHit.transform;
+            }
+
+            Brake();// ブレーキ
+
+            if (eraseTimer > 0f) eraseTimer = 0f;// 消えないようにする
+        }
+
+        else// 浮いているとき
+        {
+            // 親がピザなら親子づけを外す
+            if(CompareLayer(brakeMask, transform.parent.gameObject.layer))
+            {
+                transform.parent = null;
+            }
+
             Fall();
 
-            // 一定時間以上浮いていたら消す
-            eraseTimer += Time.deltaTime;
-            if(eraseTimer >= eraseLimit) Destroy(gameObject);
+            EraseCheck();// 一定時間以上浮いていたら消す
         }
 
+    }
+
+    void EraseCheck()
+    {
+        eraseTimer += Time.deltaTime;
+        if (eraseTimer >= eraseLimit) Destroy(gameObject);
     }
 
     public void AddForce(Vector3 direction, float power)
