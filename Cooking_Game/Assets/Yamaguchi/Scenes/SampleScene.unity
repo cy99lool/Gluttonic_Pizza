@@ -388,9 +388,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1fcee44a1e6be14aa2ac91ca605797b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 50
-  minZ: -45
-  maxZ: 45
+  rotationSpeed: 30
+  minX: -5
+  maxX: 5
 --- !u!1 &466527861
 GameObject:
   m_ObjectHideFlags: 0
@@ -1316,9 +1316,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1fcee44a1e6be14aa2ac91ca605797b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 50
-  minZ: -45
-  maxZ: 45
+  rotationSpeed: 30
+  minX: -5
+  maxX: 5
 --- !u!1001 &1701426367
 PrefabInstance:
   m_ObjectHideFlags: 0
