@@ -54,6 +54,12 @@ public class FoodMove : MonoBehaviour
 
         else// 浮いているとき
         {
+            // 親がピザなら親子づけを外す
+            if(CompareLayer(brakeMask, transform.parent.gameObject.layer))
+            {
+                transform.parent = null;
+            }
+
             Fall();
 
             EraseCheck();// 一定時間以上浮いていたら消す

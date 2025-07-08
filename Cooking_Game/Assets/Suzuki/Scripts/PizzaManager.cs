@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class PizzaManager : MonoBehaviour
 {
-    [SerializeField]List<PizzaSlice> pizzaSlices;
+    [SerializeField] List<PizzaSlice> pizzaSlices;
     [Header("回転速度"), SerializeField] float rotateSpeed = 20f;
 
     bool canSpin = true;
     // Start is called before the first frame update
     void Start()
     {
-        //StartCoroutine(DebugPick(5f));
+        StartCoroutine(DebugPick(10f));
     }
 
     // Update is called once per frame
@@ -35,7 +35,7 @@ public class PizzaManager : MonoBehaviour
             {
                 // 消去処理、ポイント獲得処理等を書く
                 Debug.Log(foodList[i].name);
-                pizzaSlices[i].gameObject.SetActive(false);
+                foodList[i].gameObject.SetActive(false);
             }
             foodList.Clear();
         }
@@ -54,13 +54,21 @@ public class PizzaManager : MonoBehaviour
         transform.eulerAngles = angles;
     }
 
-    IEnumerator DebugPick(float time)
+    IEnumerator DebugPick(float pickTime)
     {
         int pickIndex = Random.Range(0, pizzaSlices.Count);
         Debug.Log($"{pickIndex}が選ばれた");
-        yield return new WaitForSeconds(time);
+
+        float timer = 0f;
+        while (timer < pickTime)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
 
         Debug.Log("取得");
         TakePizzaSlice(pickIndex);
+
+        if(pizzaSlices.Count > 0) yield return StartCoroutine(DebugPick(pickTime));
     }
 }
