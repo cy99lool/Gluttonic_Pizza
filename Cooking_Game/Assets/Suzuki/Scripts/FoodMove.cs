@@ -13,11 +13,14 @@ public class FoodMove : MonoBehaviour
     [Header("落下しないレイヤー"), SerializeField] LayerMask groundMask;
     [Header("ぶつかるレイヤー"), SerializeField] LayerMask hitMask;
     [Header("ぶつかったときの速度保持率"), Range(0f, 1f), SerializeField] float myReflectRate = 0.4f;
+    [Header("チーム"), SerializeField] TeamColor team;
 
     StageManager stageManager;
     float eraseTimer = 0f;
 
     float BrakePower => 1f - brakeRate * Time.deltaTime;
+
+    public TeamColor Team => team;
 
     // Start is called before the first frame update
     void Start()
@@ -136,5 +139,14 @@ public class FoodMove : MonoBehaviour
     bool CompareLayer(LayerMask layerMask, int layer)
     {
         return ((1 << layer) & layerMask) != 0;
+    }
+
+    public enum TeamColor
+    {
+        Red = 0,
+        Blue,
+        Green,
+        Yellow,
+        AllSize
     }
 }
