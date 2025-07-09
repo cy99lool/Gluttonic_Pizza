@@ -8,13 +8,17 @@ public class PizzaManager : MonoBehaviour
     [Header("回転速度"), SerializeField] float rotateSpeed = 20f;
 
     bool canSpin = true;
-    // Start is called before the first frame update
-    void Start()
+
+    public List<PizzaSlice> PizzaSlices => pizzaSlices;
+
+    void OnValidate()
     {
-        StartCoroutine(DebugPick(10f));
+        for (int i = 0; i < pizzaSlices.Count; i++)
+        {
+            pizzaSlices[i].SetIndex(i);
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (canSpin) Spin(rotateSpeed);
@@ -23,25 +27,39 @@ public class PizzaManager : MonoBehaviour
     /// <summary>
     /// ピザのスライスを取り上げ、上に乗っている具材に応じてポイントを獲得させる
     /// </summary>
-    /// <param name="index">ピザの番号</param>
-    public void TakePizzaSlice(int index)
+    /// <param name="indexes">取り上げるスライス</param>
+    public void TakePizzaSlice(List<int> indexes)
     {
-        if (index > pizzaSlices.Count) return;
+        // リストを小さい順にソート
+        indexes = SortByLowest(indexes);
 
-        List<FoodMove> foodList = pizzaSlices[index].FoodList;// リストをコピー
-        if (foodList.Count > 0)
+        // ピザを取り上げる処理
+        for (int i = indexes.Count - 1; i >= 0; i--)
         {
-            for (int i = foodList.Count - 1; i >= 0; i--)
-            {
-                // 消去処理、ポイント獲得処理等を書く
-                Debug.Log(foodList[i].name);
-                foodList[i].gameObject.SetActive(false);
-            }
-            foodList.Clear();
-        }
+            if (indexes[i] > pizzaSlices.Count) return;
 
-        pizzaSlices[index].gameObject.SetActive(false);// 仮の除去処理
-        pizzaSlices.RemoveAt(index);// ピザのリストから除外
+            List<FoodMove> foodList = pizzaSlices[indexes[i]].FoodList;// リストをコピー
+            if (foodList.Count > 0)
+            {
+                for (int j = foodList.Count - 1; j >= 0; j--)
+                {
+                    // 消去処理、ポイント獲得処理等を書く
+                    Debug.Log(foodList[i].name);
+                    foodList[i].gameObject.SetActive(false);
+                }
+                foodList.Clear();
+            }
+
+            pizzaSlices[indexes[i]].gameObject.SetActive(false);// 仮の除去処理
+            pizzaSlices.RemoveAt(indexes[i]);// ピザのリストから除外
+            indexes.RemoveAt(i);
+
+            // 残りのインデックスの指定がずれる場合の対策
+            //for(int j = i; j < indexes.Count; j++)
+            //{
+            //    if (indexes[j] > indexes[i]) indexes[j]--;// ピザのリストの削除分ずらす
+            //}
+        }
     }
 
     /// <summary>
@@ -54,21 +72,30 @@ public class PizzaManager : MonoBehaviour
         transform.eulerAngles = angles;
     }
 
-    IEnumerator DebugPick(float pickTime)
+    /// <summary>
+    /// リストの値が小さい順にソートする
+    /// </summary>
+    /// <param name="baseList">並び替えるリスト</param>
+    /// <returns>数字が低い順に並んだリスト</returns>
+    List<int> SortByLowest(List<int> baseList)
     {
-        int pickIndex = Random.Range(0, pizzaSlices.Count);
-        Debug.Log($"{pickIndex}が選ばれた");
+        // 要素数0ならソートしない（アクセスしようとするとエラーが起きる）
+        if (baseList.Count == 0) return baseList;
 
-        float timer = 0f;
-        while (timer < pickTime)
+        // バブルソートを使用（想定される最大の要素数が8と少ないため）
+        for (int i = 0; i < baseList.Count; i++)
         {
-            timer += Time.deltaTime;
-            yield return null;
+            for (int j = 0; j < baseList.Count - i - 1; j++)
+            {
+                if (baseList[j] > baseList[j + 1])// 前の要素の値が、後の要素の値より大きいとき
+                {
+                    int tempNum = baseList[j];      // 値をコピーしておく（後の要素の値になる方）
+                    baseList[j] = baseList[j + 1];  // 前の要素に値を代入
+                    baseList[j + 1] = tempNum;      // 後の要素の値を代入
+                }
+            }
         }
 
-        Debug.Log("取得");
-        TakePizzaSlice(pickIndex);
-
-        if(pizzaSlices.Count > 0) yield return StartCoroutine(DebugPick(pickTime));
+        return baseList;
     }
 }

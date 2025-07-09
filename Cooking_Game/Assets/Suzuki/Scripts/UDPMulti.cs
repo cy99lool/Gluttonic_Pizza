@@ -135,14 +135,6 @@ public class UDPMulti : MonoBehaviour
             otherPlayerObjectInfo[i].UpdateTransformInfo();
             otherPlayerObjectInfo.RemoveAt(i);
         }
-        // 滑らかに移動させるときに使うかも
-        //for(int i = 0; i < connectedPlayerEPs.Count; i++)
-        //{
-        //    if (i >= otherPlayerObjectInfo.Count) return;
-            
-        //    // 位置を反映
-
-        //}
 
         // 通信が切断されているかの確認
         for(int i = connectedPlayerInfos.Count - 1; i >= 0; i--)
