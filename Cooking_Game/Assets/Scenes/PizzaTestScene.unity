@@ -1002,7 +1002,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 48061074}
-  - component: {fileID: 48061076}
   - component: {fileID: 48061075}
   m_Layer: 0
   m_Name: UDPComponent
@@ -1049,24 +1048,6 @@ MonoBehaviour:
     trackObject: {fileID: 0}
   disconnectThreshold: 3
   connectedPlayerInfos: []
---- !u!114 &48061076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 48061073}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f6574cbed9531c4bb0143055e471e65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  myPort: 3000
-  opponentPort: 3001
-  enableSmoothing: 0
-  player: {fileID: 0}
-  otherPlayerObjects:
-  - {fileID: 0}
 --- !u!1 &65243706
 GameObject:
   m_ObjectHideFlags: 0
@@ -15281,7 +15262,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 920145361}
-  - component: {fileID: 920145362}
   - component: {fileID: 920145363}
   m_Layer: 0
   m_Name: UDPComponent
@@ -15307,24 +15287,6 @@ Transform:
   m_Father: {fileID: 1335428795}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &920145362
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 920145359}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f6574cbed9531c4bb0143055e471e65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  myPort: 3000
-  opponentPort: 3001
-  enableSmoothing: 0
-  player: {fileID: 6997103}
-  otherPlayerObjects:
-  - {fileID: 1096351114}
 --- !u!114 &920145363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15500,7 +15462,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 930116242}
-  - component: {fileID: 930116244}
   - component: {fileID: 930116243}
   m_Layer: 0
   m_Name: UDPComponent
@@ -15547,24 +15508,6 @@ MonoBehaviour:
     trackObject: {fileID: 0}
   disconnectThreshold: 3
   connectedPlayerInfos: []
---- !u!114 &930116244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 930116241}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f6574cbed9531c4bb0143055e471e65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  myPort: 3000
-  opponentPort: 3001
-  enableSmoothing: 0
-  player: {fileID: 0}
-  otherPlayerObjects:
-  - {fileID: 0}
 --- !u!1 &937749270
 GameObject:
   m_ObjectHideFlags: 0
@@ -21814,7 +21757,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1244875563}
-  - component: {fileID: 1244875565}
   - component: {fileID: 1244875564}
   m_Layer: 0
   m_Name: UDPComponent
@@ -21861,24 +21803,6 @@ MonoBehaviour:
     trackObject: {fileID: 0}
   disconnectThreshold: 3
   connectedPlayerInfos: []
---- !u!114 &1244875565
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1244875562}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f6574cbed9531c4bb0143055e471e65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  myPort: 3000
-  opponentPort: 3001
-  enableSmoothing: 0
-  player: {fileID: 0}
-  otherPlayerObjects:
-  - {fileID: 0}
 --- !u!1 &1245319907
 GameObject:
   m_ObjectHideFlags: 0
@@ -33069,7 +32993,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2010540777}
-  - component: {fileID: 2010540779}
   - component: {fileID: 2010540778}
   m_Layer: 0
   m_Name: UDPComponent
@@ -33116,24 +33039,6 @@ MonoBehaviour:
     trackObject: {fileID: 0}
   disconnectThreshold: 3
   connectedPlayerInfos: []
---- !u!114 &2010540779
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2010540776}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f6574cbed9531c4bb0143055e471e65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  myPort: 3000
-  opponentPort: 3001
-  enableSmoothing: 0
-  player: {fileID: 0}
-  otherPlayerObjects:
-  - {fileID: 0}
 --- !u!1 &2023864673
 GameObject:
   m_ObjectHideFlags: 0

@@ -27,7 +27,8 @@ public class SystemManager : MonoBehaviour
     {
         while (pizzaManager.PizzaSlices.Count > 0)
         {
-            yield return DebugPick(10f, 10000);
+            // ピザの取得（デバッグ）
+            yield return DebugPick(10f, 1);
         }
     }
 
