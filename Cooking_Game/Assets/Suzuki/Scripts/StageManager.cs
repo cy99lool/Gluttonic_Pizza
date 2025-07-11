@@ -57,15 +57,19 @@ public class StageManager : MonoBehaviour
 
         // 指が離れてからの発射されるまでの猶予を設けつつ、離した位置を基準に生成や発射を行いたいため
         public Vector3 TrackPosition => lastPos;
+        public Vector3 ShotVector => pivot.position - TrackPosition;
         public Vector3 ShotDirection
         {
             get
             {
-                Vector3 direction = (pivot.position - TrackPosition).normalized;
+                Vector3 direction = ShotVector.normalized;
                 direction.y = 0f;
                 return direction;
             }
         }
+        // ドラッグされているか
+        public bool IsDragging => trackObject.transform.position != startPos;
+
         // 動いているか
         public bool IsMoving => trackObject.transform.position != lastPos;
 
@@ -116,6 +120,19 @@ public class StageManager : MonoBehaviour
             {
                 // 動かしているときのエフェクトを入れる予定
                 Debug.Log("moving");
+            }
+            // ドラッグ中
+            if (trackObjects[i].IsDragging)
+            {
+                // 矢印の方向や距離のベクトルを求める（y軸方向は除く）
+                Vector3 arrowDirection = trackObjects[i].ShotVector;
+                arrowDirection.y = 0f;
+
+                // 矢印を変形
+                if(arrowDirection != Vector3.zero)
+                {
+                    
+                }
             }
 
             // ドラッグ位置の履歴を更新
