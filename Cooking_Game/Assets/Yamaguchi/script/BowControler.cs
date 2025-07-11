@@ -11,6 +11,7 @@ public class BowControler : MonoBehaviour
     public float maxForce = 30f;
     
     private GameObject currentArrow;
+    private GameObject arrowEffect;
     private bool isAiming = false;
     private Vector3 startMousePos;
    
@@ -26,6 +27,9 @@ public class BowControler : MonoBehaviour
             currentArrow.GetComponent<Rigidbody>().isKinematic = true;
             isAiming = true;
             
+            arrowEffect = currentArrow.transform.Find("ArrowEffect")?.gameObject;
+    if (arrowEffect != null) arrowEffect.SetActive(true); // 表示開始
+
         }
 
         if (Input.GetMouseButton(0) && isAiming)
@@ -76,6 +80,10 @@ rb.AddForce(direction * force, ForceMode.Impulse);
 
             isAiming = false;
             UpdateStringRenderer(shootPoint.position); // 弦を戻す
+
+            if (arrowEffect != null) arrowEffect.SetActive(false);
+
+           
         }
 
         // 通常時は初期状態に
@@ -101,5 +109,7 @@ rb.AddForce(direction * force, ForceMode.Impulse);
         stringRenderer.SetPosition(1, centerPoint);
         stringRenderer.SetPosition(2, rightPoint.position);
     }
+    
+   
 
 }
