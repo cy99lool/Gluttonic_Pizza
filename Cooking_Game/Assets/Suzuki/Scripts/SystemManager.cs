@@ -5,14 +5,23 @@ using UnityEngine;
 public class SystemManager : MonoBehaviour
 {
     [System.Serializable]
-    class Team
+    public class Team
     {
         [SerializeField]FoodMove.TeamColor color;
-        int score;
+        public FoodMove.TeamColor Color => color;
+
+        [SerializeField] int score;
         // チームごとのUIを追加する予定
+
+        public void AddScore(int score)
+        {
+            this.score += score;
+        }
     }
 
     [SerializeField] List<Team> teams;
+
+    public List<Team> Teams => teams;
 
     PizzaManager pizzaManager;
 
@@ -27,7 +36,8 @@ public class SystemManager : MonoBehaviour
     {
         while (pizzaManager.PizzaSlices.Count > 0)
         {
-            yield return DebugPick(10f, 10000);
+            // ピザの取得（デバッグ）
+            yield return DebugPick(5f, 3);
         }
     }
 
@@ -48,8 +58,10 @@ public class SystemManager : MonoBehaviour
         // 取る個数分取る場所を指定
         for(int i = 0; i < pickCount; i++)
         {
+            if (i >= pickableSlices.Count) break;
+
             int index = Random.Range(0, pickableSlices.Count);
-            pickIndexes.Add(pickableSlices[index].Index);
+            pickIndexes.Add(index);
             Debug.Log($"{pickableSlices[index]}が選ばれた");
             
             pickableSlices.RemoveAt(index);

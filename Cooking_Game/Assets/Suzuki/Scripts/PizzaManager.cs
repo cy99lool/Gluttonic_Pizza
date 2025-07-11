@@ -8,15 +8,13 @@ public class PizzaManager : MonoBehaviour
     [Header("回転速度"), SerializeField] float rotateSpeed = 20f;
 
     bool canSpin = true;
+    SystemManager systemManager;
 
     public List<PizzaSlice> PizzaSlices => pizzaSlices;
 
-    void OnValidate()
+    void Start()
     {
-        for (int i = 0; i < pizzaSlices.Count; i++)
-        {
-            pizzaSlices[i].SetIndex(i);
-        }
+        systemManager = FindObjectOfType<SystemManager>();
     }
 
     void Update()
@@ -27,38 +25,48 @@ public class PizzaManager : MonoBehaviour
     /// <summary>
     /// ピザのスライスを取り上げ、上に乗っている具材に応じてポイントを獲得させる
     /// </summary>
-    /// <param name="indexes">取り上げるスライス</param>
-    public void TakePizzaSlice(List<int> indexes)
+    /// <param name="pizzaIndexes">取り上げるスライス</param>
+    public void TakePizzaSlice(List<int> pizzaIndexes)
     {
         // リストを小さい順にソート
-        indexes = SortByLowest(indexes);
+        pizzaIndexes = SortByLowest(pizzaIndexes);
 
         // ピザを取り上げる処理
-        for (int i = indexes.Count - 1; i >= 0; i--)
+        for (int i = pizzaIndexes.Count - 1; i >= 0; i--)
         {
-            if (indexes[i] > pizzaSlices.Count) return;
+            if (pizzaIndexes[i] > pizzaSlices.Count) return;
 
-            List<FoodMove> foodList = pizzaSlices[indexes[i]].FoodList;// リストをコピー
+            List<FoodMove> foodList = pizzaSlices[pizzaIndexes[i]].FoodList;// リストをコピー
             if (foodList.Count > 0)
             {
                 for (int j = foodList.Count - 1; j >= 0; j--)
                 {
                     // 消去処理、ポイント獲得処理等を書く
-                    Debug.Log(foodList[i].name);
-                    foodList[i].gameObject.SetActive(false);
+                    Debug.Log(foodList[j].Team);
+                    // ポイント増加処理
+                    AddScore(foodList[j]);
+
+                    foodList[j].gameObject.SetActive(false);
                 }
                 foodList.Clear();
             }
 
-            pizzaSlices[indexes[i]].gameObject.SetActive(false);// 仮の除去処理
-            pizzaSlices.RemoveAt(indexes[i]);// ピザのリストから除外
-            indexes.RemoveAt(i);
+            pizzaSlices[pizzaIndexes[i]].gameObject.SetActive(false);// 仮の除去処理
+            pizzaSlices.RemoveAt(pizzaIndexes[i]);// ピザのリストから除外
+            pizzaIndexes.RemoveAt(i);
+        }
+    }
 
-            // 残りのインデックスの指定がずれる場合の対策
-            //for(int j = i; j < indexes.Count; j++)
-            //{
-            //    if (indexes[j] > indexes[i]) indexes[j]--;// ピザのリストの削除分ずらす
-            //}
+    void AddScore(FoodMove food)
+    {
+        for(int i = 0; i < systemManager.Teams.Count; i++)
+        {
+            // 同じ色のチームにポイントを与える
+            if(food.Team == systemManager.Teams[i].Color)
+            {
+                systemManager.Teams[i].AddScore(food.ScorePoint);
+                return;// 与えたらそれ以降の処理は行わない
+            }
         }
     }
 

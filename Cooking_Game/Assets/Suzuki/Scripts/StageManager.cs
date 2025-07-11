@@ -51,7 +51,11 @@ public class StageManager : MonoBehaviour
         Vector3 lastPos;
         float magnification = 2f;// 係数
         public FoodMove FoodPrefab => foodPrefab;
+
+        // 具材を飛ばす力
         public float Power => basePower * magnification * calcRate(new Vector2(TrackPosition.x, TrackPosition.z));
+
+        // 指が離れてからの発射されるまでの猶予を設けつつ、離した位置を基準に生成や発射を行いたいため
         public Vector3 TrackPosition => lastPos;
         public Vector3 ShotDirection
         {
@@ -62,7 +66,9 @@ public class StageManager : MonoBehaviour
                 return direction;
             }
         }
+        // 動いているか
         public bool IsMoving => trackObject.transform.position != lastPos;
+
         // 最後の位置は動いた先で、オブジェクトが初期位置に戻ったときに真になる
         public bool Released => lastPos != startPos && trackObject.transform.position == startPos;
         public void SetStartPos()
@@ -100,14 +106,19 @@ public class StageManager : MonoBehaviour
     {
         for(int i = 0; i < trackObjects.Count; i++)
         {
+            // 指が離されて、発射されるとき
             if (trackObjects[i].Released)
             {
+                // 具材を生成して発射
                 SummonAndShotFood(trackObjects[i].FoodPrefab, trackObjects[i].TrackPosition + Vector3.up * 0.5f, trackObjects[i].ShotDirection, trackObjects[i].Power);
             }
             if(trackObjects[i].IsMoving)
             {
+                // 動かしているときのエフェクトを入れる予定
                 Debug.Log("moving");
             }
+
+            // ドラッグ位置の履歴を更新
             trackObjects[i].UpdateLastPosition();
         }
 
@@ -124,10 +135,12 @@ public class StageManager : MonoBehaviour
 
     public void SummonAndShotFood(FoodMove foodPrefab, Vector3 summonPosition, Vector3 shotDirection, float power)
     {
+        // 具材の生成
         GameObject food = Instantiate(foodPrefab.gameObject, summonPosition, Quaternion.identity);
         FoodMove move = food.GetComponent<FoodMove>();
 
-        move.AddForce(shotDirection, power);// 発射
+        // 発射
+        move.AddForce(shotDirection, power);
     }
 
     public void AddReflectList(Rigidbody myRb, Rigidbody opponentRb, float reflectRate)
@@ -182,7 +195,6 @@ public class StageManager : MonoBehaviour
         }
 
         // 速度をセット
-        //float multiplyPower = 3f;
         reflectInfo.FirstRb.velocity = firstVelocity;
         reflectInfo.SecondRb.velocity = secondVelocity;
     }
