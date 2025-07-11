@@ -36,8 +36,8 @@ public class BowControler : MonoBehaviour
     Vector3 arrowPos = shootPoint.position + pullDirection * pullDistance;
 
     // ▼ X軸の制限を追加（必要に応じて値を調整）
-    float minX = shootPoint.position.x - 2.0f;
-    float maxX = shootPoint.position.x + 2.0f;
+    float minX = shootPoint.position.x - 2.5f;
+    float maxX = shootPoint.position.x + 2.5f;
     arrowPos.x = Mathf.Clamp(arrowPos.x, minX, maxX);
 
      float minY = shootPoint.position.y - 5f;
@@ -69,9 +69,8 @@ public class BowControler : MonoBehaviour
     Vector3 rawDirection = (startMousePos - currentMousePos).normalized;
 
    Vector3 fixedDirection = Vector3.up;
-    rb.AddForce(fixedDirection * force, ForceMode.Impulse);
-
-   
+    rb.isKinematic = false;
+rb.AddForce(direction * force, ForceMode.Impulse);
 
    
 
