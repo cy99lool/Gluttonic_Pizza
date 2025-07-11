@@ -375,7 +375,7 @@ MonoBehaviour:
   arrowPrefab: {fileID: 1295740862}
   stringRenderer: {fileID: 1973940869}
   maxPullDistance: 3
-  maxForce: 30
+  maxForce: 20
 --- !u!114 &440679304
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -388,11 +388,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4858bd7865563242afc664b8048c879, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 50
+  rotationSpeed: 55
   minX: -5
   maxX: 5
-  minRotationZ: -130
-  maxRotationZ: -40
+  minRotationZ: -150
+  maxRotationZ: -30
 --- !u!1 &466527861
 GameObject:
   m_ObjectHideFlags: 0
@@ -1262,7 +1262,6 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: dd384afba21eb2f47a62000eafa85bca, type: 2}
-  - {fileID: 2100000, guid: 4314152c40b8280468f8cebb96cb2ec7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1319,11 +1318,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4858bd7865563242afc664b8048c879, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 50
+  rotationSpeed: 55
   minX: -5
   maxX: 5
-  minRotationZ: -130
-  maxRotationZ: -40
+  minRotationZ: -150
+  maxRotationZ: -30
 --- !u!1001 &1701426367
 PrefabInstance:
   m_ObjectHideFlags: 0
