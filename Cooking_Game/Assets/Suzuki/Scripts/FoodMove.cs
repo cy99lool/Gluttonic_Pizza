@@ -13,7 +13,11 @@ public class FoodMove : MonoBehaviour
     [Header("落下しないレイヤー"), SerializeField] LayerMask groundMask;
     [Header("ぶつかるレイヤー"), SerializeField] LayerMask hitMask;
     [Header("ぶつかったときの速度保持率"), Range(0f, 1f), SerializeField] float myReflectRate = 0.4f;
+
+    // ステータスとして他のクラスにまとめるかも（ポイントの倍率等を設定する場合もあるかも）
     [Header("チーム"), SerializeField] TeamColor team;
+    [Header("入手されるときのポイント"), SerializeField] int point = 10;
+    public int ScorePoint => point;
 
     StageManager stageManager;
     float eraseTimer = 0f;
@@ -58,7 +62,7 @@ public class FoodMove : MonoBehaviour
         else// 浮いているとき
         {
             // 親がピザなら親子づけを外す
-            if(CompareLayer(brakeMask, transform.parent.gameObject.layer))
+            if(transform.parent != null && CompareLayer(brakeMask, transform.parent.gameObject.layer))
             {
                 transform.parent = null;
             }
