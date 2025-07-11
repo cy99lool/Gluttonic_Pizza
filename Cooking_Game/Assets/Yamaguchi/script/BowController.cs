@@ -2,79 +2,54 @@ using UnityEngine;
 
 public class BowController : MonoBehaviour
 {
-    public Transform leftPoint;      // 弦の左端
-    public Transform rightPoint;     // 弦の右端
-    public Transform shootPoint;     // 矢の初期位置
-    public GameObject arrowPrefab;
-    public LineRenderer stringRenderer;
-    public float maxPullDistance = 2f;
-    public float maxForce = 30f;
-   
-    private GameObject currentArrow;
-    private bool isAiming = false;
-    private Vector3 startMousePos;
+    public float rotationSpeed = 5f; 
+    public float minX = -5f; // X移動範囲（左）
+    public float maxX = 5f;  // X移動範囲（右）
 
+    public float minRotationZ = -30f; // Z回転の最小角
+    public float maxRotationZ = 30f;  // Z回転の最大角
+
+   private bool isDragging = false;
+    private Vector3 lastMousePosition;
 
     void Update()
     {
+        // ←→キーによる移動
+        float move = Input.GetAxis("Horizontal") * 5f * Time.deltaTime;
+        float newPositionX = Mathf.Clamp(transform.position.x + move, minX, maxX);
+        transform.position = new Vector3(newPositionX, transform.position.y, transform.position.z);
+
+        // クリック開始でドラッグON
         if (Input.GetMouseButtonDown(0))
         {
-           startMousePos = GetMouseWorldPosition();
-            currentArrow = Instantiate(arrowPrefab, shootPoint.position, shootPoint.rotation);
-            currentArrow.GetComponent<Rigidbody>().isKinematic = true;
-            isAiming = true;
+            isDragging = true;
         }
 
-        if (Input.GetMouseButton(0) && isAiming)
+        // 離したらドラッグ終了
+        if (Input.GetMouseButtonUp(0))
         {
-            Vector3 currentMousePos = GetMouseWorldPosition();
-            float pullDistance = Mathf.Clamp(Vector3.Distance(startMousePos, currentMousePos), 0, maxPullDistance);
-            Vector3 pullDirection = (currentMousePos - startMousePos).normalized;
-            Vector3 arrowPos = shootPoint.position + pullDirection * pullDistance;
-
-            // 矢を動かす
-            currentArrow.transform.position = arrowPos;
-
-            // 弦の中央点を矢の位置に
-            UpdateStringRenderer(arrowPos);
+            isDragging = false;
         }
 
-        if (Input.GetMouseButtonUp(0) && isAiming)
+        // ★マウスドラッグ中はカーソル方向を向く
+        if (isDragging)
         {
-            Vector3 currentMousePos = GetMouseWorldPosition();
-            Vector3 direction = (startMousePos - currentMousePos).normalized;
-            float pullDistance = Mathf.Clamp(Vector3.Distance(startMousePos, currentMousePos), 0, maxPullDistance);
-            float force = (pullDistance / maxPullDistance) * maxForce;
+            Vector3 currentMousePosition = Input.mousePosition;
+            Vector3 delta = currentMousePosition - lastMousePosition;
 
-            Rigidbody rb = currentArrow.GetComponent<Rigidbody>();
-            rb.isKinematic = false;
-            rb.AddForce(direction * force, ForceMode.Impulse);
+            float rotateZ = delta.x * rotationSpeed * Time.deltaTime;
 
-            isAiming = false;
-            UpdateStringRenderer(shootPoint.position); // 弦を戻す
+            // 現在のZ角度を-180〜+180に変換
+            float currentZ = transform.localEulerAngles.z;
+            if (currentZ > 180f) currentZ -= 360f;
+
+            // 新しい角度に回転量を加える
+            float newZ = Mathf.Clamp(currentZ + rotateZ, minRotationZ, maxRotationZ);
+
+            // 回転を適用（XとYは変えずにZだけ）
+            transform.localEulerAngles = new Vector3(0f, 0f, newZ);
+
+            lastMousePosition = currentMousePosition;
         }
-
-        // 通常時は初期状態に
-        if (!isAiming && stringRenderer != null)
-        {
-            UpdateStringRenderer(shootPoint.position);
-        }
-    }
-
-    Vector3 GetMouseWorldPosition()
-    {
-        Vector3 mouseScreenPos = Input.mousePosition;
-        mouseScreenPos.z = 10f; // カメラからの距離に応じて調整
-        return Camera.main.ScreenToWorldPoint(mouseScreenPos);
-        
-    }
-
-    void UpdateStringRenderer(Vector3 centerPoint)
-    {
-        if (stringRenderer == null) return;
-        stringRenderer.positionCount = 3;
-        stringRenderer.SetPosition(0, leftPoint.position);
-        stringRenderer.SetPosition(1, centerPoint);
-        stringRenderer.SetPosition(2, rightPoint.position);
     }
 }
