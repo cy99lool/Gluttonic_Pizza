@@ -43,6 +43,7 @@ public class StageManager : MonoBehaviour
     {
         [Header("移動させるオブジェクト"), SerializeField] Transform trackObject;
         [Header("基準点"), SerializeField] Transform pivot;
+        [Header("方向を示す矢"), SerializeField] Transform arrow;
         [Header("食べ物"), SerializeField] FoodMove foodPrefab;
         [Header("伸ばせる最大距離"), SerializeField] float maxDistance = 7f;
         [SerializeField] float basePower = 20f;
@@ -68,7 +69,7 @@ public class StageManager : MonoBehaviour
             }
         }
         // ドラッグされているか
-        public bool IsDragging => trackObject.transform.position != startPos;
+        public bool IsDragging => TrackPosition != startPos;
 
         // 動いているか
         public bool IsMoving => trackObject.transform.position != lastPos;
@@ -83,6 +84,36 @@ public class StageManager : MonoBehaviour
         public void UpdateLastPosition()
         {
             lastPos = trackObject.position;
+        }
+        public void UpdateArrow()
+        {
+            // nullチェック
+            if (arrow == null) return;
+
+            // ドラッグされていないときは表示しない
+            if (!IsDragging && arrow.gameObject.activeSelf)
+            {
+                arrow.gameObject.SetActive(false);
+                return;
+            }
+
+            // ドラッグしているときの処理
+            if (IsDragging)
+            {
+                // オブジェクトを有効化
+                if (!arrow.gameObject.activeSelf) arrow.gameObject.SetActive(true);
+
+                // 移動させるオブジェクトと基準点との位置関係を計算し、距離によって大きさを変化させる
+                Vector3 pivotPosition = pivot.position;
+                pivotPosition.y = TrackPosition.y;
+
+                arrow.position = (TrackPosition + pivotPosition) / 2f;
+                arrow.LookAt(pivot.position);
+                arrow.eulerAngles = new Vector3(90f, arrow.eulerAngles.y, 0f);
+
+                float distance = ShotVector.magnitude;
+                arrow.localScale = new Vector3(0.5f + distance * distance * 0.01f, distance * 0.15f,1f);
+            }
         }
 
         float calcRate(Vector2 target)
@@ -100,7 +131,7 @@ public class StageManager : MonoBehaviour
 
     void Start()
     {
-        for(int i = 0; i < trackObjects.Count; i++)
+        for (int i = 0; i < trackObjects.Count; i++)
         {
             trackObjects[i].SetStartPos();
         }
@@ -108,7 +139,7 @@ public class StageManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        for(int i = 0; i < trackObjects.Count; i++)
+        for (int i = 0; i < trackObjects.Count; i++)
         {
             // 指が離されて、発射されるとき
             if (trackObjects[i].Released)
@@ -116,24 +147,25 @@ public class StageManager : MonoBehaviour
                 // 具材を生成して発射
                 SummonAndShotFood(trackObjects[i].FoodPrefab, trackObjects[i].TrackPosition + Vector3.up * 0.5f, trackObjects[i].ShotDirection, trackObjects[i].Power);
             }
-            if(trackObjects[i].IsMoving)
+            if (trackObjects[i].IsMoving)
             {
                 // 動かしているときのエフェクトを入れる予定
                 Debug.Log("moving");
             }
-            // ドラッグ中
-            if (trackObjects[i].IsDragging)
-            {
-                // 矢印の方向や距離のベクトルを求める（y軸方向は除く）
-                Vector3 arrowDirection = trackObjects[i].ShotVector;
-                arrowDirection.y = 0f;
+            // ドラッグ中の矢の表示
+            trackObjects[i].UpdateArrow();
+            //if (trackObjects[i].IsDragging)
+            //{
+            //    //// 矢印の方向や距離のベクトルを求める（y軸方向は除く）
+            //    //Vector3 arrowDirection = trackObjects[i].ShotVector;
+            //    //arrowDirection.y = 0f;
 
-                // 矢印を変形
-                if(arrowDirection != Vector3.zero)
-                {
-                    
-                }
-            }
+            //    //// 矢印を変形
+            //    //if(arrowDirection != Vector3.zero)
+            //    //{
+
+            //    //}
+            //}
 
             // ドラッグ位置の履歴を更新
             trackObjects[i].UpdateLastPosition();
