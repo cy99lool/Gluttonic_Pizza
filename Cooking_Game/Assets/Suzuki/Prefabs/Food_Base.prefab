@@ -225,7 +225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myRb: {fileID: 4620713960909046799}
   gravity: 9.8
-  brakeRate: 1.6
+  brakeRate: 1.8
   onGroundDistance: 0.15
   eraseLimit: 5
   brakeMask:
@@ -238,3 +238,5 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   myReflectRate: 0.1
+  team: 0
+  point: 10

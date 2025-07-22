@@ -1039,14 +1039,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
-    ip: 192.168.100.22
+    ip: 192.168.100.34
     port: 3001
     trackObject: {fileID: 6997102}
   clients:
-  - ip: 192.168.100.68
+  - ip: 192.168.100.79
     port: 3000
     trackObject: {fileID: 0}
-  disconnectThreshold: 3
+  disconnectThreshold: 30
   connectedPlayerInfos: []
 --- !u!1 &65243706
 GameObject:
@@ -5000,7 +5000,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 279535855}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.682937, y: 1.5529753, z: -3.507033}
+  m_LocalPosition: {x: 0, y: -9.48, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7886,7 +7886,7 @@ MonoBehaviour:
   - {fileID: 451519604}
   - {fileID: 1303400099}
   - {fileID: 1301756388}
-  rotateSpeed: 60
+  rotateSpeed: 15
 --- !u!114 &415189332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14001,24 +14001,32 @@ MonoBehaviour:
   - trackObject: {fileID: 6997103}
     pivot: {fileID: 986397676}
     arrow: {fileID: 1243914858}
+    minArrowWidth: 0.1
+    pullMangification: {x: 0.02, y: 0.15}
     foodPrefab: {fileID: 5684258986778013307, guid: d3fd9edc3ea8e774193e61c5ad83c6c0, type: 3}
     maxDistance: 10
     basePower: 28
   - trackObject: {fileID: 1096351118}
     pivot: {fileID: 805130839}
     arrow: {fileID: 575740708}
+    minArrowWidth: 0.5
+    pullMangification: {x: 0.01, y: 0.15}
     foodPrefab: {fileID: 3949030792826219947, guid: 360f37e0bed78534696b5cfdcd5fd9d3, type: 3}
     maxDistance: 10
     basePower: 28
   - trackObject: {fileID: 1060310169}
     pivot: {fileID: 1937847803}
     arrow: {fileID: 391263063}
+    minArrowWidth: 0.5
+    pullMangification: {x: 0.01, y: 0.15}
     foodPrefab: {fileID: 6233611762627735857, guid: 6d4e5be54a7f0284c9a17ce9ae4a1303, type: 3}
     maxDistance: 10
     basePower: 28
   - trackObject: {fileID: 1241167012}
     pivot: {fileID: 1546358861}
     arrow: {fileID: 1437723871}
+    minArrowWidth: 0.5
+    pullMangification: {x: 0.01, y: 0.15}
     foodPrefab: {fileID: 3485552272632286255, guid: 81f687e56e5aed4499dfbfaf145cc44f, type: 3}
     maxDistance: 10
     basePower: 28
@@ -15504,11 +15512,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
-    ip: 192.168.100.68
+    ip: 192.168.100.79
     port: 3000
     trackObject: {fileID: 0}
   clients:
-  - ip: 192.168.100.22
+  - ip: 192.168.100.34
     port: 3001
     trackObject: {fileID: 6997102}
   - ip: 192.168.100.97
@@ -15707,10 +15715,10 @@ MonoBehaviour:
     port: 3004
     trackObject: {fileID: 1241167008}
   clients:
-  - ip: 192.168.100.68
+  - ip: 192.168.100.79
     port: 3000
     trackObject: {fileID: 0}
-  disconnectThreshold: 3
+  disconnectThreshold: 30
   connectedPlayerInfos: []
 --- !u!1 &937749270
 GameObject:
@@ -22083,10 +22091,10 @@ MonoBehaviour:
     port: 3002
     trackObject: {fileID: 1096351114}
   clients:
-  - ip: 192.168.100.68
+  - ip: 192.168.100.79
     port: 3000
     trackObject: {fileID: 0}
-  disconnectThreshold: 3
+  disconnectThreshold: 30
   connectedPlayerInfos: []
 --- !u!1 &1245319907
 GameObject:
@@ -33396,10 +33404,10 @@ MonoBehaviour:
     port: 3003
     trackObject: {fileID: 1060310165}
   clients:
-  - ip: 192.168.100.68
+  - ip: 192.168.100.79
     port: 3000
     trackObject: {fileID: 0}
-  disconnectThreshold: 3
+  disconnectThreshold: 30
   connectedPlayerInfos: []
 --- !u!1 &2023864673
 GameObject:

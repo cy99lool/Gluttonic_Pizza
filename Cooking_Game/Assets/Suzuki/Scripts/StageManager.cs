@@ -43,7 +43,10 @@ public class StageManager : MonoBehaviour
     {
         [Header("移動させるオブジェクト"), SerializeField] Transform trackObject;
         [Header("基準点"), SerializeField] Transform pivot;
+
         [Header("方向を示す矢"), SerializeField] Transform arrow;
+        [Header("矢の太さ(最小)"), SerializeField] float minArrowWidth = 0.5f;
+        [Header("引っ張った距離に応じてサイズにかける倍率"), SerializeField] Vector2 pullMangification = new Vector2(0.01f, 0.15f);
         [Header("食べ物"), SerializeField] FoodMove foodPrefab;
         [Header("伸ばせる最大距離"), SerializeField] float maxDistance = 7f;
         [SerializeField] float basePower = 20f;
@@ -100,19 +103,21 @@ public class StageManager : MonoBehaviour
             // ドラッグしているときの処理
             if (IsDragging)
             {
-                // オブジェクトを有効化
+                // 矢を有効化
                 if (!arrow.gameObject.activeSelf) arrow.gameObject.SetActive(true);
 
-                // 移動させるオブジェクトと基準点との位置関係を計算し、距離によって大きさを変化させる
                 Vector3 pivotPosition = pivot.position;
                 pivotPosition.y = TrackPosition.y;
 
+                // 移動させるオブジェクトと基準点との位置関係を計算し、距離によって矢の大きさを変化させる
                 arrow.position = (TrackPosition + pivotPosition) / 2f;
                 arrow.LookAt(pivot.position);
                 arrow.eulerAngles = new Vector3(90f, arrow.eulerAngles.y, 0f);
 
+                // 引っ張られた距離に応じてサイズを変える
                 float distance = ShotVector.magnitude;
-                arrow.localScale = new Vector3(0.5f + distance * distance * 0.01f, distance * 0.15f,1f);
+                // 横幅を距離の二乗で急激に大きくする（強く引っ張っているイメージ）
+                arrow.localScale = new Vector3(minArrowWidth + distance * distance * pullMangification.x, distance * pullMangification.y,1f);
             }
         }
 
