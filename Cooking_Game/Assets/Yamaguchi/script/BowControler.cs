@@ -11,6 +11,7 @@ public class BowControler : MonoBehaviour
     public float maxForce = 30f;
     
     private GameObject currentArrow;
+    private GameObject arrowEffect;
     private bool isAiming = false;
     private Vector3 startMousePos;
    
@@ -26,6 +27,9 @@ public class BowControler : MonoBehaviour
             currentArrow.GetComponent<Rigidbody>().isKinematic = true;
             isAiming = true;
             
+            arrowEffect = currentArrow.transform.Find("ArrowEffect")?.gameObject;
+    if (arrowEffect != null) arrowEffect.SetActive(true); // 表示開始
+
         }
 
         if (Input.GetMouseButton(0) && isAiming)
@@ -36,8 +40,8 @@ public class BowControler : MonoBehaviour
     Vector3 arrowPos = shootPoint.position + pullDirection * pullDistance;
 
     // ▼ X軸の制限を追加（必要に応じて値を調整）
-    float minX = shootPoint.position.x - 2.0f;
-    float maxX = shootPoint.position.x + 2.0f;
+    float minX = shootPoint.position.x - 2.5f;
+    float maxX = shootPoint.position.x + 2.5f;
     arrowPos.x = Mathf.Clamp(arrowPos.x, minX, maxX);
 
      float minY = shootPoint.position.y - 5f;
@@ -69,14 +73,17 @@ public class BowControler : MonoBehaviour
     Vector3 rawDirection = (startMousePos - currentMousePos).normalized;
 
    Vector3 fixedDirection = Vector3.up;
-    rb.AddForce(fixedDirection * force, ForceMode.Impulse);
-
-   
+    rb.isKinematic = false;
+rb.AddForce(direction * force, ForceMode.Impulse);
 
    
 
             isAiming = false;
             UpdateStringRenderer(shootPoint.position); // 弦を戻す
+
+            if (arrowEffect != null) arrowEffect.SetActive(false);
+
+           
         }
 
         // 通常時は初期状態に
@@ -102,5 +109,7 @@ public class BowControler : MonoBehaviour
         stringRenderer.SetPosition(1, centerPoint);
         stringRenderer.SetPosition(2, rightPoint.position);
     }
+    
+   
 
 }

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: aiStandardSurface5
+  m_Name: SASASA1
   m_Shader: {fileID: 4800000, guid: efa77a80ca0344749b4f19fdd5891cbe, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
@@ -49,11 +49,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseColorMap:
-        m_Texture: {fileID: 2800000, guid: 00ca9052f9df33a49a82a37719958851, type: 3}
+        m_Texture: {fileID: 2800000, guid: e4d77e24ad7dbd249af6b2bbcebd3413, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 00ca9052f9df33a49a82a37719958851, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Bump2ndMap:
@@ -65,18 +65,6 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailAlbedoMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailMask:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailNormalMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -165,7 +153,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 00ca9052f9df33a49a82a37719958851, type: 3}
+        m_Texture: {fileID: 2800000, guid: e4d77e24ad7dbd249af6b2bbcebd3413, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MatCap2ndBlendMask:
@@ -193,10 +181,6 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -257,10 +241,6 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SmoothnessTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _SpecGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -354,7 +334,6 @@ Material:
     - _ColorMask: 15
     - _Cull: 2
     - _Cutoff: 0.5
-    - _DetailNormalMapScale: 1
     - _DissolveNoiseStrength: 0.1
     - _DistanceFadeMode: 0
     - _DistanceFadeRimFresnelPower: 5
@@ -396,9 +375,6 @@ Material:
     - _GlitterShadowMask: 0
     - _GlitterUVMode: 0
     - _GlitterVRParallaxStrength: 0
-    - _GlossMapScale: 1
-    - _Glossiness: 1
-    - _GlossyReflections: 1
     - _IDMask1: 0
     - _IDMask2: 0
     - _IDMask3: 0
@@ -489,9 +465,7 @@ Material:
     - _MatCapVRParallaxStrength: 1
     - _MatCapZRotCancel: 1
     - _Metallic: 0
-    - _Mode: 0
     - _MonochromeLighting: 0
-    - _OcclusionStrength: 1
     - _OffsetFactor: 0
     - _OffsetUnits: 0
     - _OutlineAlphaToMask: 0
@@ -508,7 +482,7 @@ Material:
     - _OutlineDstBlendAlphaFA: 1
     - _OutlineDstBlendFA: 1
     - _OutlineEnableLighting: 1
-    - _OutlineFixWidth: 0
+    - _OutlineFixWidth: 0.5
     - _OutlineLitApplyTex: 0
     - _OutlineLitOffset: -8
     - _OutlineLitScale: 10
@@ -526,10 +500,10 @@ Material:
     - _OutlineStencilRef: 0
     - _OutlineStencilWriteMask: 255
     - _OutlineStencilZFail: 0
-    - _OutlineVectorScale: 0
+    - _OutlineVectorScale: 1
     - _OutlineVectorUVMode: 0
     - _OutlineVertexR2Width: 0
-    - _OutlineWidth: 3
+    - _OutlineWidth: 0.08
     - _OutlineZBias: 0
     - _OutlineZClip: 1
     - _OutlineZTest: 2
@@ -572,7 +546,7 @@ Material:
     - _Shadow3rdReceive: 0
     - _ShadowBlur: 0.1
     - _ShadowBlurMaskLOD: 0
-    - _ShadowBorder: 0
+    - _ShadowBorder: 0.5
     - _ShadowBorderMaskLOD: 0
     - _ShadowBorderRange: 0.08
     - _ShadowColorType: 0
@@ -588,10 +562,8 @@ Material:
     - _ShadowStrengthMaskLOD: 0
     - _ShiftBackfaceUV: 0
     - _Smoothness: 1
-    - _SmoothnessTextureChannel: 0
     - _SpecularBlur: 0
     - _SpecularBorder: 0.5
-    - _SpecularHighlights: 1
     - _SpecularNormalStrength: 1
     - _SpecularToon: 1
     - _SrcBlend: 1
@@ -630,7 +602,6 @@ Material:
     - _UDIMDiscardRow3_2: 0
     - _UDIMDiscardRow3_3: 0
     - _UDIMDiscardUV: 0
-    - _UVSec: 0
     - _UseAnisotropy: 0
     - _UseAudioLink: 0
     - _UseBacklight: 0
@@ -691,7 +662,7 @@ Material:
     - _Emission2ndMap_ScrollRotate: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionBlendMask_ScrollRotate: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionBlink: {r: 0, g: 0, b: 3.141593, a: 0}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionMap_ScrollRotate: {r: 0, g: 0, b: 0, a: 0}
     - _GlitterAtras: {r: 1, g: 1, b: 0, a: 0}
     - _GlitterColor: {r: 1, g: 1, b: 1, a: 1}
@@ -721,9 +692,9 @@ Material:
     - _MatCap2ndColor: {r: 1, g: 1, b: 1, a: 1}
     - _MatCapBlendUV1: {r: 0, g: 0, b: 0, a: 0}
     - _MatCapColor: {r: 1, g: 1, b: 1, a: 1}
-    - _OutlineColor: {r: 0.3056603, g: 0.16782479, b: 0.16782479, a: 1}
-    - _OutlineLitColor: {r: 1, g: 0.68754715, b: 0.6094339, a: 0}
-    - _OutlineTexHSVG: {r: 0, g: 1, b: 1, a: 1.06}
+    - _OutlineColor: {r: 0.6, g: 0.56, b: 0.73, a: 1}
+    - _OutlineLitColor: {r: 1, g: 0.19999996, b: 0, a: 0}
+    - _OutlineTexHSVG: {r: 0, g: 1, b: 1, a: 1}
     - _OutlineTex_ScrollRotate: {r: 0, g: 0, b: 0, a: 0}
     - _ReflectionColor: {r: 1, g: 1, b: 1, a: 1}
     - _ReflectionCubeColor: {r: 0, g: 0, b: 0, a: 1}
@@ -735,7 +706,7 @@ Material:
     - _ShadowAOShift: {r: 1, g: 0, b: 1, a: 0}
     - _ShadowAOShift2: {r: 1, g: 0, b: 1, a: 0}
     - _ShadowBorderColor: {r: 1, g: 0.09999997, b: 0, a: 1}
-    - _ShadowColor: {r: 0.30588236, g: 0.16862746, b: 0.16862746, a: 1}
+    - _ShadowColor: {r: 0.82, g: 0.76, b: 0.85, a: 1}
     - _e2ga0: {r: 1, g: 0, b: 0, a: 0}
     - _e2ga1: {r: 1, g: 0, b: 0, a: 1}
     - _e2ga2: {r: 1, g: 0, b: 0, a: 0}
