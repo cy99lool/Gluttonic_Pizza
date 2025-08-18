@@ -104,7 +104,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2166231600215395804}
-  m_Mesh: {fileID: -1581987013080850447, guid: 64b5595862b56b24981653cbb7b3ff52, type: 3}
+  m_Mesh: {fileID: -1581987013080850447, guid: a327c787793a8944989a6b1d934dc9bb, type: 3}
 --- !u!23 &52805704466794490
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -237,6 +237,6 @@ MonoBehaviour:
   hitMask:
     serializedVersion: 2
     m_Bits: 256
-  myReflectRate: 0.1
+  myReflectRate: 90
   team: 0
   point: 10

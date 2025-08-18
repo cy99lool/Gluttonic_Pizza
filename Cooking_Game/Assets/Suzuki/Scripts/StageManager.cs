@@ -7,57 +7,72 @@ public class StageManager : MonoBehaviour
     [System.Serializable]
     class InfoForReflect
     {
-        Rigidbody firstRb;
-        Rigidbody secondRb;
-        float reflectRate;
-
-        public Rigidbody FirstRb => firstRb;
-        public Rigidbody SecondRb => secondRb;
-        public float ReflectRate => reflectRate;
-
-        public InfoForReflect(Rigidbody firstRb, Rigidbody secondRb, float reflectRate)
+        public class FoodReflectInfo
         {
-            this.firstRb = firstRb;
-            this.secondRb = secondRb;
-            this.reflectRate = reflectRate;
+            Rigidbody rb;
+            public Rigidbody Rigidbody => rb;
+
+            float reflectRate;
+            public float ReflectRate => reflectRate;
+
+            public FoodReflectInfo(Rigidbody rb, float reflectRate)
+            {
+                this.rb = rb;
+                this.reflectRate = reflectRate;
+            }
         }
+
+        FoodReflectInfo first;
+        public FoodReflectInfo First => first;
+
+        FoodReflectInfo second;
+        public FoodReflectInfo Second => second;
+
+        public InfoForReflect(Rigidbody firstRb, float firstReflectRate, Rigidbody secondRb, float secondReflectRate)
+        {
+            first = new FoodReflectInfo(firstRb, firstReflectRate);
+            second = new FoodReflectInfo(secondRb, secondReflectRate);
+        }
+
         /// <summary>
         /// 同じ情報かを確かめる（順番が違うだけのものも同じとする）
         /// </summary>
         public bool IsSame(Rigidbody firstRb, Rigidbody secondRb)
         {
-            if (firstRb == this.firstRb || firstRb == this.secondRb) return true;
-            if (secondRb == this.firstRb || secondRb == this.secondRb) return true;
+            if (firstRb == this.first.Rigidbody || firstRb == this.second.Rigidbody) return true;
+            if (secondRb == this.first.Rigidbody || secondRb == this.second.Rigidbody) return true;
 
             return false;
-        }
-        // 反射レートを設定（現状大小を比較して反射率の小さい方に設定している）
-        public void SetReflectRate(float rate)
-        {
-            reflectRate = reflectRate >= rate ? rate : reflectRate;
         }
     }
 
     [System.Serializable]
     class TrackObject
     {
+        const float Magnification = 2f;// 係数
+
         [Header("移動させるオブジェクト"), SerializeField] Transform trackObject;
         [Header("基準点"), SerializeField] Transform pivot;
+        public Vector3 PivotPos => pivot.position;
 
-        [Header("方向を示す矢"), SerializeField] Transform arrow;
+        [Header("弓"), SerializeField] Transform bow;
+        [Header("弦と矢のコントローラー"), SerializeField] BowControler bowStringController;
+        public BowControler BowStringController => bowStringController;
+
+        [Header("方向を示す矢"), SerializeField] Transform directionArrow;
         [Header("矢の太さ(最小)"), SerializeField] float minArrowWidth = 0.5f;
         [Header("引っ張った距離に応じてサイズにかける倍率"), SerializeField] Vector2 pullMangification = new Vector2(0.01f, 0.15f);
-        [Header("食べ物"), SerializeField] FoodMove foodPrefab;
         [Header("伸ばせる最大距離"), SerializeField] float maxDistance = 7f;
         [SerializeField] float basePower = 20f;
 
         Vector3 startPos;
         Vector3 lastPos;
-        float magnification = 2f;// 係数
-        public FoodMove FoodPrefab => foodPrefab;
+        CursorInfo cursorInfo;
+        public CursorInfo Cursor => cursorInfo;
+        public FoodMove FoodPrefab => cursorInfo.Food;
 
         // 具材を飛ばす力
-        public float Power => basePower * magnification * calcRate(new Vector2(TrackPosition.x, TrackPosition.z));
+        public float Power => basePower * Magnification * calcRate(new Vector2(TrackPosition.x, TrackPosition.z));
 
         // 指が離れてからの発射されるまでの猶予を設けつつ、離した位置を基準に生成や発射を行いたいため
         public Vector3 TrackPosition => lastPos;
@@ -84,6 +99,10 @@ public class StageManager : MonoBehaviour
             startPos = trackObject.position;
             lastPos = startPos;
         }
+        public void SetCursorInfo()
+        {
+            cursorInfo = trackObject.GetComponent<CursorInfo>();// 取得
+        }
         public void UpdateLastPosition()
         {
             lastPos = trackObject.position;
@@ -91,33 +110,45 @@ public class StageManager : MonoBehaviour
         public void UpdateArrow()
         {
             // nullチェック
-            if (arrow == null) return;
+            if (directionArrow == null) return;
 
             // ドラッグされていないときは表示しない
-            if (!IsDragging && arrow.gameObject.activeSelf)
+            if (!IsDragging && directionArrow.gameObject.activeSelf)
             {
-                arrow.gameObject.SetActive(false);
+                directionArrow.gameObject.SetActive(false);// 方向を示す矢を無効化
                 return;
             }
 
             // ドラッグしているときの処理
             if (IsDragging)
             {
-                // 矢を有効化
-                if (!arrow.gameObject.activeSelf) arrow.gameObject.SetActive(true);
+                // 引き始め
+                if (!directionArrow.gameObject.activeSelf)
+                {
+                    directionArrow.gameObject.SetActive(true);// 方向を示す矢を有効化
+                    bowStringController.StartAim();// 弦を引っ張り始める
+                }
 
                 Vector3 pivotPosition = pivot.position;
                 pivotPosition.y = TrackPosition.y;
 
                 // 移動させるオブジェクトと基準点との位置関係を計算し、距離によって矢の大きさを変化させる
-                arrow.position = (TrackPosition + pivotPosition) / 2f;
-                arrow.LookAt(pivot.position);
-                arrow.eulerAngles = new Vector3(90f, arrow.eulerAngles.y, 0f);
+                directionArrow.position = (TrackPosition + pivotPosition) / 2f;
+                directionArrow.LookAt(pivot.position);
+                directionArrow.eulerAngles = new Vector3(90f, directionArrow.eulerAngles.y, 0f);
 
                 // 引っ張られた距離に応じてサイズを変える
                 float distance = ShotVector.magnitude;
                 // 横幅を距離の二乗で急激に大きくする（強く引っ張っているイメージ）
-                arrow.localScale = new Vector3(minArrowWidth + distance * distance * pullMangification.x, distance * pullMangification.y,1f);
+                directionArrow.localScale = new Vector3(minArrowWidth + distance * distance * pullMangification.x, distance * pullMangification.y, 1f);
+
+                // 弓の回転(現在は360度回転できる、気になるようなら方向を示す矢の回転の段階で角度を制限)
+                Vector3 eulerAngles = directionArrow.eulerAngles;
+                eulerAngles.y += 90f;
+                bow.eulerAngles = eulerAngles;
+
+                // 弦の更新(離されていないとき)
+                if (!Released) bowStringController.Aim(TrackPosition);
             }
         }
 
@@ -131,6 +162,8 @@ public class StageManager : MonoBehaviour
         }
     }
 
+    const float BaseKeepReflectSpeedRate = 100f;// 反射時の勢いにかける数、普段は100%までの勢い保持率でいいはず
+
     [SerializeField] List<TrackObject> trackObjects = new List<TrackObject>();
     [SerializeField] List<InfoForReflect> reflectList = new List<InfoForReflect>();
 
@@ -139,6 +172,7 @@ public class StageManager : MonoBehaviour
         for (int i = 0; i < trackObjects.Count; i++)
         {
             trackObjects[i].SetStartPos();
+            trackObjects[i].SetCursorInfo();
         }
     }
 
@@ -150,7 +184,13 @@ public class StageManager : MonoBehaviour
             if (trackObjects[i].Released)
             {
                 // 具材を生成して発射
-                SummonAndShotFood(trackObjects[i].FoodPrefab, trackObjects[i].TrackPosition + Vector3.up * 0.5f, trackObjects[i].ShotDirection, trackObjects[i].Power);
+                SummonAndShotFood(trackObjects[i].FoodPrefab, trackObjects[i].TrackPosition + Vector3.up * 0.5f, trackObjects[i].ShotDirection, trackObjects[i].PivotPos, trackObjects[i].Power);
+
+                // 弦の引き絞りを終了
+                trackObjects[i].BowStringController.EndAim(trackObjects[i].TrackPosition);
+
+                // 発射可能状況の制御
+                trackObjects[i].Cursor.OnShoot();
             }
             if (trackObjects[i].IsMoving)
             {
@@ -159,18 +199,6 @@ public class StageManager : MonoBehaviour
             }
             // ドラッグ中の矢の表示
             trackObjects[i].UpdateArrow();
-            //if (trackObjects[i].IsDragging)
-            //{
-            //    //// 矢印の方向や距離のベクトルを求める（y軸方向は除く）
-            //    //Vector3 arrowDirection = trackObjects[i].ShotVector;
-            //    //arrowDirection.y = 0f;
-
-            //    //// 矢印を変形
-            //    //if(arrowDirection != Vector3.zero)
-            //    //{
-
-            //    //}
-            //}
 
             // ドラッグ位置の履歴を更新
             trackObjects[i].UpdateLastPosition();
@@ -187,38 +215,43 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    public void SummonAndShotFood(FoodMove foodPrefab, Vector3 summonPosition, Vector3 shotDirection, float power)
+    public void SummonAndShotFood(FoodMove foodPrefab, Vector3 summonPosition, Vector3 shotDirection, Vector3 pivotPos, float power)
     {
         // 具材の生成
         GameObject food = Instantiate(foodPrefab.gameObject, summonPosition, Quaternion.identity);
         FoodMove move = food.GetComponent<FoodMove>();
 
+        // 発射する方を向かせる
+        food.transform.LookAt(pivotPos);
+
         // 発射
         move.AddForce(shotDirection, power);
     }
 
-    public void AddReflectList(Rigidbody myRb, Rigidbody opponentRb, float reflectRate)
+    public void AddReflectList(FoodMove self, FoodMove opponent)
     {
         // リストに何も無ければ追加
         if (reflectList.Count == 0)
         {
-            reflectList.Add(new InfoForReflect(myRb, opponentRb, reflectRate));
+            reflectList.Add(new InfoForReflect(self.Rigidbody, self.ReflectRate, opponent.Rigidbody, opponent.ReflectRate));
             return;
         }
         // リストにすでに入っているとき
         foreach (InfoForReflect reflect in reflectList)
         {
             // リストに含まれているものでなければ追加
-            if (!reflect.IsSame(myRb, opponentRb))
+            if (!reflect.IsSame(self.Rigidbody, opponent.Rigidbody))
             {
-                reflectList.Add(new InfoForReflect(myRb, opponentRb, reflectRate));// 追加
+                reflectList.Add(new InfoForReflect(self.Rigidbody, self.ReflectRate, opponent.Rigidbody, opponent.ReflectRate));// 追加
                 return;
             }
-            if (reflect.IsSame(myRb, opponentRb) && reflect.ReflectRate != reflectRate)
-            {
-                reflect.SetReflectRate(reflectRate);// 現在反射レートの小さい方に設定される、高反発なものがあるなら計算方法を変える
-                return;
-            }
+
+            // 両者の反射時速度維持率を取得するようにしたため、必要ない可能性がある
+            //if (reflect.IsSame(myRb, opponentRb) && reflect.ReflectRate != reflectRate)
+            //{
+            //    reflect.SetReflectRate(reflectRate);// 現在反射レートの小さい方に設定される、高反発なものがあるなら計算方法を変える
+            //    return;
+            //}
         }
     }
 
@@ -227,29 +260,111 @@ public class StageManager : MonoBehaviour
     /// </summary>
     void Reflect(InfoForReflect reflectInfo)
     {
-        Rigidbody baseRb = reflectInfo.FirstRb.velocity.magnitude >= reflectInfo.SecondRb.velocity.magnitude ?
-            reflectInfo.FirstRb : reflectInfo.SecondRb;
-        Vector3 baseVelocity = baseRb.velocity;
+        Rigidbody baseRb = reflectInfo.First.Rigidbody.velocity.magnitude >= reflectInfo.Second.Rigidbody.velocity.magnitude ?
+            reflectInfo.First.Rigidbody : reflectInfo.Second.Rigidbody;
+        //Vector3 baseVelocity = baseRb.velocity;
 
+        Vector3 baseVelocity = reflectInfo.First.Rigidbody.velocity + reflectInfo.Second.Rigidbody.velocity;// お互いの勢いを足す
+
+        // 勢いを計算しやすいように変換
+        baseVelocity /= BaseKeepReflectSpeedRate;// 後で食材ごとに%を変換しないで済むようにしている
         baseVelocity.y = 0f;// y方向の力は必要ないので無くしておく
 
         Vector3 firstVelocity = Vector3.zero;
         Vector3 secondVelocity = Vector3.zero;
 
-        //それぞれの勢いの設定
-        if (baseRb == reflectInfo.FirstRb)
+        // それぞれの勢いの設定
+        if (baseRb == reflectInfo.First.Rigidbody)
         {
-            firstVelocity = baseVelocity * -reflectInfo.ReflectRate;// 反射レートに応じた勢い
-            secondVelocity = baseVelocity * (1 - reflectInfo.ReflectRate);// 反射した残りの勢い
+            firstVelocity = baseVelocity * -reflectInfo.First.ReflectRate;
+            secondVelocity = baseVelocity * reflectInfo.Second.ReflectRate;
         }
         else
         {
-            firstVelocity = baseVelocity * (1 - reflectInfo.ReflectRate);// 反射レートに応じた勢い
-            secondVelocity = baseVelocity * -reflectInfo.ReflectRate;// 反射した残りの勢い
+            firstVelocity = baseVelocity * reflectInfo.First.ReflectRate;
+            secondVelocity = baseVelocity * -reflectInfo.Second.ReflectRate;
         }
 
-        // 速度をセット
-        reflectInfo.FirstRb.velocity = firstVelocity;
-        reflectInfo.SecondRb.velocity = secondVelocity;
+        //それぞれの勢いの設定
+        //if (baseRb == reflectInfo.FirstRb)
+        //{
+        //    firstVelocity = baseVelocity * -reflectInfo.ReflectRate;// 反射レートに応じた勢い
+        //    secondVelocity = baseVelocity * (1 - reflectInfo.ReflectRate);// 反射した残りの勢い
+        //}
+        //else
+        //{
+        //    firstVelocity = baseVelocity * (1 - reflectInfo.ReflectRate);// 反射レートに応じた勢い
+        //    secondVelocity = baseVelocity * -reflectInfo.ReflectRate;// 反射した残りの勢い
+        //}
+
+        // 速度を加算
+        reflectInfo.First.Rigidbody.velocity += firstVelocity;
+        reflectInfo.Second.Rigidbody.velocity += secondVelocity;
+    }
+
+    /// <summary>
+    /// アイテム獲得時、獲得したチームがパワーアップ可能に
+    /// </summary>
+    /// <param name="item">取得されたアイテム</param>
+    /// <param name="acquirer">獲得者</param>
+    public void OnAcquireItem(FieldItem item, FoodMove acquirer)
+    {
+        foreach (TrackObject trackObject in trackObjects)
+        {
+            if (trackObject.Cursor.Team == acquirer.Team)// 取得したチームを見つける
+            {
+                trackObject.Cursor.SetModeFlag(item.Mode);// 移行可能なモードに追加
+                Destroy(item.gameObject);// フィールドからアイテムを削除
+            }
+        }
+    }
+
+    public void FoodGrow(CursorInfo cursor)
+    {
+        // 大きさ強化切り替え（溜まっていたら）
+        if (!cursor.CanBig) return;
+
+        // 巨大化以外のとき（大きくする）
+        if (cursor.FoodMode != CursorInfo.Mode.Big) ChangeBigFood(cursor);
+
+        // 巨大化時（元に戻す）
+        else if (cursor.FoodMode == CursorInfo.Mode.Big) RevertToNormal(cursor);
+    }
+
+
+    public void FoodChangeBomb(CursorInfo cursor)
+    {
+        // 爆弾強化切り替え（溜まっていたら）
+        if (!cursor.CanBomb) return;
+
+        // 爆弾以外のとき（爆弾に変える）
+        if (cursor.FoodMode != CursorInfo.Mode.Bomb) ChangeBomb(cursor);
+
+        // 爆弾時（元に戻す）
+        else if (cursor.FoodMode == CursorInfo.Mode.Bomb) RevertToNormal(cursor);
+    }
+
+    /// <summary>
+    /// 巨大化させる
+    /// </summary>
+    void ChangeBigFood(CursorInfo cursor)
+    {
+        Debug.Log("巨大化");
+        cursor.SetMode(CursorInfo.Mode.Big);
+    }
+
+    /// <summary>
+    /// 通常時の状態に戻す
+    /// </summary>
+    void RevertToNormal(CursorInfo cursor)
+    {
+        Debug.Log("通常に戻る");
+        cursor.SetMode(CursorInfo.Mode.Normal);
+    }
+
+    void ChangeBomb(CursorInfo cursor)
+    {
+        Debug.Log("爆弾化");
+        cursor.SetMode(CursorInfo.Mode.Bomb);
     }
 }
