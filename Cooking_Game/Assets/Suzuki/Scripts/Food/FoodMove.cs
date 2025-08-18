@@ -4,15 +4,20 @@ using UnityEngine;
 
 public class FoodMove : MonoBehaviour
 {
-    [SerializeField]Rigidbody myRb;
-    [Header("重力"), SerializeField] float gravity = 0.98f;
-    [Header("一秒あたりの減速率"), SerializeField] float brakeRate = 0.4f;
-    [Header("地面についている判定の距離"), SerializeField] float onGroundDistance = 0.2f;
+    const float BreakThreshold = 0.01f;
+
+    [SerializeField] Rigidbody myRb;
+    public Rigidbody Rigidbody => myRb;
+
+    [Header("重力"), SerializeField] float gravity = 9.8f;
+    [Header("一秒あたりの減速率"), SerializeField] float brakeRate = 1.8f;
+    [Header("地面についている判定の距離"), SerializeField] float onGroundDistance = 0.15f;
     [Header("消えるまでの時間"), SerializeField] float eraseLimit = 5f;
     [Header("ブレーキをかけるレイヤー"), SerializeField] LayerMask brakeMask;
     [Header("落下しないレイヤー"), SerializeField] LayerMask groundMask;
     [Header("ぶつかるレイヤー"), SerializeField] LayerMask hitMask;
-    [Header("ぶつかったときの速度保持率"), Range(0f, 1f), SerializeField] float myReflectRate = 0.4f;
+    [Header("ぶつかったときの反射率（%）"), Range(0f, 100f), SerializeField] float myReflectRate = 90f;
+    public float ReflectRate => myReflectRate;
 
     // ステータスとして他のクラスにまとめるかも（ポイントの倍率等を設定する場合もあるかも）
     [Header("チーム"), SerializeField] TeamColor team;
@@ -20,33 +25,39 @@ public class FoodMove : MonoBehaviour
     public int ScorePoint => point;
 
     StageManager stageManager;
-    float eraseTimer = 0f;
+    float eraseTimer = GameConstants.FirstTimerValue;
 
     float BrakePower => 1f - brakeRate * Time.deltaTime;
+
+    bool isGround = false;
+    protected bool IsGround => isGround;
 
     public TeamColor Team => team;
 
     // Start is called before the first frame update
-    void Start()
+    protected void Start()
     {
         stageManager = FindAnyObjectByType<StageManager>();
+        isGround = false;
     }
 
-    void FixedUpdate()
+    protected void FixedUpdate()
     {
-        Ray groundRay = new Ray(transform.position + Vector3.up * 0.5f, Vector3.down);
-        float size = 0.5f;
+        Ray groundRay = new Ray(transform.position + Vector3.up * transform.lossyScale.y * GameConstants.HalfMultiplyer, Vector3.down);
 
-        if(Physics.Raycast(groundRay, out RaycastHit groundHit, onGroundDistance + size, groundMask))// 地面についているとき
+        if (Physics.Raycast(groundRay, out RaycastHit groundHit, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), groundMask))// 地面についているとき
+        //if (Physics.SphereCast(groundRay, transform.lossyScale.x * GameConstants.HalfMultiplyer, out RaycastHit groundHit, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), groundMask))// 地面についているとき
+
         {
             transform.position = groundHit.point;// 貫通対策
-            
+
             StopFalling();
 
             EraseCheck();// 一定時間以上浮いていたら消す
         }
 
-        if (Physics.Raycast(groundRay, onGroundDistance + size, brakeMask))// ブレーキをかけるレイヤーのとき
+        if (Physics.Raycast(groundRay, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), brakeMask))// ブレーキをかけるレイヤーのとき
+        //if (Physics.SphereCast(groundRay, transform.lossyScale.x * GameConstants.HalfMultiplyer, out groundHit, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), brakeMask))// ブレーキをかけるレイヤーのとき
         {
             // ピザの子にする
             if (transform.parent == null || transform.parent != groundHit.transform)
@@ -55,19 +66,21 @@ public class FoodMove : MonoBehaviour
             }
 
             Brake();// ブレーキ
+            if (!isGround) isGround = true;// 接地開始
 
-            if (eraseTimer > 0f) eraseTimer = 0f;// 消えないようにする
+            if (eraseTimer > GameConstants.FirstTimerValue) eraseTimer = GameConstants.FirstTimerValue;// 消えないようにする
         }
 
         else// 浮いているとき
         {
             // 親がピザなら親子づけを外す
-            if(transform.parent != null && CompareLayer(brakeMask, transform.parent.gameObject.layer))
+            if (transform.parent != null && CompareLayer(brakeMask, transform.parent.gameObject.layer))
             {
                 transform.parent = null;
             }
 
             Fall();
+            if (isGround) isGround = false;// 接地中断
 
             EraseCheck();// 一定時間以上浮いていたら消す
         }
@@ -80,7 +93,7 @@ public class FoodMove : MonoBehaviour
         if (eraseTimer >= eraseLimit) Destroy(gameObject);
     }
 
-    public void AddForce(Vector3 direction, float power)
+    public virtual void AddForce(Vector3 direction, float power)
     {
         myRb.velocity += direction * power;
         Debug.Log($"direction:{direction}, power:{power}, velocity:{myRb.velocity}");
@@ -93,7 +106,7 @@ public class FoodMove : MonoBehaviour
 
     void Fall()
     {
-        if (myRb.velocity.y == -gravity) return; 
+        if (myRb.velocity.y == -gravity) return;
         Vector3 velocity = myRb.velocity;
         velocity.y = velocity.y > 0f ? velocity.y - gravity : -gravity;
         myRb.velocity = velocity;
@@ -119,7 +132,7 @@ public class FoodMove : MonoBehaviour
         velocity.x *= BrakePower;
         velocity.z *= BrakePower;
 
-        if (velocity.x <= 0.01f && velocity.z <= 0.01f) velocity = Vector3.zero;// 停止
+        if (velocity.x * velocity.x <= BreakThreshold && velocity.z * velocity.z <= BreakThreshold) velocity = Vector3.zero;// 停止
 
         myRb.velocity = velocity;
     }
@@ -129,10 +142,10 @@ public class FoodMove : MonoBehaviour
         if (CompareLayer(hitMask, other.gameObject.layer))
         {
             // 衝突時の処理（エフェクトの再生等、マネージャーに衝突を知らせるだけにする予定（お互いで衝突処理が呼び出されて異常な速度でふっとばし合うため））
-            if (other.gameObject.TryGetComponent<Rigidbody>(out Rigidbody opponentRb))// 相手にもRigidBodyがあるなら
+            if (other.gameObject.TryGetComponent<FoodMove>(out FoodMove opponentFood))// 相手が食べ物なら
             {
                 //Reflect(myRb, oppoentRb);
-                stageManager.AddReflectList(myRb, opponentRb, myReflectRate);
+                stageManager.AddReflectList(this, opponentFood);
             }
         }
     }
@@ -143,6 +156,11 @@ public class FoodMove : MonoBehaviour
     bool CompareLayer(LayerMask layerMask, int layer)
     {
         return ((1 << layer) & layerMask) != 0;
+    }
+
+    protected void SetReflectRate(float rate)
+    {
+        myReflectRate = rate;
     }
 
     public enum TeamColor
