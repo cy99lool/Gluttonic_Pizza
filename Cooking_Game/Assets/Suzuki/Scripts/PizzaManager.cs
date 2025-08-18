@@ -7,7 +7,7 @@ public class PizzaManager : MonoBehaviour
     [SerializeField] List<PizzaSlice> pizzaSlices;
     [Header("回転速度"), SerializeField] float rotateSpeed = 20f;
 
-    bool canSpin = true;
+    bool canSpin = false;
     SystemManager systemManager;
 
     public List<PizzaSlice> PizzaSlices => pizzaSlices;
@@ -68,6 +68,15 @@ public class PizzaManager : MonoBehaviour
                 return;// 与えたらそれ以降の処理は行わない
             }
         }
+    }
+
+    public void StartSpin()
+    {
+        canSpin = true;
+    }
+    public void StopSpin()
+    {
+        canSpin = false;
     }
 
     /// <summary>
