@@ -37,7 +37,7 @@ public class SystemManager : MonoBehaviour
         while (pizzaManager.PizzaSlices.Count > 0)
         {
             // ピザの取得（デバッグ）
-            yield return DebugPick(5f, 3);
+            yield return DebugPick(5f, 1);
         }
     }
 
@@ -58,7 +58,7 @@ public class SystemManager : MonoBehaviour
         // 取る個数分取る場所を指定
         for(int i = 0; i < pickCount; i++)
         {
-            if (i >= pickableSlices.Count) break;
+            if (i > pickableSlices.Count) break;
 
             int index = Random.Range(0, pickableSlices.Count);
             pickIndexes.Add(index);
