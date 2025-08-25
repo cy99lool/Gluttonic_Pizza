@@ -50,6 +50,10 @@ public class StageManager : MonoBehaviour
     class TrackObject
     {
         const float Magnification = 2f;// 係数
+        const float BowAngleYCorrection = 90f;// 弓のY軸回転の修正値
+
+        static readonly Vector3 DirectionArrowAngles = (90f, 0f, 0f);
+        static readonly Vector3 DefaultDirectionArrowScales = (1f, 1f, 1f);
 
         [Header("移動させるオブジェクト"), SerializeField] Transform trackObject;
         [Header("基準点"), SerializeField] Transform pivot;
@@ -135,16 +139,16 @@ public class StageManager : MonoBehaviour
                 // 移動させるオブジェクトと基準点との位置関係を計算し、距離によって矢の大きさを変化させる
                 directionArrow.position = (TrackPosition + pivotPosition) / 2f;
                 directionArrow.LookAt(pivot.position);
-                directionArrow.eulerAngles = new Vector3(90f, directionArrow.eulerAngles.y, 0f);
+                directionArrow.eulerAngles = new Vector3(DirectionArrowAngles.x, directionArrow.eulerAngles.y, DirectionArrowAngles.z);
 
                 // 引っ張られた距離に応じてサイズを変える
                 float distance = ShotVector.magnitude;
                 // 横幅を距離の二乗で急激に大きくする（強く引っ張っているイメージ）
-                directionArrow.localScale = new Vector3(minArrowWidth + distance * distance * pullMangification.x, distance * pullMangification.y, 1f);
+                directionArrow.localScale = new Vector3(minArrowWidth + distance * distance * pullMangification.x, distance * pullMangification.y, DefaultDirectionArrowScales.z);
 
                 // 弓の回転(現在は360度回転できる、気になるようなら方向を示す矢の回転の段階で角度を制限)
                 Vector3 eulerAngles = directionArrow.eulerAngles;
-                eulerAngles.y += 90f;
+                eulerAngles.y += BowAngleYCorrection;
                 bow.eulerAngles = eulerAngles;
 
                 // 弦の更新(離されていないとき)
@@ -152,12 +156,13 @@ public class StageManager : MonoBehaviour
             }
         }
 
+        const float MaxRate = 1f;
         float calcRate(Vector2 target)
         {
             Vector2 distanceVector = new Vector2(pivot.position.x - target.x, pivot.position.z - target.y);
             float squaredDistance = distanceVector.x * distanceVector.x + distanceVector.y * distanceVector.y;// 距離の二乗(-をなくすため)
             float rate = squaredDistance / (maxDistance * maxDistance);
-            if (rate > 1f) rate = 1f;
+            if (rate > MaxRate) rate = MaxRate;
             return rate;
         }
     }
@@ -245,13 +250,6 @@ public class StageManager : MonoBehaviour
                 reflectList.Add(new InfoForReflect(self.Rigidbody, self.ReflectRate, opponent.Rigidbody, opponent.ReflectRate));// 追加
                 return;
             }
-
-            // 両者の反射時速度維持率を取得するようにしたため、必要ない可能性がある
-            //if (reflect.IsSame(myRb, opponentRb) && reflect.ReflectRate != reflectRate)
-            //{
-            //    reflect.SetReflectRate(reflectRate);// 現在反射レートの小さい方に設定される、高反発なものがあるなら計算方法を変える
-            //    return;
-            //}
         }
     }
 
@@ -262,7 +260,6 @@ public class StageManager : MonoBehaviour
     {
         Rigidbody baseRb = reflectInfo.First.Rigidbody.velocity.magnitude >= reflectInfo.Second.Rigidbody.velocity.magnitude ?
             reflectInfo.First.Rigidbody : reflectInfo.Second.Rigidbody;
-        //Vector3 baseVelocity = baseRb.velocity;
 
         Vector3 baseVelocity = reflectInfo.First.Rigidbody.velocity + reflectInfo.Second.Rigidbody.velocity;// お互いの勢いを足す
 
@@ -284,18 +281,6 @@ public class StageManager : MonoBehaviour
             firstVelocity = baseVelocity * reflectInfo.First.ReflectRate;
             secondVelocity = baseVelocity * -reflectInfo.Second.ReflectRate;
         }
-
-        //それぞれの勢いの設定
-        //if (baseRb == reflectInfo.FirstRb)
-        //{
-        //    firstVelocity = baseVelocity * -reflectInfo.ReflectRate;// 反射レートに応じた勢い
-        //    secondVelocity = baseVelocity * (1 - reflectInfo.ReflectRate);// 反射した残りの勢い
-        //}
-        //else
-        //{
-        //    firstVelocity = baseVelocity * (1 - reflectInfo.ReflectRate);// 反射レートに応じた勢い
-        //    secondVelocity = baseVelocity * -reflectInfo.ReflectRate;// 反射した残りの勢い
-        //}
 
         // 速度を加算
         reflectInfo.First.Rigidbody.velocity += firstVelocity;
