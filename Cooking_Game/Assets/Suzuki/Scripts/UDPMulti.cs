@@ -126,17 +126,21 @@ public class UDPMulti : MonoBehaviour
     [Header("接続する相手たち"), SerializeField] List<ClientInfo> clients = new List<ClientInfo>();
     [Header("接続が切れた判定をするまでの時間"), SerializeField] float disconnectThreshold = 3f;
 
+    const int MaxPlayerNum = 4;                                     // 最大プレイヤー数
+    const int MessageStackSize = 15;                                // メッセージの待機列のサイズ
+    const int PosDataMargin = 3;                                    // 受け取った位置情報の保有可能量
+
     readonly int sendPerSecond = 20;                                // 送信レート（秒間）
 
     UdpClient client;
     Thread receiveThread;                                           // 受信用スレッド
     Thread sendThread;                                              // 送信用スレッド
     bool isSendTiming = false;                                      // 送信タイミングかどうかのフラグ
-    List<IPEndPoint> answerWaiting = new List<IPEndPoint>(4);       // 応答待機のリスト
-    [SerializeField] List<ClientInfo> connectedPlayerInfos = new List<ClientInfo>(4);  // 接続できたプレイヤーのリスト
-    List<ReceivedUnit> messageStack = new List<ReceivedUnit>(15);       // メッセージの待機列
+    List<IPEndPoint> answerWaiting = new List<IPEndPoint>(MaxPlayerNum);       // 応答待機のリスト
+    [SerializeField] List<ClientInfo> connectedPlayerInfos = new List<ClientInfo>(MaxPlayerNum);  // 接続できたプレイヤーのリスト
+    List<ReceivedUnit> messageStack = new List<ReceivedUnit>(MessageStackSize);       // メッセージの待機列
     // ゲーム情報
-    List<ObjectInfo> otherPlayerObjectInfo = new List<ObjectInfo>(3);
+    List<ObjectInfo> otherPlayerObjectInfo = new List<ObjectInfo>(PosDataMargin);
 
     void Start()
     {
@@ -346,9 +350,10 @@ public class UDPMulti : MonoBehaviour
                     Debug.Log("他の人から接続がありました:" + unit.Info.Port);
 
                     // 相手に応答したことを返す
+                    // 送信するメッセージの作成
                     byte[] udpMessage = UDPMessageType.Answered.ToByte();
                     byte[] infoMessage = myInfo.ToByte();
-                    byte[] message = MergeBytes(udpMessage, infoMessage);
+                    byte[] message = MergeBytes(udpMessage, infoMessage);// 合成
 
                     client.SendAsync(message, message.Length, unit.SenderEP);// 送信
 
@@ -379,7 +384,7 @@ public class UDPMulti : MonoBehaviour
                 {
                     // メッセージからJson形式に直し、位置情報のクラスに変換する
                     string objectInfoJson = System.Text.Encoding.UTF8.GetString(unit.Message, sizeof(Int32), unit.Message.Length - sizeof(Int32));// UDPMessage型のメッセージの先
-                    ObjectInfo playerObjectInfo = JsonUtility.FromJson<ObjectInfo>(objectInfoJson);
+                    ObjectInfo playerObjectInfo = JsonUtility.FromJson<ObjectInfo>(objectInfoJson);// Json形式からObjectInfo型に変換
 
                     playerObjectInfo.SetClientInfo(SearchClientInfo(playerObjectInfo.ClientInfo));// 動かすオブジェクトと結びつけたものに直す
                     otherPlayerObjectInfo.Add(playerObjectInfo);// 動かすリストに追加
@@ -434,9 +439,6 @@ public class UDPMulti : MonoBehaviour
         ObjectInfo myObjectInfo = new ObjectInfo(myInfo, myInfo.TrackObject.transform.position, myInfo.TrackObject.transform.eulerAngles.y);
         myObjectInfo.OnSend();// 送信前に受診後に使いたい情報を保存しておく
         string myObjectInfoJson = JsonUtility.ToJson(myObjectInfo);
-        //Debug.Log(myObjectInfoJson);
-        //ObjectInfo debugInfo = JsonUtility.FromJson<ObjectInfo>(myObjectInfoJson);
-        //Debug.Log(debugInfo.ClientInfo.NowFoodMode);
 
         byte[] myObjectInfoMessage = System.Text.Encoding.UTF8.GetBytes(myObjectInfoJson);// StringをByte配列に変換
 
@@ -542,8 +544,8 @@ static class MultiPlayerMessenger
     public static Vector3 ToVector3(this byte[] bytes, int startIndex)
     {
         float x = BitConverter.ToSingle(bytes, startIndex);
-        float y = BitConverter.ToSingle(bytes, startIndex + 4);// int型のサイズ分ずらしている
-        float z = BitConverter.ToSingle(bytes, startIndex + 8);
+        float y = BitConverter.ToSingle(bytes, startIndex + sizeof(int));// int型のサイズを1つ分ずらしている
+        float z = BitConverter.ToSingle(bytes, startIndex + sizeof(int) + sizeof(int));// 2つ分ずらしている
         return new Vector3(x, y, z);
     }
 
@@ -553,7 +555,7 @@ static class MultiPlayerMessenger
         int index = -1;// 合うポートが見つからなければ-1を返すように
         for (int i = 0; i < endPoints.Count; i++)
         {
-            if (endPoints[i].Port == targetPort) index = i;
+            if (endPoints[i].Port == targetPort) index = i;// 合うポートの番号を設定
         }
         return index;
     }
@@ -562,7 +564,7 @@ static class MultiPlayerMessenger
         int index = -1;// 合うポートが見つからなければ-1を返すように
         for (int i = 0; i < endPoints.Count; i++)
         {
-            if (endPoints[i].Port == targetPort) index = i;
+            if (endPoints[i].Port == targetPort) index = i;// 合うポートの番号を設定
         }
         return index;
     }
