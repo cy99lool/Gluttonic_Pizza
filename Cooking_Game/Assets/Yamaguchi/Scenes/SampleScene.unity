@@ -210,6 +210,7 @@ MonoBehaviour:
   rightPoint: {fileID: 1490322144}
   shootPoint: {fileID: 174066306}
   arrowPrefab: {fileID: 1295740862}
+  pivot: {fileID: 0}
   stringRenderer: {fileID: 1973940869}
   maxPullDistance: 3
   maxForce: 20
@@ -1574,7 +1575,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 463487187784491039, guid: e83e7e0be399b5140988cae37e24207b, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2340406279101400509, guid: e83e7e0be399b5140988cae37e24207b, type: 3}
       propertyPath: InitialModule.startSize.scalar
