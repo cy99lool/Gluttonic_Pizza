@@ -52,8 +52,8 @@ public class StageManager : MonoBehaviour
         const float Magnification = 2f;// 係数
         const float BowAngleYCorrection = 90f;// 弓のY軸回転の修正値
 
-        static readonly Vector3 DirectionArrowAngles = (90f, 0f, 0f);
-        static readonly Vector3 DefaultDirectionArrowScales = (1f, 1f, 1f);
+        static readonly Vector3 DirectionArrowAngles = new Vector3(90f, 0f, 0f);
+        static readonly Vector3 DefaultDirectionArrowScales = new Vector3(1f, 1f, 1f);
 
         [Header("移動させるオブジェクト"), SerializeField] Transform trackObject;
         [Header("基準点"), SerializeField] Transform pivot;
