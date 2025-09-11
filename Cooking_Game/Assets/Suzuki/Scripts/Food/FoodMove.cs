@@ -5,6 +5,7 @@ using UnityEngine;
 public class FoodMove : MonoBehaviour
 {
     const float BreakThreshold = 0.01f;
+    const float OverlapSphereRadius = 0f;// Rayの始点が当たり判定の内部にあるかを調べるためのものなので、点にしている
 
     [SerializeField] Rigidbody myRb;
     public Rigidbody Rigidbody => myRb;
@@ -32,6 +33,8 @@ public class FoodMove : MonoBehaviour
     bool isGround = false;
     protected bool IsGround => isGround;
 
+    bool isFalling = false;
+
     public TeamColor Team => team;
 
     // Start is called before the first frame update
@@ -43,21 +46,84 @@ public class FoodMove : MonoBehaviour
 
     protected void FixedUpdate()
     {
+        FallUpdate();
+
+    }
+
+    void FallUpdate()
+    {
         Ray groundRay = new Ray(transform.position + Vector3.up * transform.lossyScale.y * GameConstants.HalfMultiplyer, Vector3.down);
 
-        if (Physics.Raycast(groundRay, out RaycastHit groundHit, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), groundMask))// 地面についているとき
-        //if (Physics.SphereCast(groundRay, transform.lossyScale.x * GameConstants.HalfMultiplyer, out RaycastHit groundHit, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), groundMask))// 地面についているとき
+        // ========================================================================================================
+        // 接地点の取得
+        Collider groundHit = null;
 
+        // 自身に重なっている床を調べる
+        Collider[] overlapColliders = Physics.OverlapSphere(groundRay.origin, OverlapSphereRadius, groundMask);
+
+        // 床が重なっていた場合
+        if (overlapColliders.Length > 0)
         {
-            transform.position = groundHit.point;// 貫通対策
+            for (int i = 0; i < overlapColliders.Length; i++)
+            {
+                // 減速させるレイヤー（例：ピザのレイヤー）があった場合、そちらを優先して適用する
+                if (CompareLayer(brakeMask, overlapColliders[i].gameObject.layer))
+                {
+                    groundHit = overlapColliders[i];
+                    break;
+                }
 
-            StopFalling();
-
-            EraseCheck();// 一定時間以上浮いていたら消す
+                // 減速させるレイヤーがなかった場合、落下を停止するだけのレイヤーのものを適用する
+                groundHit = overlapColliders[i];
+            }
         }
 
-        if (Physics.Raycast(groundRay, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), brakeMask))// ブレーキをかけるレイヤーのとき
+        // 床が重なっていなかった場合
+        else
+        {
+            RaycastHit[] hits = Physics.SphereCastAll(groundRay, transform.lossyScale.x * GameConstants.HalfMultiplyer, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), groundMask);
+
+            if (hits.Length > 0)
+            {
+                for (int i = 0; i < hits.Length; i++)
+                {
+                    // 減速させるレイヤー（例：ピザのレイヤー）があった場合、そちらを優先して適用する
+                    if (CompareLayer(brakeMask, hits[i].collider.gameObject.layer))
+                    {
+                        groundHit = hits[i].collider;
+                        break;
+                    }
+                    // 減速させるレイヤーがなかった場合、落下を停止するだけのレイヤーのものを適用する
+                    groundHit = hits[i].collider;
+                }
+            }
+        }
+
+
+        //if (Physics.Raycast(groundRay, out RaycastHit groundHit, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), groundMask))// 地面についているとき
+        // 地面についているとき    
+        if (groundHit != null)
+        {
+            if (isFalling)
+            {
+                // 着地点の設定
+                Vector3 hitPos = groundHit.ClosestPoint(transform.position);
+                hitPos.y += transform.localScale.y * GameConstants.HalfMultiplyer;// 貫通対策
+
+                // 着地点に位置を設定
+                transform.position = hitPos;
+
+                StopFalling();
+
+                EraseCheck();// 一定時間以上浮いていたら消す
+            }
+        }
+
+        //if (Physics.Raycast(groundRay, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), brakeMask))// ブレーキをかけるレイヤーのとき
         //if (Physics.SphereCast(groundRay, transform.lossyScale.x * GameConstants.HalfMultiplyer, out groundHit, onGroundDistance + (transform.lossyScale.y * GameConstants.HalfMultiplyer), brakeMask))// ブレーキをかけるレイヤーのとき
+
+        // ブレーキをかける床の上のとき
+        if (groundHit != null && CompareLayer(brakeMask, groundHit.gameObject.layer))
         {
             // ピザの子にする
             if (transform.parent == null || transform.parent != groundHit.transform)
@@ -66,12 +132,14 @@ public class FoodMove : MonoBehaviour
             }
 
             Brake();// ブレーキ
-            if (!isGround) isGround = true;// 接地開始
+            if(!isGround) isGround = true;// 接地開始
+
 
             if (eraseTimer > GameConstants.FirstTimerValue) eraseTimer = GameConstants.FirstTimerValue;// 消えないようにする
         }
-
-        else// 浮いているとき
+        
+        // 浮いているとき
+        if(groundHit == null)
         {
             // 親がピザなら親子づけを外す
             if (transform.parent != null && CompareLayer(brakeMask, transform.parent.gameObject.layer))
@@ -84,7 +152,6 @@ public class FoodMove : MonoBehaviour
 
             EraseCheck();// 一定時間以上浮いていたら消す
         }
-
     }
 
     void EraseCheck()
@@ -110,6 +177,8 @@ public class FoodMove : MonoBehaviour
         Vector3 velocity = myRb.velocity;
         velocity.y = velocity.y > 0f ? velocity.y - gravity : -gravity;
         myRb.velocity = velocity;
+
+        if (!isFalling) isFalling = true;
     }
 
     /// <summary>
@@ -120,6 +189,8 @@ public class FoodMove : MonoBehaviour
         Vector3 velocity = myRb.velocity;
         velocity.y = 0f;
         myRb.velocity = velocity;
+
+        if (isFalling) isFalling = false;
     }
 
     /// <summary>
