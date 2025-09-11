@@ -13,7 +13,7 @@ ModelImporter:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: SASASA1
-    second: {fileID: 2800000, guid: 00ca9052f9df33a49a82a37719958851, type: 3}
+    second: {fileID: 2800000, guid: cb902e8d78181524da69c27efdc639c9, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

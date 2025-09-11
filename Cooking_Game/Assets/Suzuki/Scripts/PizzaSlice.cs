@@ -5,7 +5,6 @@ using UnityEngine;
 public class PizzaSlice : MonoBehaviour
 {
     List<FoodMove> foodList;// 食べ物のステータスを設定するスクリプトを別に作ったなら型をそちらに変更すること
-
     public List<FoodMove> FoodList
     {
         get
