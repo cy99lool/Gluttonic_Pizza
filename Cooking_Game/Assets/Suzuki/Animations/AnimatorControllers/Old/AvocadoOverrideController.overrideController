@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: AvocadoOverrideController
+  m_Controller: {fileID: 9100000, guid: 062ba0906f550c94db50dff99f8e7ea3, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: aea713f04f973034d924bfefa02df563, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 647dfe4ec5ff8b04b8c3e9aeb73f5dd0, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 2fc0b34416d5a7144848df63506f1e67, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 08dcda1b80ea0644aaf183fe2f78a502, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 7876f01b54718d84a88e7c435b7b757c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: dc482e92f6fdc9c4dbe2a3e394249696, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 8c4d1db7917495549914e5dae8e07499, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: cc1e02919b90b79469e79fe690c43c67, type: 2}

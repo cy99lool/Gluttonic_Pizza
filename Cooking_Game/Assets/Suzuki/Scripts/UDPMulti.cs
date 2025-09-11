@@ -130,7 +130,8 @@ public class UDPMulti : MonoBehaviour
     const int MessageStackSize = 15;                                // メッセージの待機列のサイズ
     const int PosDataMargin = 3;                                    // 受け取った位置情報の保有可能量
 
-    readonly int sendPerSecond = 20;                                // 送信レート（秒間）
+    static int sendPerSecond = 20;                                // 1秒に何回送信するか
+    static float SendInterval => GameConstants.OneSecond / sendPerSecond;// 送信ごとの間隔（1秒 / 1秒に送信する回数）
 
     UdpClient client;
     Thread receiveThread;                                           // 受信用スレッド
@@ -306,13 +307,21 @@ public class UDPMulti : MonoBehaviour
     /// </summary>
     void ThreadSend()
     {
+        float timer = GameConstants.FirstTimerValue;// タイマーの初期化
         while (true)
         {
             //OnUpdateSend();
 
-            // 送信タイミングになった
-            isSendTiming = true;
-            Thread.Sleep(1000 / sendPerSecond);
+            // 送信タイミングになったとき
+            if (timer >= SendInterval)
+            {
+                isSendTiming = true;
+                timer = GameConstants.FirstTimerValue;// タイマーの初期化
+            }
+            timer += Time.deltaTime;
+
+            // Thread.Sleepではネットワークに応答なしと判断される可能性があったため変更している
+            //Thread.Sleep(1000 / sendPerSecond);
         }
     }
 

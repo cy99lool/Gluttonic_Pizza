@@ -9,6 +9,7 @@ public static class GameConstants
 {
     public const float FirstTimerValue = 0f;// タイマーの初期化に使う
     public const float HalfMultiplyer = 0.5f;// 半分にする際に使う（TransformのSizeから半径を取るときなど）
+    public const float OneSecond = 1f;// 一秒あたりのレートを計算するとき等に使う
 
     /// <summary>
     /// Vector3の割り算
