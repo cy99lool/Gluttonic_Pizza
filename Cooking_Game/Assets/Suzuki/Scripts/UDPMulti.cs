@@ -301,8 +301,8 @@ public class UDPMulti : MonoBehaviour
                     ClientInfo foundInfo = null;// メッセージで受信できたClientInfoを入れる
                     try
                     {
-                        // 接続時
-                        foundInfo = SearchClientInfo(receivedBytes.ToClientInfo(sizeof(Int32)));// ClientInfoを取得
+                        // ClientInfoを取得
+                        foundInfo = SearchClientInfo(receivedBytes.ToClientInfo(receivedBytes.Length - sizeof(Int32)));// UDPMessage型のメッセージの先にあるJsonファイルから、ClientInfoを取得する
 
                         //Debug.Log($"受け取ったメッセージ長: {receivedBytes.Length}");
                         //messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, clientInfo));
@@ -311,6 +311,7 @@ public class UDPMulti : MonoBehaviour
                     {
                         // Jsonのパースか変換でエラーが起きたとき、無視して後で処理する
                         foundInfo = null;
+                        Debug.LogWarning("Jsonのパースおよび変換で例外が投げられました。");
                     }
                     //catch
                     //{
@@ -511,7 +512,7 @@ public class UDPMulti : MonoBehaviour
 
         byte[] posMessage = MergeBytes(udpMessage, myObjectInfoMessage);// メッセージの結合
 
-        Debug.Log("Send Size:" + posMessage.Length);
+        //Debug.Log("Send Size:" + posMessage.Length);
         // メッセージの送信
         SendAsyncToPlayers(posMessage);
     }
