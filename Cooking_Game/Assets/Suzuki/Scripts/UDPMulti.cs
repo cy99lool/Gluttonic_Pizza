@@ -302,7 +302,7 @@ public class UDPMulti : MonoBehaviour
                     try
                     {
                         // ClientInfoを取得
-                        foundInfo = SearchClientInfo(receivedBytes.ToClientInfo(receivedBytes.Length - sizeof(Int32)));// UDPMessage型のメッセージの先にあるJsonファイルから、ClientInfoを取得する
+                        foundInfo = SearchClientInfo(receivedBytes.ToClientInfo(sizeof(Int32)));// UDPMessage型のメッセージの先にあるJsonファイルから、ClientInfoを取得する
 
                         //Debug.Log($"受け取ったメッセージ長: {receivedBytes.Length}");
                         //messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, clientInfo));
@@ -322,6 +322,8 @@ public class UDPMulti : MonoBehaviour
                     //    Debug.Log($"ポート：{objectInfo.ClientInfo.Port}, 受け取った位置：{objectInfo.Position}");
                     //    messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, objectInfo.ClientInfo));
                     //}
+
+                    if (foundInfo == null) continue;// キューには完全なメッセージのみを入れたいため、不完全なら飛ばす
 
                     // メッセージをキューに追加
                     ReceivedUnit unit = new ReceivedUnit(senderEP, receivedBytes, foundInfo);
