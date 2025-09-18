@@ -132,7 +132,7 @@ public class UDPMulti : MonoBehaviour
     const int PosDataMargin = 3;                                    // 受け取った位置情報の保有可能量
     const int RecieveBufferSize = 65536;                            // 受信バッファのサイズ
 
-    static int sendPerSecond = 10;                                // 1秒に何回送信するか
+    static int sendPerSecond = 5;                                // 1秒に何回送信するか
     static float SendInterval => GameConstants.OneSecond / sendPerSecond;// 送信ごとの間隔（1秒 / 1秒に送信する回数）
 
     UdpClient client;
@@ -170,6 +170,8 @@ public class UDPMulti : MonoBehaviour
 
         // 受信メッセージがある場合
         ReceivedUnit dequeued;
+        if (Time.frameCount % 60 == 0) Debug.Log($"[QUEUE] size = {messageQueue.Count}");
+
         while (messageQueue.TryDequeue(out dequeued))
         {
             Parse(dequeued);// メッセージの中身を解読
@@ -237,6 +239,7 @@ public class UDPMulti : MonoBehaviour
         if (!isSending) SendThreadStart();
 
         Debug.Log("再接続を要求");
+        Debug.LogWarning($"[RECONNECT] Triggered at {DateTime.Now:HH:mm:ss.fff}");
     }
 
     /// <summary>
@@ -343,6 +346,7 @@ public class UDPMulti : MonoBehaviour
                     // メッセージをキューに追加
                     ReceivedUnit unit = new ReceivedUnit(senderEP, receivedBytes, foundInfo);
                     messageQueue.Enqueue(unit);
+                    Debug.Log($"[RECEIVE] {DateTime.Now:HH:mm:ss.fff} bytes={receivedBytes.Length} from={senderEP}");// デバッグ
                 }
             }
             catch (SocketException sockerException)
@@ -554,6 +558,8 @@ public class UDPMulti : MonoBehaviour
             try
             {
                 client.SendAsync(message, message.Length, clientInfo.EndPoint);
+                Debug.Log($"[SEND] {DateTime.Now:HH:mm:ss.fff} to={clientInfo.EndPoint}");// デバッグ
+
             }
             catch (ObjectDisposedException)
             {
