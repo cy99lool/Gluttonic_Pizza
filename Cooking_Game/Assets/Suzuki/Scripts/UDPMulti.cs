@@ -133,7 +133,7 @@ public class UDPMulti : MonoBehaviour
     const int RecieveBufferSize = 65536;                            // 受信バッファのサイズ
 
     static int sendPerSecond = 5;                                // 1秒に何回送信するか
-    static float SendInterval => GameConstants.OneSecond / sendPerSecond;// 送信ごとの間隔（1秒 / 1秒に送信する回数）
+    static float SendInterval => (GameConstants.OneSecond / sendPerSecond) * GameConstants.MillisecondPerSecond;// 送信ごとの間隔（1秒 / 1秒に送信する回数、ミリ秒の単位）
 
     UdpClient client;
     Thread receiveThread;                                           // 受信用スレッド
@@ -159,6 +159,7 @@ public class UDPMulti : MonoBehaviour
         isSending = false;
     }
 
+    float debugTimer = 0f;
     void Update()
     {
         // 送信タイミング
@@ -170,7 +171,12 @@ public class UDPMulti : MonoBehaviour
 
         // 受信メッセージがある場合
         ReceivedUnit dequeued;
-        if (Time.frameCount % 60 == 0) Debug.Log($"[QUEUE] size = {messageQueue.Count}");
+        debugTimer += Time.deltaTime;
+        if (debugTimer >= 1f)
+        {
+            debugTimer = 0f;
+            Debug.Log($"[QUEUE] size = {messageQueue.Count}");
+        }
 
         while (messageQueue.TryDequeue(out dequeued))
         {
