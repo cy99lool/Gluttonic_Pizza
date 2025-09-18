@@ -244,8 +244,10 @@ public class UDPMulti : MonoBehaviour
         RegisterOpponentPort(ip, port);
         if (!isSending) SendThreadStart();
 
+        // デバッグ
         Debug.Log("再接続を要求");
-        Debug.LogWarning($"[RECONNECT] Triggered at {DateTime.Now:HH:mm:ss.fff}");
+        Debug.LogWarning($"最後の受信から{(DateTime.Now - lastRecieveTime).TotalSeconds: F1}秒経過");
+        Debug.LogError($"[RECONNECT] Triggered at {DateTime.Now:HH:mm:ss.fff}");
     }
 
     /// <summary>
@@ -294,17 +296,20 @@ public class UDPMulti : MonoBehaviour
         return message;
     }
 
+    DateTime lastRecieveTime = new DateTime();// デバッグ用
     /// <summary>
     /// 受信用のスレッド。受信した際に情報をスタックに保存しておく。
     /// </summary>
     void ThreadReceive()
     {
+        lastRecieveTime = DateTime.Now;
         while (isRecieving)
         {
             IPEndPoint senderEP = null;
             try// 情報を受け取れないときに切断されないようにしている
             {
                 byte[] receivedBytes = client.Receive(ref senderEP);
+                lastRecieveTime = DateTime.Now;// 最後に受け取れた時間で更新
                 if (receivedBytes != null && receivedBytes.Length - sizeof(Int32) > 0)
                 {
                     ClientInfo foundInfo = null;// メッセージで受信できたClientInfoを入れる
