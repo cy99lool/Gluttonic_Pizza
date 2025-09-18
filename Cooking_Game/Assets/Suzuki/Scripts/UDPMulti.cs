@@ -101,7 +101,7 @@ public class UDPMulti : MonoBehaviour
         public void OnSend()
         {
             nowFoodMode = clientInfo.Cursor.FoodMode;// 現在のモードを設定
-            Debug.Log(nowFoodMode);
+            //Debug.Log(nowFoodMode);
             canModeList = clientInfo.Cursor.CanModes;// 移行可能なモード一覧を設定
         }
     }
@@ -137,6 +137,7 @@ public class UDPMulti : MonoBehaviour
     Thread receiveThread;                                           // 受信用スレッド
     Thread sendThread;                                              // 送信用スレッド
     bool isSendTiming = false;                                      // 送信タイミングかどうかのフラグ
+    volatile bool isRecieving = false;                                       // 受信を行っている（受信スレッドをループしている）かどうか
     List<IPEndPoint> answerWaiting = new List<IPEndPoint>(MaxPlayerNum);       // 応答待機のリスト
     [SerializeField] List<ClientInfo> connectedPlayerInfos = new List<ClientInfo>(MaxPlayerNum);  // 接続できたプレイヤーのリスト
     List<ReceivedUnit> messageStack = new List<ReceivedUnit>(MessageStackSize);       // メッセージの待機列
@@ -147,6 +148,8 @@ public class UDPMulti : MonoBehaviour
     {
         client = new UdpClient(new IPEndPoint(IPAddress.Any, myInfo.Port));
         client.Client.ReceiveBufferSize = 65536;// 64KB
+
+        isRecieving = true;
         receiveThread = new Thread(new ThreadStart(ThreadReceive));
         receiveThread.Start();// 受信スレッド開始
     }
@@ -197,13 +200,28 @@ public class UDPMulti : MonoBehaviour
             if (connectedPlayerInfos[i].DisconnectTimer >= disconnectThreshold)
             {
                 // 再接続を要求
-                RegisterOpponentPort(connectedPlayerInfos[i].IP, connectedPlayerInfos[i].Port);
-                Debug.Log("再接続を要求");
+                RequestReconnection(connectedPlayerInfos[i].IP, connectedPlayerInfos[i].Port);
 
                 // 接続リストから削除
                 connectedPlayerInfos.RemoveAt(i);
             }
         }
+    }
+
+    void RequestReconnection(string ip,  int port)
+    {
+        isRecieving = false;
+        client?.Close();        // Receiveがブロックしてるならここで例外を出してループを抜ける
+        receiveThread?.Join();  // スレッドが終わるまで待つ
+
+        // ここで新しいソケットとスレッドを作成
+        client = new UdpClient(new IPEndPoint(IPAddress.Any, myInfo.Port));
+        isRecieving = true;
+        receiveThread = new Thread(ThreadReceive);
+        receiveThread.Start();// 受信スレッド開始
+
+        RegisterOpponentPort(ip, port);
+        Debug.Log("再接続を要求");
     }
 
     /// <summary>
@@ -257,7 +275,7 @@ public class UDPMulti : MonoBehaviour
     /// </summary>
     void ThreadReceive()
     {
-        while (true)
+        while (isRecieving)
         {
             IPEndPoint senderEP = null;
             try// 情報を受け取れないときに切断されないようにしている
@@ -283,6 +301,11 @@ public class UDPMulti : MonoBehaviour
                         messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, objectInfo.ClientInfo));
                     }
                 }
+            }
+            catch(SocketException sockerException)
+            {
+                Debug.LogError($"Socket Exception:{sockerException.Message}");
+                if (!isRecieving) break;// clientが閉じられていたら抜ける
             }
             catch (Exception exception)
             {
