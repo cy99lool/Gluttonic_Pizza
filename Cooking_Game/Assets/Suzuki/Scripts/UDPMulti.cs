@@ -127,10 +127,10 @@ public class UDPMulti : MonoBehaviour
     [Header("接続が切れた判定をするまでの時間"), SerializeField] float disconnectThreshold = 3f;
 
     const int MaxPlayerNum = 4;                                     // 最大プレイヤー数
-    const int MessageStackSize = 15;                                // メッセージの待機列のサイズ
+    const int MessageStackSize = 30;                                // メッセージの待機列のサイズ
     const int PosDataMargin = 3;                                    // 受け取った位置情報の保有可能量
 
-    static int sendPerSecond = 20;                                // 1秒に何回送信するか
+    static int sendPerSecond = 10;                                // 1秒に何回送信するか
     static float SendInterval => GameConstants.OneSecond / sendPerSecond;// 送信ごとの間隔（1秒 / 1秒に送信する回数）
 
     UdpClient client;
@@ -146,6 +146,7 @@ public class UDPMulti : MonoBehaviour
     void Start()
     {
         client = new UdpClient(new IPEndPoint(IPAddress.Any, myInfo.Port));
+        client.Client.ReceiveBufferSize = 65536;// 64KB
         receiveThread = new Thread(new ThreadStart(ThreadReceive));
         receiveThread.Start();// 受信スレッド開始
     }
@@ -160,11 +161,11 @@ public class UDPMulti : MonoBehaviour
         }
 
         // 受信メッセージがある場合
-        for (int i = 0; i < messageStack.Count; i++)
+        for (int i = messageStack.Count - 1; i >= 0; i--)
         {
             Parse(messageStack[i]);
             messageStack.RemoveAt(i);
-            i--;
+            //i--;
         }
 
         // 各プレイヤーの情報アップデート
@@ -178,8 +179,11 @@ public class UDPMulti : MonoBehaviour
                 // 対象の特定
                 if (otherPlayerObjectInfo[i].ClientInfo.IP == clients[j].IP)
                 {
-                    clients[j].Cursor.SetMode(otherPlayerObjectInfo[i].NowFoodMode);// 食材のモードを更新
-                    clients[j].Cursor.SetModeFlag(otherPlayerObjectInfo[i].CanModeList);// 移行可能モードを更新
+                    if (clients[j].Cursor != null)
+                    {
+                        clients[j].Cursor.SetMode(otherPlayerObjectInfo[i].NowFoodMode);// 食材のモードを更新
+                        clients[j].Cursor.SetModeFlag(otherPlayerObjectInfo[i].CanModeList);// 移行可能モードを更新
+                    }
                 }
             }
 
@@ -307,18 +311,23 @@ public class UDPMulti : MonoBehaviour
     /// </summary>
     void ThreadSend()
     {
-        float timer = GameConstants.FirstTimerValue;// タイマーの初期化
+        // mainのthread以外でTime.deltaTimeを使用することができないため、.NET標準の時間クラスを使用
+        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();// ストップウォッチ開始
+        long last = GameConstants.Zero;
+
         while (true)
         {
             //OnUpdateSend();
 
+            long now = stopwatch.ElapsedMilliseconds;// ストップウォッチ開始からの経過時間を取得
             // 送信タイミングになったとき
-            if (timer >= SendInterval)
+            if (now - last >= SendInterval)
             {
                 isSendTiming = true;
-                timer = GameConstants.FirstTimerValue;// タイマーの初期化
+                last = now;// タイマーの初期化
             }
-            timer += Time.deltaTime;
+            Thread.Sleep(1);// CPUの食いすぎを防止する
 
             // Thread.Sleepではネットワークに応答なしと判断される可能性があったため変更している
             //Thread.Sleep(1000 / sendPerSecond);
@@ -474,7 +483,18 @@ public class UDPMulti : MonoBehaviour
     {
         foreach (ClientInfo clientInfo in connectedPlayerInfos)
         {
-            client.SendAsync(message, message.Length, clientInfo.EndPoint);
+            try
+            {
+                client.SendAsync(message, message.Length, clientInfo.EndPoint);
+            }
+            catch(SocketException e)
+            {
+                Debug.LogError(e.Message);
+            }
+            catch(Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
         }
     }
 

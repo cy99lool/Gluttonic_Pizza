@@ -1198,12 +1198,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
-    ip: 192.168.100.186
+    ip: 192.168.11.10
     port: 3001
     trackObject: {fileID: 6997102}
-    cursorInfo: {fileID: 0}
+    cursorInfo: {fileID: 6997107}
   clients:
-  - ip: 192.168.100.42
+  - ip: 192.168.11.51
     port: 3000
     trackObject: {fileID: 0}
     cursorInfo: {fileID: 0}
@@ -19975,12 +19975,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
-    ip: 192.168.100.42
+    ip: 192.168.11.51
     port: 3000
     trackObject: {fileID: 0}
     cursorInfo: {fileID: 0}
   clients:
-  - ip: 192.168.100.186
+  - ip: 192.168.11.10
     port: 3001
     trackObject: {fileID: 6997102}
     cursorInfo: {fileID: 6997107}
@@ -20548,7 +20548,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &952148038
 Transform:
   m_ObjectHideFlags: 0
@@ -31379,7 +31379,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1335428795
 Transform:
   m_ObjectHideFlags: 0
