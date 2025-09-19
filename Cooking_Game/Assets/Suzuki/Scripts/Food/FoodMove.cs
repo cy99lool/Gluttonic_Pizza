@@ -9,7 +9,7 @@ public class FoodMove : MonoBehaviour
 
     [SerializeField] Rigidbody myRb;
     public Rigidbody Rigidbody => myRb;
-
+    [Header("モデルのアニメーター"), SerializeField] Animator animator;
     [Header("重力"), SerializeField] float gravity = 9.8f;
     [Header("一秒あたりの減速率"), SerializeField] float brakeRate = 1.8f;
     [Header("地面についている判定の距離"), SerializeField] float onGroundDistance = 0.15f;
@@ -41,13 +41,33 @@ public class FoodMove : MonoBehaviour
     protected void Start()
     {
         stageManager = FindAnyObjectByType<StageManager>();
+
+        if (animator != null) animator.SetBool("Ready", true);// 最初は発射時のアニメーション
+
         isGround = false;
     }
 
     protected void FixedUpdate()
     {
         FallUpdate();
+        AnimatorUpdate();
+    }
 
+    /// <summary>
+    /// アニメーターのフラグを個別に設定
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="flag"></param>
+    public void SetAnimatorBool(string name, bool flag)
+    {
+        if(animator != null) animator.SetBool(name, flag);
+    }
+
+    void AnimatorUpdate()
+    {
+        if (animator == null) return;// nullチェック
+
+        if (animator.GetBool("Ready") && isGround) animator.SetBool("Ready", false);// 発射後ピザに着地したときは通常モードへ移行
     }
 
     void FallUpdate()

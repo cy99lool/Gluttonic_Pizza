@@ -137,6 +137,7 @@ public class UDPMulti : MonoBehaviour
     UdpClient client;
     Thread receiveThread;                                           // 受信用スレッド
     Thread sendThread;                                              // 送信用スレッド
+    Thread parseThread;                                             // パース用スレッド
     bool isSendTiming = false;                                      // 送信タイミングかどうかのフラグ
     volatile bool isReceiving = false;                              // 受信を行っている（受信スレッドをループしている）かどうか
     bool isSending = false;                                         // 送信を行っているかどうか
@@ -155,6 +156,9 @@ public class UDPMulti : MonoBehaviour
         receiveThread = new Thread(new ThreadStart(ThreadReceive));
         receiveThread.Start();// 受信スレッド開始
 
+        parseThread = new Thread(new ThreadStart(ThreadParse));
+        parseThread.Start();// パーススレッド開始
+
         isSending = false;
     }
 
@@ -168,19 +172,12 @@ public class UDPMulti : MonoBehaviour
             isSendTiming = false;
         }
 
-        // 受信メッセージがある場合
-        ReceivedUnit dequeued;
+        // デバッグ、現在のメッセージキューのサイズを1秒ごとにだす
         debugTimer += Time.deltaTime;
         if (debugTimer >= 1f)
         {
             debugTimer = 0f;
             Debug.Log($"[QUEUE] size = {messageQueue.Count}");
-        }
-
-        while (messageQueue.TryDequeue(out dequeued))
-        {
-            // メッセージの中身を解読（現在デバッグのためコメントアウト）
-            //Parse(dequeued);
         }
 
         // 各プレイヤーの情報アップデート
@@ -217,6 +214,21 @@ public class UDPMulti : MonoBehaviour
                 // 接続リストから削除
                 connectedPlayerInfos.RemoveAt(i);
             }
+        }
+    }
+
+    /// <summary>
+    /// パース用のスレッド
+    /// </summary>
+    void ThreadParse()
+    {
+        ReceivedUnit dequeued;
+
+        // 受信メッセージがある場合
+        while (messageQueue.TryDequeue(out dequeued))
+        {
+            // メッセージの中身を解読（現在デバッグのためコメントアウト）
+            Parse(dequeued);
         }
     }
 
@@ -626,6 +638,9 @@ public class UDPMulti : MonoBehaviour
         isReceiving = false;
         client?.Close();// UDP接続を終了
         if (receiveThread != null && receiveThread.IsAlive) receiveThread.Join(ThreadMilliSecondsTimeOut);// 指定された時間が経過するまで呼び出し元のスレッドをブロック
+
+        // パーススレッド
+        if(parseThread != null && parseThread.IsAlive) parseThread.Join(ThreadMilliSecondsTimeOut);// 指定された時間が経過するまで呼び出し元のスレッドをブロック
 
         client?.Dispose();// リソースを開放
     }

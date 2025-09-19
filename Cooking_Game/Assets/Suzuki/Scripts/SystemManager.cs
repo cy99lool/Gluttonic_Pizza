@@ -22,6 +22,7 @@ public class SystemManager : MonoBehaviour
             this.score += score;
         }
     }
+    const float PreparePizzaTime = 5f;
 
     [SerializeField] List<Team> teams;
 
@@ -125,6 +126,10 @@ public class SystemManager : MonoBehaviour
             yield return null;
         }
 
+        // 取得フェーズ
+        yield return StartCoroutine(pizzaManager.PrepareTakePizza(PreparePizzaTime));
+
+        // 取得
         Debug.Log("取得");
         pizzaManager.TakePizzaSlice(pickIndexes);
         pizzaManager.StopSpin();// 回転停止

@@ -22,6 +22,32 @@ public class PizzaManager : MonoBehaviour
         if (canSpin) Spin(rotateSpeed);
     }
 
+    public IEnumerator PrepareTakePizza(float waitTime)
+    {
+        // ピザの上にあるすべての食べ物を取得
+        List<FoodMove> foodList = GetAllFoodOnPizza();
+
+        foreach(FoodMove food in foodList)
+        {
+            food.SetAnimatorBool("PickPhase", true);// ピザを取る前の表情に変化
+        }
+        yield return new WaitForSeconds(waitTime);
+    }
+
+    List<FoodMove> GetAllFoodOnPizza()
+    {
+        List<FoodMove> foodList = new List<FoodMove>();
+        for (int i = 0; i < pizzaSlices.Count; i++)
+        {
+            for (int j = 0; j < pizzaSlices[i].FoodList.Count; j++)
+            {
+                foodList.Add(pizzaSlices[i].FoodList[j]);
+            }
+        }
+
+        return foodList;
+    }
+
     /// <summary>
     /// ピザのスライスを取り上げ、上に乗っている具材に応じてポイントを獲得させる
     /// </summary>
