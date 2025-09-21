@@ -42,7 +42,7 @@ public class UDPMulti : MonoBehaviour
             // 接続できていない時間の経過
             disconnectTimer += Time.deltaTime;
         }
-        public void ResetDiscconectTimer(float disconnectThreshold)
+        public void ResetDiscconectTimer()
         {
             // 接続できていない時間をリセット
             disconnectTimer = 0f;
@@ -139,7 +139,6 @@ public class UDPMulti : MonoBehaviour
     UdpClient client;
     Thread receiveThread;                                           // 受信用スレッド
     Thread sendThread;                                              // 送信用スレッド
-    Thread parseThread;                                             // パース用スレッド
     bool isSendTiming = false;                                      // 送信タイミングかどうかのフラグ
     volatile bool isReceiving = false;                              // 受信を行っている（受信スレッドをループしている）かどうか
     bool isSending = false;                                         // 送信を行っているかどうか
@@ -177,6 +176,10 @@ public class UDPMulti : MonoBehaviour
         {
             debugTimer = 0f;
             Debug.Log($"[QUEUE] size = {messageQueue.Count}");
+            foreach (ClientInfo player in connectedPlayerInfos)
+            {
+                Debug.Log($"[DisconnectTimer] {player.IP}'s timer = {player.DisconnectTimer}");
+            }
         }
 
         // パース
@@ -280,7 +283,6 @@ public class UDPMulti : MonoBehaviour
 
         // デバッグ
         Debug.Log("再接続を要求");
-        Debug.LogWarning($"最後の受信から{(DateTime.Now - lastRecieveTime).TotalSeconds}秒経過");
         Debug.LogError($"[RECONNECT] Triggered at {DateTime.Now:HH:mm:ss.fff}");
     }
 
@@ -330,86 +332,110 @@ public class UDPMulti : MonoBehaviour
         return message;
     }
 
-    DateTime lastRecieveTime = new DateTime();// デバッグ用
     /// <summary>
     /// 受信用のスレッド。受信した際に情報をスタックに保存しておく。
     /// </summary>
     void ThreadReceive()
     {
-        lastRecieveTime = DateTime.Now;
-        while (isReceiving)
+        try
         {
-            IPEndPoint senderEP = null;
-            try// 情報を受け取れないときに切断されないようにしている
+            while (isReceiving)
             {
-                byte[] receivedBytes = client.Receive(ref senderEP);
-                lastRecieveTime = DateTime.Now;// 最後に受け取れた時間で更新
-                if (receivedBytes != null && receivedBytes.Length - sizeof(Int32) > 0)
+                IPEndPoint senderEP = null;
+                try// 情報を受け取れないときに切断されないようにしている
                 {
-                    ClientInfo foundInfo = null;// メッセージで受信できたClientInfoを入れる
-                    try
+                    byte[] receivedBytes = client.Receive(ref senderEP);
+                    Debug.Log($"受信成功 bytes={receivedBytes.Length}");// デバッグ
+                    if (receivedBytes != null && receivedBytes.Length - sizeof(Int32) > 0)
                     {
-                        // 接続時
-                        // ClientInfoを取得
-                        foundInfo = SearchClientInfo(receivedBytes.ToClientInfo(sizeof(Int32)));// UDPMessage型のメッセージの先にあるJsonファイルから、ClientInfoを取得する
-
-                        //Debug.Log($"受け取ったメッセージ長: {receivedBytes.Length}");
-                        //messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, clientInfo));
-                    }
-                    catch
-                    {
-                        // Jsonのパースか変換でエラーが起きたとき、無視して後で処理する
-                        foundInfo = null;
-                        Debug.LogWarning("Jsonのパースおよび変換で例外が投げられました。");
-                    }
-                    //catch
-                    //{
-                    //    // 通信時
-                    //    string objectInfoJson = System.Text.Encoding.UTF8.GetString(receivedBytes, sizeof(Int32), receivedBytes.Length - sizeof(Int32));// UDPMessage型のメッセージの先
-                    //    ObjectInfo objectInfo = JsonUtility.FromJson<ObjectInfo>(objectInfoJson);
-
-                    //    Debug.Log($"ポート：{objectInfo.ClientInfo.Port}, 受け取った位置：{objectInfo.Position}");
-                    //    messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, objectInfo.ClientInfo));
-                    //}
-
-                    if (foundInfo == null)
-                    {
-                        // 通信時
-                        string objectInfoJson = System.Text.Encoding.UTF8.GetString(receivedBytes, sizeof(Int32), receivedBytes.Length - sizeof(Int32));// UDPMessage型のメッセージの先
-                        ObjectInfo objectInfo = JsonUtility.FromJson<ObjectInfo>(objectInfoJson);// ObjectInfoを取得
-
-                        // 同期するオブジェクトの情報が不完全なときはキューに追加しない
-                        if (objectInfo == null || objectInfo.ClientInfo == null)
+                        // 接続生存確認のメッセージ
+                        UDPMessageType type = receivedBytes.ToUDPMessageType();
+                        if (type == UDPMessageType.ConnectCheck)
                         {
-                            Debug.LogWarning("ObjectInfoのパース失敗" + objectInfoJson);
+                            // ClientInfoがなくてもキューに追加する
+                            ReceivedUnit ConnectCheckUnit = new ReceivedUnit(senderEP, receivedBytes, null);
+                            messageQueue.Enqueue(ConnectCheckUnit);
+                            Debug.Log("Enqueue成功 Info=" + (ConnectCheckUnit.Info?.IP ?? "null"));// デバッグ
+                            CheckConnect(ConnectCheckUnit);// 接続状態の更新
                             continue;
                         }
 
-                        foundInfo = objectInfo.ClientInfo;// ClientInfoを設定
+                        ClientInfo foundInfo = null;// メッセージで受信できたClientInfoを入れる
+                        try
+                        {
+                            // 接続時
+                            // ClientInfoを取得
+                            foundInfo = SearchClientInfo(receivedBytes.ToClientInfo(sizeof(Int32)));// UDPMessage型のメッセージの先にあるJsonファイルから、ClientInfoを取得する
+
+                            //Debug.Log($"受け取ったメッセージ長: {receivedBytes.Length}");
+                            //messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, clientInfo));
+                        }
+                        catch
+                        {
+                            // Jsonのパースか変換でエラーが起きたとき、無視して後で処理する
+                            foundInfo = null;
+                            //Debug.LogWarning($"Jsonのパース失敗 {System.Text.Encoding.UTF8.GetString(receivedBytes)}");
+                        }
+                        //catch
+                        //{
+                        //    // 通信時
+                        //    string objectInfoJson = System.Text.Encoding.UTF8.GetString(receivedBytes, sizeof(Int32), receivedBytes.Length - sizeof(Int32));// UDPMessage型のメッセージの先
+                        //    ObjectInfo objectInfo = JsonUtility.FromJson<ObjectInfo>(objectInfoJson);
+
+                        //    Debug.Log($"ポート：{objectInfo.ClientInfo.Port}, 受け取った位置：{objectInfo.Position}");
+                        //    messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, objectInfo.ClientInfo));
+                        //}
+
+                        if (foundInfo == null)
+                        {
+                            // 通信時
+                            string objectInfoJson = System.Text.Encoding.UTF8.GetString(receivedBytes, sizeof(Int32), receivedBytes.Length - sizeof(Int32));// UDPMessage型のメッセージの先
+                                                                                                                                                            //Debug.Log($"[RAW MESSAGE] {objectInfoJson}");
+                            ObjectInfo objectInfo = JsonUtility.FromJson<ObjectInfo>(objectInfoJson);// ObjectInfoを取得
+
+                            // 同期するオブジェクトの情報が不完全なときはキューに追加しない
+                            if (objectInfo == null || objectInfo.ClientInfo == null)
+                            {
+                                //Debug.LogWarning("ObjectInfoのパース失敗" + objectInfoJson);
+                                continue;
+                            }
+
+                            foundInfo = objectInfo.ClientInfo;// ClientInfoを設定
+                        }
+
+                        // メッセージをキューに追加
+                        ReceivedUnit unit = new ReceivedUnit(senderEP, receivedBytes, foundInfo);
+                        messageQueue.Enqueue(unit);
+                        Debug.Log("Enqueue成功 Info=" + (unit.Info?.IP ?? "null"));// デバッグ
+
+                        // 接続している状況の更新
+                        CheckConnect(unit);
+
+                        //Debug.Log($"[RECEIVE] {DateTime.Now:HH:mm:ss.fff} bytes={receivedBytes.Length} from={senderEP}");// デバッグ
                     }
-
-                    // メッセージをキューに追加
-                    ReceivedUnit unit = new ReceivedUnit(senderEP, receivedBytes, foundInfo);
-                    messageQueue.Enqueue(unit);
-
-                    // 接続している状況の更新
-                    CheckConnect(unit);
-
-                    Debug.Log($"[RECEIVE] {DateTime.Now:HH:mm:ss.fff} bytes={receivedBytes.Length} from={senderEP}");// デバッグ
                 }
-            }
-            catch (SocketException sockerException)
-            {
-                if (!isReceiving) break;// clientが閉じられていたら抜ける
-                Debug.LogError($"Socket Exception:{sockerException.Message}");
-            }
-            catch (Exception exception)
-            {
-                Debug.LogException(exception);
-                throw;
+                catch (SocketException sockerException)
+                {
+                    if (!isReceiving) break;// clientが閉じられていたら抜ける
+                                            //Debug.LogError($"Socket Exception:{sockerException.Message}");
+                }
+                catch (Exception exception)
+                {
+
+                }
+
             }
         }
-        Debug.LogWarning("受信スレッド終了");// デバッグ
+        catch (Exception exception)
+        {
+            Debug.LogError("ThreadReceive Exception" + exception);
+        }
+
+        finally
+        {
+            Debug.LogWarning("ThreadReceive Ended");
+        }
+        //Debug.LogWarning("受信スレッド終了");// デバッグ
     }
 
     /// <summary>
@@ -542,16 +568,17 @@ public class UDPMulti : MonoBehaviour
 
     void CheckConnect(ReceivedUnit unit)
     {
-        if (unit.Info == null) return;// nullチェック
-        foreach (ClientInfo connectedPlayer in connectedPlayerInfos)
+        //Debug.Log("[CheckConnect] 呼び出し");
+        // connectedPlayerInfos内に渡されたunitに当たるプレイヤーがいるか調べる（いなければnull）
+        ClientInfo existing = connectedPlayerInfos.FirstOrDefault(player => player.IP == unit.Info.IP && player.Port == unit.Info.Port);
+
+        // 見つかった場合
+        if (existing != null)
         {
-            // 接続を確認したのでタイマーをリセット
-            if (unit.Info.IP == connectedPlayer.IP)
-            {
-                connectedPlayer.ResetDiscconectTimer(disconnectThreshold);
-                break;
-            }
+            //Debug.Log("[CheckConnect] 発見" + existing.IP);
+            existing.ResetDiscconectTimer();// 切断判定までのタイマーをリセット
         }
+        //else Debug.Log("[CheckConnect] 発見不可");
     }
 
     /// <summary>
@@ -606,7 +633,7 @@ public class UDPMulti : MonoBehaviour
             try
             {
                 client.SendAsync(message, message.Length, clientInfo.EndPoint);
-                Debug.Log($"[SEND] {DateTime.Now:HH:mm:ss.fff} to={clientInfo.EndPoint}");// デバッグ
+                //Debug.Log($"[SEND] {DateTime.Now:HH:mm:ss.fff} to={clientInfo.EndPoint}");// デバッグ
 
             }
             catch (ObjectDisposedException)
