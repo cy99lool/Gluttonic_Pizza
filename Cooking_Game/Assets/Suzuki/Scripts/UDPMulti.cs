@@ -356,7 +356,9 @@ public class UDPMulti : MonoBehaviour
                             ReceivedUnit ConnectCheckUnit = new ReceivedUnit(senderEP, receivedBytes, null);
                             messageQueue.Enqueue(ConnectCheckUnit);
                             Debug.Log("Enqueue成功 Info=" + (ConnectCheckUnit.Info?.IP ?? "null"));// デバッグ
+                            Debug.Log("CheckConnect呼ぶ");
                             CheckConnect(ConnectCheckUnit);// 接続状態の更新
+                            Debug.Log("CheckConnect呼んだ");
                             continue;
                         }
 
@@ -409,7 +411,9 @@ public class UDPMulti : MonoBehaviour
                         Debug.Log("Enqueue成功 Info=" + (unit.Info?.IP ?? "null"));// デバッグ
 
                         // 接続している状況の更新
+                        Debug.Log("CheckConnect呼ぶ");
                         CheckConnect(unit);
+                        Debug.Log("CheckConnect呼んだ");
 
                         //Debug.Log($"[RECEIVE] {DateTime.Now:HH:mm:ss.fff} bytes={receivedBytes.Length} from={senderEP}");// デバッグ
                     }
@@ -633,7 +637,7 @@ public class UDPMulti : MonoBehaviour
             try
             {
                 client.SendAsync(message, message.Length, clientInfo.EndPoint);
-                //Debug.Log($"[SEND] {DateTime.Now:HH:mm:ss.fff} to={clientInfo.EndPoint}");// デバッグ
+                Debug.Log($"[SEND] {DateTime.Now:HH:mm:ss.fff} to={clientInfo.EndPoint}");// デバッグ
 
             }
             catch (ObjectDisposedException)
