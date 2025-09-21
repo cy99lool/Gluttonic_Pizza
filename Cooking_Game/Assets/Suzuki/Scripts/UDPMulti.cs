@@ -130,6 +130,7 @@ public class UDPMulti : MonoBehaviour
     const int MessageStackSize = 30;                                // メッセージの待機列のサイズ
     const int PosDataMargin = 3;                                    // 受け取った位置情報の保有可能量
     const int RecieveBufferSize = 65536;                            // 受信バッファのサイズ
+    const int ThreadSleepMillisecond = 1;                           // スレッドの処理を一時停止する時間（ミリ秒）
 
     static int sendPerSecond = 5;                                // 1秒に何回送信するか
     static float SendInterval => (GameConstants.OneSecond / sendPerSecond) * GameConstants.MillisecondPerSecond;// 送信ごとの間隔（1秒 / 1秒に送信する回数、ミリ秒の単位）
@@ -140,6 +141,7 @@ public class UDPMulti : MonoBehaviour
     Thread parseThread;                                             // パース用スレッド
     bool isSendTiming = false;                                      // 送信タイミングかどうかのフラグ
     volatile bool isReceiving = false;                              // 受信を行っている（受信スレッドをループしている）かどうか
+    volatile bool isParsing = false;                                // パースを行っているかどうか
     bool isSending = false;                                         // 送信を行っているかどうか
     List<IPEndPoint> answerWaiting = new List<IPEndPoint>(MaxPlayerNum);       // 応答待機のリスト
     [SerializeField] List<ClientInfo> connectedPlayerInfos = new List<ClientInfo>(MaxPlayerNum);  // 接続できたプレイヤーのリスト
@@ -156,6 +158,7 @@ public class UDPMulti : MonoBehaviour
         receiveThread = new Thread(new ThreadStart(ThreadReceive));
         receiveThread.Start();// 受信スレッド開始
 
+        isParsing = true;
         parseThread = new Thread(new ThreadStart(ThreadParse));
         parseThread.Start();// パーススレッド開始
 
@@ -224,12 +227,19 @@ public class UDPMulti : MonoBehaviour
     {
         ReceivedUnit dequeued;
 
-        // 受信メッセージがある場合
-        while (messageQueue.TryDequeue(out dequeued))
+        while (isParsing)
         {
-            // メッセージの中身を解読（現在デバッグのためコメントアウト）
-            Parse(dequeued);
+            // 受信メッセージがある場合
+            while (messageQueue.TryDequeue(out dequeued))
+            {
+                // メッセージの中身を解読（現在デバッグのためコメントアウト）
+                Parse(dequeued);
+            }
+
+            // CPUの負荷対策
+            Thread.Sleep(ThreadSleepMillisecond);
         }
+        Debug.LogWarning("パーススレッド終了");
     }
 
     void RequestReconnection(string ip, int port)
@@ -426,7 +436,7 @@ public class UDPMulti : MonoBehaviour
                 isSendTiming = true;
                 last = now;// タイマーの初期化
             }
-            Thread.Sleep(1);// CPUの食いすぎを防止する
+            Thread.Sleep(ThreadSleepMillisecond);// CPUの食いすぎを防止する
 
             // Thread.Sleepではネットワークに応答なしと判断される可能性があったため変更している
             //Thread.Sleep(1000 / sendPerSecond);
@@ -640,6 +650,7 @@ public class UDPMulti : MonoBehaviour
         if (receiveThread != null && receiveThread.IsAlive) receiveThread.Join(ThreadMilliSecondsTimeOut);// 指定された時間が経過するまで呼び出し元のスレッドをブロック
 
         // パーススレッド
+        isParsing = false;
         if(parseThread != null && parseThread.IsAlive) parseThread.Join(ThreadMilliSecondsTimeOut);// 指定された時間が経過するまで呼び出し元のスレッドをブロック
 
         client?.Dispose();// リソースを開放
