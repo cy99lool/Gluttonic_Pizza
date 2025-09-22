@@ -53,20 +53,9 @@ public class CursorInfo : MonoBehaviour
 
     List<Mode> canModes;
     public List<Mode> CanModes => canModes;
-    public bool CanBig
-    {
-        get
-        {
-            return GetCanFlag(Mode.Big);// 移行可能モードに巨大化があるかを返す
-        }
-    }
-    public bool CanBomb
-    {
-        get
-        {
-            return GetCanFlag(Mode.Bomb);// 移行可能モードに爆弾化があるかを返す
-        }
-    }
+    public bool Shootable => ammo > 0;
+    public bool CanBig => GetCanFlag(Mode.Big);// 移行可能モードに巨大化があるかを返す
+    public bool CanBomb => GetCanFlag(Mode.Bomb);// 移行可能モードに爆弾化があるかを返す
 
     void Start()
     {
@@ -114,6 +103,12 @@ public class CursorInfo : MonoBehaviour
         this.canModes = canModes;
     }
 
+    void RemoveFlag(Mode mode)
+    {
+        // モードがあるなら
+        if(canModes.Contains(mode)) canModes.Remove(mode);// 移行可能なモードから削除
+    }
+
     bool GetCanFlag(Mode targetMode)
     {
         if (canModes.Count == 0) return false;// 移行可能モードのリストがなければできないと返す
@@ -125,19 +120,32 @@ public class CursorInfo : MonoBehaviour
         return false;
     }
 
+    int ammo = 5;
+
+    public void SetAmmo(int ammoNum)
+    {
+        ammo = ammoNum;
+    }
+
     public void OnShoot()
     {
         switch(foodMode)
         {
+            // 通常弾
+            case Mode.Normal:
+                //ammo--;
+                break;
             // 巨大弾
             case Mode.Big:
                 SetMode(Mode.Normal);// 通常弾に戻す
-                canModes.Remove(Mode.Big);// 巨大化可能状態を解除
+                RemoveFlag(Mode.Big);// 巨大化可能状態を解除
+                //ammo--;
                 break;
             // 爆発弾
             case Mode.Bomb:
                 SetMode(Mode.Normal);// 通常弾に戻す
-                canModes.Remove(Mode.Bomb);// 爆弾化可能状態を解除
+                RemoveFlag(Mode.Bomb);// 爆弾化可能状態を解除
+                //ammo--;
                 break;
             default:
                 break;
