@@ -186,7 +186,7 @@ public class StageManager : MonoBehaviour
         for (int i = 0; i < trackObjects.Count; i++)
         {
             // 指が離されて、発射されるとき
-            if (trackObjects[i].Released)
+            if (trackObjects[i].Released && trackObjects[i].Cursor.Shootable)
             {
                 // 具材を生成して発射
                 SummonAndShotFood(trackObjects[i].FoodPrefab, trackObjects[i].TrackPosition + Vector3.up * 0.5f, trackObjects[i].ShotDirection, trackObjects[i].PivotPos, trackObjects[i].Power);
