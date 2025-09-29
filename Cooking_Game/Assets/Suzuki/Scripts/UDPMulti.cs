@@ -31,6 +31,16 @@ public class UDPMulti : MonoBehaviour
 
         public IPEndPoint EndPoint => endPoint;
         public float DisconnectTimer => disconnectTimer;
+
+        // コンストラクタ
+        public ClientInfo() { }
+
+        public ClientInfo(string ip, int port)
+        {
+            this.ip = ip;
+            this.port = port;
+        }
+
         public void SetEP(IPEndPoint iPEndPoint)
         {
             endPoint = iPEndPoint;
@@ -133,7 +143,7 @@ public class UDPMulti : MonoBehaviour
     const int MaxParsePerFrame = 100;                               // 1フレームごとのパース可能回数
     const int ThreadSleepMillisecond = 1;                           // スレッドの処理を一時停止する時間（ミリ秒）
 
-    static int sendPerSecond = 5;                                // 1秒に何回送信するか
+    static int sendPerSecond = 10;                                // 1秒に何回送信するか
     static float SendInterval => (GameConstants.OneSecond / sendPerSecond) * GameConstants.MillisecondPerSecond;// 送信ごとの間隔（1秒 / 1秒に送信する回数、ミリ秒の単位）
 
     UdpClient client;
@@ -346,14 +356,16 @@ public class UDPMulti : MonoBehaviour
                 {
                     byte[] receivedBytes = client.Receive(ref senderEP);
                     Debug.Log($"受信成功 bytes={receivedBytes.Length}");// デバッグ
-                    if (receivedBytes != null && receivedBytes.Length - sizeof(Int32) > 0)
+
+                    // メッセージの長さチェック
+                    if (receivedBytes != null && receivedBytes.Length >= sizeof(Int32))
                     {
                         // 接続生存確認のメッセージ
                         UDPMessageType type = receivedBytes.ToUDPMessageType();
                         if (type == UDPMessageType.ConnectCheck)
                         {
                             // ClientInfoがなくてもキューに追加する
-                            ReceivedUnit ConnectCheckUnit = new ReceivedUnit(senderEP, receivedBytes, null);
+                            ReceivedUnit ConnectCheckUnit = new ReceivedUnit(senderEP, receivedBytes, new ClientInfo(senderEP.Address.ToString(), senderEP.Port));
                             messageQueue.Enqueue(ConnectCheckUnit);
                             Debug.Log("Enqueue成功 Info=" + (ConnectCheckUnit.Info?.IP ?? "null"));// デバッグ
                             Debug.Log("CheckConnect呼ぶ");
@@ -494,8 +506,14 @@ public class UDPMulti : MonoBehaviour
         UDPMessageType type = unit.Message.ToUDPMessageType();
         //ClientInfo clientInfo = unit.Message.ToClientInfo(sizeof(Int32));// ClientInfoを取得
 
-        int answerWaitRegisterIndex = answerWaiting.IndexOfPort(unit.SenderEP.Port);
-        int connectedIndex = connectedPlayerInfos.IndexOfPort(unit.SenderEP.Port);
+        // 接続時に使用する変数の設定
+        int answerWaitRegisterIndex = GameConstants.DefaultIndex;    // 接続待ちリストの中のインデックス
+        int connectedIndex = GameConstants.DefaultIndex;             // 接続済みの中のインデックス
+        if (type == UDPMessageType.AnswerWait || type == UDPMessageType.Answered)
+        {
+            answerWaitRegisterIndex = answerWaiting.IndexOfPort(unit.SenderEP.Port);
+            connectedIndex = connectedPlayerInfos.IndexOfPort(unit.SenderEP.Port);
+        }
 
         //Debug.Log("メッセージを受信");
         switch (type)
@@ -503,7 +521,7 @@ public class UDPMulti : MonoBehaviour
             case UDPMessageType.AnswerWait:
                 {
                     Debug.Log(answerWaitRegisterIndex);
-                    if (answerWaitRegisterIndex == -1) break;// 応答待ちリストに存在しなければ処理を行わない
+                    if (answerWaitRegisterIndex == GameConstants.DefaultIndex) break;// 応答待ちリストに存在しなければ処理を行わない
 
                     connectedPlayerInfos.Add(unit.Info);// 接続済みプレイヤーのリストに追加
                     answerWaiting.RemoveAt(answerWaitRegisterIndex);// 応答待ちリストから削除
@@ -749,7 +767,7 @@ static class MultiPlayerMessenger
     // ポート番号と一致するリストの番号を検索
     public static int IndexOfPort(this List<UDPMulti.ClientInfo> endPoints, int targetPort)
     {
-        int index = -1;// 合うポートが見つからなければ-1を返すように
+        int index = GameConstants.DefaultIndex;// 合うポートが見つからなければ初期値(-1)を返すように
         for (int i = 0; i < endPoints.Count; i++)
         {
             if (endPoints[i].Port == targetPort) index = i;// 合うポートの番号を設定
@@ -758,7 +776,7 @@ static class MultiPlayerMessenger
     }
     public static int IndexOfPort(this List<IPEndPoint> endPoints, int targetPort)
     {
-        int index = -1;// 合うポートが見つからなければ-1を返すように
+        int index = GameConstants.DefaultIndex;// 合うポートが見つからなければ初期値（-1）を返すように
         for (int i = 0; i < endPoints.Count; i++)
         {
             if (endPoints[i].Port == targetPort) index = i;// 合うポートの番号を設定
