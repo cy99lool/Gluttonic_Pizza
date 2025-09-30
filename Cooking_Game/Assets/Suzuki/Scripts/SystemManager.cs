@@ -14,8 +14,24 @@ public class SystemManager : MonoBehaviour
         public int Score => score;
         [Header("チームの情報UIテキスト"), SerializeField] TMPro.TextMeshProUGUI scoreText;
         public TMPro.TextMeshProUGUI ScoreText => scoreText;
+
         [Header("取られるまでの時間のテキスト"), SerializeField] TMPro.TextMeshProUGUI pickTimeText;
         public TMPro.TextMeshProUGUI PickTimeText => pickTimeText;
+
+        // ----- リザルト表示 -----
+        [Header("リザルト表示\nメイン画面のスコア表示オブジェクト"), SerializeField] GameObject mainResultUI;
+        public GameObject MainResultUI => mainResultUI;
+
+        [Header("〃のスコアバー"), SerializeField] RectTransform mainScoreBar;
+        public RectTransform MainScoreBar => mainScoreBar;
+
+        [Header("\nタブレット画面のスコア表示オブジェクト"), SerializeField] GameObject tabletResuiltUI;
+        public GameObject TabletResuiltUI => tabletResuiltUI;
+
+        [Header("〃のスコアバー"), SerializeField] RectTransform tabletScoreBar;
+        public RectTransform TabletScoreBar => tabletScoreBar;
+
+        // ----- リザルト表示ここまで -----
 
         public void AddScore(int score)
         {
