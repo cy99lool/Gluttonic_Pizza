@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [System.Serializable] // Json化したときに保存されるように
 public class CursorInfo : MonoBehaviour
@@ -11,6 +12,7 @@ public class CursorInfo : MonoBehaviour
     [System.Serializable]
     public enum Mode
     {
+        None = 0,
         Normal = 1,
         Big = 2,
         Bomb = 3
@@ -27,8 +29,11 @@ public class CursorInfo : MonoBehaviour
 
     const Mode DefaultMode = Mode.Normal;
 
-    [SerializeField] FoodMove.TeamColor team;
-    public FoodMove.TeamColor Team => team;
+    [FormerlySerializedAs("team"), SerializeField] FoodMove.TeamColor teamColor;
+    SystemManager.Team team;
+    public SystemManager.Team Team => team;
+
+    SystemManager systemManager;
 
     [SerializeField] Mode foodMode;
     public Mode FoodMode => foodMode;
@@ -53,7 +58,7 @@ public class CursorInfo : MonoBehaviour
 
     List<Mode> canModes;
     public List<Mode> CanModes => canModes;
-    public bool Shootable => ammo > 0;
+    public bool Shootable => team.Shootable;
     public bool CanBig => GetCanFlag(Mode.Big);// 移行可能モードに巨大化があるかを返す
     public bool CanBomb => GetCanFlag(Mode.Bomb);// 移行可能モードに爆弾化があるかを返す
 
@@ -61,6 +66,19 @@ public class CursorInfo : MonoBehaviour
     {
         foodMode = DefaultMode;
         canModes = new List<Mode>();
+
+        // SystemManagerを取得（チームの取得用、JSONファイルにならないようにインスペクタ上ではアタッチしていない）
+        systemManager = FindObjectOfType<SystemManager>();
+
+        // 自身のチームを取得
+        foreach(SystemManager.Team team in systemManager.Teams)
+        {
+            if(teamColor == team.Color)
+            {
+                this.team = team;
+                break;
+            }
+        }
     }
 
     void Update()
@@ -120,35 +138,31 @@ public class CursorInfo : MonoBehaviour
         return false;
     }
 
-    int ammo = 5;
-
-    public void SetAmmo(int ammoNum)
-    {
-        ammo = ammoNum;
-    }
-
     public void OnShoot()
     {
         switch(foodMode)
         {
             // 通常弾
             case Mode.Normal:
-                //ammo--;
                 break;
             // 巨大弾
             case Mode.Big:
                 SetMode(Mode.Normal);// 通常弾に戻す
                 RemoveFlag(Mode.Big);// 巨大化可能状態を解除
-                //ammo--;
                 break;
             // 爆発弾
             case Mode.Bomb:
                 SetMode(Mode.Normal);// 通常弾に戻す
                 RemoveFlag(Mode.Bomb);// 爆弾化可能状態を解除
-                //ammo--;
                 break;
             default:
-                break;
+                return;
+        }
+
+        // 残弾数を減らす
+        if(foodMode != Mode.None)
+        {
+            team.SubtractBullet();
         }
     }
 

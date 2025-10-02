@@ -27,7 +27,7 @@ public class Result : MonoBehaviour
         // 順位の位置設定
         for (int i = 0; i < teams.Count; i++)
         {
-            teams[i].MainScoreBar.anchoredPosition = mainUIBarPositions[i].anchoredPosition;
+            if (teams[i].MainScoreBar != null) teams[i].MainScoreBar.anchoredPosition = mainUIBarPositions[i].anchoredPosition;
         }
 
         // 伸ばす
@@ -37,7 +37,7 @@ public class Result : MonoBehaviour
             foreach(SystemManager.Team team in teams)
             {
                 // スコアを更新する対象はゲージを伸ばす
-                if (nowScore <= team.Score)
+                if (nowScore <= team.Score && team.MainScoreBar != null)
                 {
                     // スコアをカウントアップするならここに追加
                     team.MainScoreBar.offsetMax = new Vector2(team.MainScoreBar.offsetMax.x + nowScore * extendPerScore, team.MainScoreBar.offsetMax.y);
