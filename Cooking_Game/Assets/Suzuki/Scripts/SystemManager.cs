@@ -170,6 +170,12 @@ public class SystemManager : MonoBehaviour
         while (timer < rouletteTime)
         {
             // ルーレット演出をいれる
+            foreach(int index in pickIndexes)
+            {
+                pizzaManager.PizzaSlices[index].EnableHighlightObject();
+            }
+
+            timer += Time.deltaTime;
             yield return null;
         }
     }
@@ -215,6 +221,12 @@ public class SystemManager : MonoBehaviour
     /// <returns></returns>
     IEnumerator DebugPick(float shootTime)
     {
+        // 念の為再度ハイライト
+        foreach (int index in pickIndexes)
+        {
+            pizzaManager.PizzaSlices[index].EnableHighlightObject();
+        }
+
         pizzaManager.StartSpin();// 回転開始
 
         // プレイヤーは発射できるように（残弾数の補充）
@@ -253,6 +265,8 @@ public class SystemManager : MonoBehaviour
 
     IEnumerator PreparePickPizzaPhase(float preparePizzaTime)
     {
+        pizzaManager.StopSpin();// 回転停止
+
         // 取得待機演出
         yield return StartCoroutine(pizzaManager.PrepareTakePizza(preparePizzaTime));
     }
@@ -262,7 +276,7 @@ public class SystemManager : MonoBehaviour
         // 取得
         Debug.Log("取得");
         pizzaManager.TakePizzaSlice(pickIndexes);
-        pizzaManager.StopSpin();// 回転停止
+        
         yield return null;
     }
 

@@ -181,17 +181,17 @@ public class UDPMulti : MonoBehaviour
             isSendTiming = false;
         }
 
-        // デバッグ、現在のメッセージキューのサイズを1秒ごとにだす
-        debugTimer += Time.deltaTime;
-        if (debugTimer >= 1f)
-        {
-            debugTimer = 0f;
-            Debug.Log($"[QUEUE] size = {messageQueue.Count}");
-            foreach (ClientInfo player in connectedPlayerInfos)
-            {
-                Debug.Log($"[DisconnectTimer] {player.IP}'s timer = {player.DisconnectTimer}");
-            }
-        }
+        //// デバッグ、現在のメッセージキューのサイズを1秒ごとにだす
+        //debugTimer += Time.deltaTime;
+        //if (debugTimer >= 1f)
+        //{
+        //    debugTimer = 0f;
+        //    Debug.Log($"[QUEUE] size = {messageQueue.Count}");
+        //    foreach (ClientInfo player in connectedPlayerInfos)
+        //    {
+        //        Debug.Log($"[DisconnectTimer] {player.IP}'s timer = {player.DisconnectTimer}");
+        //    }
+        //}
 
         // パース
         ParseMessages();
