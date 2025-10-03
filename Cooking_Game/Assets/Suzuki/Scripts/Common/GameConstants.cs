@@ -13,6 +13,7 @@ public static class GameConstants
     public const float OneSecond = 1f;              // 一秒あたりのレートを計算するとき等に使う
     public const int MillisecondPerSecond = 1000;   // 1秒は何ミリ秒か
     public const int DefaultIndex = -1;             // インデックスの初期値
+    public const int HeadIndex = 0;                 // 配列やリストの先頭を指すインデックス
 
     /// <summary>
     /// Vector3の割り算
