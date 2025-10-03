@@ -55,6 +55,7 @@ public class CursorInfo : MonoBehaviour
 
     [SerializeField] UnityEngine.UI.Button bigButton;
     [SerializeField] UnityEngine.UI.Button bombButton;
+    [SerializeField] TMPro.TextMeshProUGUI bulletCountText;
 
     List<Mode> canModes;
     public List<Mode> CanModes => canModes;
@@ -85,6 +86,7 @@ public class CursorInfo : MonoBehaviour
     {
         UpdateButtonFillAmount(CanBig, bigButton);// 巨大化ボタンの更新
         UpdateButtonFillAmount(CanBomb, bombButton);// 爆弾化ボタンの更新
+        UpdateBulletCountUI();// 残弾数の更新
     }
 
     void UpdateButtonFillAmount(bool flag, UnityEngine.UI.Button button)
@@ -94,6 +96,12 @@ public class CursorInfo : MonoBehaviour
 
         // ボタンが見えないように
         if (!flag && button.image.fillAmount != FillAmountMin) button.image.fillAmount = FillAmountMin;
+    }
+
+    void UpdateBulletCountUI()
+    {
+        if (bulletCountText == null) return;
+        bulletCountText.text = $"残弾数:{team.BulletCount}";
     }
 
     // 現在の食材のモードを設定

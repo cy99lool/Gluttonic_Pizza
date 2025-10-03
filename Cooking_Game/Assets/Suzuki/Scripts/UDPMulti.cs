@@ -671,7 +671,9 @@ public class UDPMulti : MonoBehaviour
             List<CursorInfo.Mode> canModes = clientInfo.Cursor.CanModes;
 
             HostMessageDto hostMessageDto = new HostMessageDto(systemManager, canModes);
-            byte[] dtoMessage = System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(hostMessageDto));// Jsonに変換
+            string hostMessageDtoJson = JsonUtility.ToJson(hostMessageDto);
+            byte[] dtoMessage = System.Text.Encoding.UTF8.GetBytes(hostMessageDtoJson);// Jsonに変換
+            HostMessageDto debugDto = JsonUtility.FromJson<HostMessageDto>(hostMessageDtoJson);
             byte[] hostMessage = MergeBytes(udpMessage, dtoMessage);
 
             SendAsyncToPlayers(hostMessage);
