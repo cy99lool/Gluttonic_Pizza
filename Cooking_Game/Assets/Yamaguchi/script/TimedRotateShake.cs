@@ -5,24 +5,29 @@ using UnityEngine.UI;
 public class TimedRotateShake : MonoBehaviour
 {
     [Header("Timer")]
-    [SerializeField] private float timeLimit = 10f;
+    [SerializeField] private float timeLimit = 60f;
     private float elapsed = 0f;
     private bool triggered = false;
+    private bool warningSoundPlayed = false;
+
+    [Header("Warning Settings")]
+    [SerializeField] private float warningTime = 10f; // 残り◯秒で音＋シェイク
 
     [Header("UI")]
     [SerializeField] private Image timerCircle;
 
     [Header("Shake Target")]
-    [SerializeField] private RectTransform targetRect;   // 回転させたいUI
-    [SerializeField] private float shakeDuration = 0.5f; // 続ける時間
-    [SerializeField] private float shakeAngle = 15f;     // 左右の角度
-    [SerializeField] private float shakeSpeed = 30f;     // 速さ（振動回数/秒）
+    [SerializeField] private RectTransform targetRect;
+    [SerializeField] private float shakeDuration = 0.5f;
+    [SerializeField] private float shakeAngle = 15f;
+    [SerializeField] private float shakeSpeed = 30f;
 
     private Quaternion originalRotation;
 
     [Header("Sound")]
-    [SerializeField] private AudioSource audioSource; // AudioSource をアタッチ
-    [SerializeField] private AudioClip triggerClip;   // 鳴らしたい効果音
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip triggerClip;   // 時間切れ時の音
+    [SerializeField] private AudioClip warningClip;   // 残り◯秒の警告音
 
     void Start()
     {
@@ -42,6 +47,19 @@ public class TimedRotateShake : MonoBehaviour
         if (timerCircle != null)
             timerCircle.fillAmount = remaining / timeLimit;
 
+        // ⚠️ 残り warningTime 秒で音＋シェイク
+        if (!warningSoundPlayed && remaining <= warningTime)
+        {
+            warningSoundPlayed = true;
+
+            if (audioSource != null && warningClip != null)
+                audioSource.PlayOneShot(warningClip);
+
+            if (targetRect != null)
+                StartCoroutine(RotateShakeCoroutine());
+        }
+
+        // ⏰ 制限時間を超えたら実行
         if (elapsed >= timeLimit)
         {
             TriggerEffect();
@@ -52,13 +70,9 @@ public class TimedRotateShake : MonoBehaviour
     {
         triggered = true;
 
-        // 音を鳴らす
         if (audioSource != null && triggerClip != null)
-        {
             audioSource.PlayOneShot(triggerClip);
-        }
 
-        // 回転シェイク開始
         if (targetRect != null)
             StartCoroutine(RotateShakeCoroutine());
     }
@@ -73,8 +87,7 @@ public class TimedRotateShake : MonoBehaviour
             t += Time.deltaTime;
             yield return null;
         }
-        targetRect.localRotation = originalRotation; // 元に戻す
+        targetRect.localRotation = originalRotation;
     }
-
-   
 }
+

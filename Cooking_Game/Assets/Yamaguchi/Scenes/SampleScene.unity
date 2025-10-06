@@ -1313,9 +1313,9 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1616704163}
   - {fileID: 1787155913}
   - {fileID: 1627525490}
-  - {fileID: 1616704163}
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1652,16 +1652,16 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1616704162}
   m_LocalRotation: {x: -0, y: -0, z: -0.16569528, w: 0.98617697}
-  m_LocalPosition: {x: 0, y: 0, z: 103}
+  m_LocalPosition: {x: 0, y: 0, z: 591}
   m_LocalScale: {x: 2.232795, y: 2.232795, z: 2.232795}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1339343619}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -19.075}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -144, y: 264}
+  m_AnchoredPosition: {x: -145, y: 277}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1616704164
@@ -1676,14 +1676,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c876e4c6e9c006a4383bd985df797f4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeLimit: 5
+  timeLimit: 45
+  warningTime: 10
   timerCircle: {fileID: 1616704165}
   targetRect: {fileID: 1616704163}
-  shakeDuration: 0.5
-  shakeAngle: 15
-  shakeSpeed: 45
+  shakeDuration: 10
+  shakeAngle: 10
+  shakeSpeed: 30
   audioSource: {fileID: 1616704167}
   triggerClip: {fileID: 8300000, guid: 95f0d823c1422ec48af28dd59597de81, type: 3}
+  warningClip: {fileID: 8300000, guid: 95f0d823c1422ec48af28dd59597de81, type: 3}
 --- !u!114 &1616704165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1733,7 +1735,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 95f0d823c1422ec48af28dd59597de81, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -1850,7 +1852,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1339343619}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1907,7 +1909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b52b81d3d25c5543acba6b3fc5acc7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeLimit: 10
+  timeLimit: 45
   timerCircle: {fileID: 1787155915}
   needle: {fileID: 1627525490}
 --- !u!1 &1787155912
@@ -1938,11 +1940,11 @@ RectTransform:
   m_GameObject: {fileID: 1787155912}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -225}
-  m_LocalScale: {x: 0.9920311, y: 0.9920311, z: 0.9920311}
+  m_LocalScale: {x: 0.96396655, y: 0.96396655, z: 0.96396655}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1339343619}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -1961,7 +1963,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a3c9c3d5cb0f6f4f84bd13604bf674f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeLimit: 10
+  timeLimit: 45
   timerCircle: {fileID: 1787155915}
 --- !u!114 &1787155915
 MonoBehaviour:
