@@ -11451,7 +11451,7 @@ MonoBehaviour:
     mainScoreBar: {fileID: 0}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
-    bulletCount: 0
+    bulletCount: 999999
   - color: 1
     score: 0
     scoreText: {fileID: 801704762}
@@ -11461,7 +11461,7 @@ MonoBehaviour:
     mainScoreBar: {fileID: 0}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
-    bulletCount: 0
+    bulletCount: 999999
   - color: 2
     score: 0
     scoreText: {fileID: 1293919561}
@@ -11471,7 +11471,7 @@ MonoBehaviour:
     mainScoreBar: {fileID: 0}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
-    bulletCount: 0
+    bulletCount: 999999
   - color: 3
     score: 0
     scoreText: {fileID: 1584859132}
@@ -11481,7 +11481,7 @@ MonoBehaviour:
     mainScoreBar: {fileID: 0}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
-    bulletCount: 0
+    bulletCount: 999999
   reloadBulletValue: 1000000
 --- !u!4 &901040593
 Transform:
@@ -12119,7 +12119,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &952148038
 Transform:
   m_ObjectHideFlags: 0
@@ -19604,7 +19604,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1335428795
 Transform:
   m_ObjectHideFlags: 0

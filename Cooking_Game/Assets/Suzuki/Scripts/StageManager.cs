@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 public class StageManager : MonoBehaviour
@@ -174,6 +175,8 @@ public class StageManager : MonoBehaviour
 
     [SerializeField] List<TrackObject> trackObjects = new List<TrackObject>();
     [SerializeField] List<InfoForReflect> reflectList = new List<InfoForReflect>();
+    List<InfoForReflect> mergeEventList = new List<InfoForReflect>();
+    List<InfoForReflect> eatEventList = new List<InfoForReflect>();
 
     void Start()
     {
@@ -220,11 +223,33 @@ public class StageManager : MonoBehaviour
         {
             for (int i = reflectList.Count - 1; i >= 0; i--)
             {
+                // 一旦反射を消している
                 //Reflect(reflectList[i]);
 
                 reflectList.RemoveAt(i);// リストから削除
             }
         }
+        // くっつける
+        if (mergeEventList.Count > 0)
+        {
+            for(int i = mergeEventList.Count - 1;i >= 0;i--)
+            {
+                mergeEventList[i].First.Food.OnMerge(mergeEventList[i].Second.Food);
+
+                mergeEventList.RemoveAt(i);// リストから削除
+            }
+        }
+        // 食べる
+        if(eatEventList.Count > 0)
+        {
+            for(int i =  eatEventList.Count - 1; i>=0;i--)
+            {
+                eatEventList[i].First.Food.OnEat(eatEventList[i].Second.Food);
+
+                eatEventList.RemoveAt(i);// リストから削除
+            }
+        }
+
     }
 
     public void SummonAndShotFood(FoodMove foodPrefab, Vector3 summonPosition, Vector3 shotDirection, Vector3 pivotPos, float power)
@@ -242,19 +267,41 @@ public class StageManager : MonoBehaviour
 
     public void AddReflectList(FoodMove self, FoodMove opponent)
     {
+        //// リストに何も無ければ追加
+        //if (reflectList.Count == 0)
+        //{
+        //    reflectList.Add(new InfoForReflect(self, opponent));
+        //    return;
+        //}
+        //// リストにすでに入っているとき
+        //foreach (InfoForReflect reflect in reflectList)
+        //{
+        //    // リストに含まれているものでなければ追加
+        //    if (!reflect.IsSame(self.Rigidbody, opponent.Rigidbody))
+        //    {
+        //        reflectList.Add(new InfoForReflect(self, opponent));// 追加
+        //        return;
+        //    }
+        //}
+
+        AddInfoForReflectList(self, opponent, reflectList);
+    }
+
+    void AddInfoForReflectList(FoodMove self, FoodMove target, List<InfoForReflect> list)
+    {
         // リストに何も無ければ追加
-        if (reflectList.Count == 0)
+        if (list.Count == 0)
         {
-            reflectList.Add(new InfoForReflect(self, opponent));
+            list.Add(new InfoForReflect(self, target));
             return;
         }
         // リストにすでに入っているとき
-        foreach (InfoForReflect reflect in reflectList)
+        foreach (InfoForReflect item in list)
         {
             // リストに含まれているものでなければ追加
-            if (!reflect.IsSame(self.Rigidbody, opponent.Rigidbody))
+            if (!item.IsSame(self.Rigidbody, target.Rigidbody))
             {
-                reflectList.Add(new InfoForReflect(self, opponent));// 追加
+                list.Add(new InfoForReflect(self, target));// 追加
                 return;
             }
         }
@@ -294,18 +341,14 @@ public class StageManager : MonoBehaviour
         reflectInfo.Second.Rigidbody.velocity += secondVelocity;
     }
 
-    void OnHit(InfoForReflect reflectInfo)
+    public void AddMergeEventList(FoodMove self, FoodMove target)
     {
-
+        AddInfoForReflectList(self, target, mergeEventList);
     }
 
-    /// <summary>
-    /// つながっている食べ物全体にある色を返す
-    /// </summary>
-    /// <param name="food"></param>
-    void GetFoodColors(FoodMove food)
+    public void AddEatEventList(FoodMove self, FoodMove target)
     {
-        // 幅優先で、再帰を使う予定
+        AddInfoForReflectList(self, target, eatEventList);
     }
 
     /// <summary>

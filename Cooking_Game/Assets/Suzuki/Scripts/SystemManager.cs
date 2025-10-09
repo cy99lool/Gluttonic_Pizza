@@ -8,8 +8,8 @@ public class SystemManager : MonoBehaviour
     [System.Serializable]
     public class Team
     {
-        [SerializeField] FoodMove.TeamColor color;
-        public FoodMove.TeamColor Color => color;
+        [SerializeField] TeamColor color;
+        public TeamColor Color => color;
 
         [SerializeField] int score;
         public int Score => score;
@@ -102,10 +102,10 @@ public class SystemManager : MonoBehaviour
         for (int i = 0; i < teams.Count; i++)
         {
             // 色ごとのスコアを取得（リスト内の順番がバラバラでも問題ないように）
-            if (teams[i].Color == FoodMove.TeamColor.Red) redScore = teams[i].Score;
-            if (teams[i].Color == FoodMove.TeamColor.Blue) blueScore = teams[i].Score;
-            if (teams[i].Color == FoodMove.TeamColor.Green) greenScore = teams[i].Score;
-            if (teams[i].Color == FoodMove.TeamColor.Yellow) yellowScore = teams[i].Score;
+            if (teams[i].Color == TeamColor.Red) redScore = teams[i].Score;
+            if (teams[i].Color == TeamColor.Blue) blueScore = teams[i].Score;
+            if (teams[i].Color == TeamColor.Green) greenScore = teams[i].Score;
+            if (teams[i].Color == TeamColor.Yellow) yellowScore = teams[i].Score;
         }
 
         for (int i = 0; i < teams.Count; i++)

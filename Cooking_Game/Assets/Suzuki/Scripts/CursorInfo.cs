@@ -29,7 +29,7 @@ public class CursorInfo : MonoBehaviour
 
     const Mode DefaultMode = Mode.Normal;
 
-    [FormerlySerializedAs("team"), SerializeField] FoodMove.TeamColor teamColor;
+    [FormerlySerializedAs("team"), SerializeField] TeamColor teamColor;
     SystemManager.Team team;
     public SystemManager.Team Team => team;
 
