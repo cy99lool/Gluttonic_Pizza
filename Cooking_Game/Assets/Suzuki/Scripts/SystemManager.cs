@@ -134,16 +134,19 @@ public class SystemManager : MonoBehaviour
 
     const float RouletteTime = 1f;// ルーレット演出の長さ
     const int pickNum = 1;
-    const float ShootableTime = 25f;
+    const float ShootableTime = 45f;
     const float PreparePizzaTime = 2f;// ピザ取得準備の時間
+    const int phaseCount = 3;// フェーズの数
     IEnumerator Main()
     {
         if (!isStarted) isStarted = true;
+        int counter = GameConstants.Zero;
 
-        while (pizzaManager.PizzaSlices.Count > 0)
+        //while (pizzaManager.PizzaSlices.Count > 0)
+        while(counter < phaseCount)
         {
             // 発射準備フェーズ
-            yield return StartCoroutine(PizzaSelectPhase(RouletteTime, pickNum));
+            //yield return StartCoroutine(PizzaSelectPhase(RouletteTime, pickNum));
 
             // 食材発射フェーズ（デバッグ、後で名前変える）
             yield return StartCoroutine(DebugPick(ShootableTime));
@@ -152,7 +155,9 @@ public class SystemManager : MonoBehaviour
             yield return StartCoroutine(PreparePickPizzaPhase(PreparePizzaTime));
 
             // ピザ取得フェーズ
-            yield return StartCoroutine(PickPizzaPhase());
+            //yield return StartCoroutine(PickPizzaPhase());
+
+            counter++;
         }
 
         // リザルトフェーズ
@@ -174,13 +179,17 @@ public class SystemManager : MonoBehaviour
         float timer = GameConstants.FirstTimerValue;
         while (timer < rouletteTime)
         {
+            timer += Time.deltaTime;
+
+            if (pickIndexes.Count == GameConstants.Zero) yield return null;// 取得するピザがなければ演出カット
+            
             // ルーレット演出をいれる
             foreach(int index in pickIndexes)
             {
                 pizzaManager.PizzaSlices[index].EnableHighlightObject();
             }
 
-            timer += Time.deltaTime;
+            
             yield return null;
         }
     }
@@ -192,6 +201,9 @@ public class SystemManager : MonoBehaviour
     /// <returns>取得するピザの番号リスト</returns>
     List<int> SelectPizzaSlices(uint pickCount = 1)
     {
+        // 選択個数が0個なら初期化されたものを返す
+        if (pickCount == GameConstants.Zero) return new List<int>();
+
         // 選択個数がピザ切れの総数より多かった場合は、ピザ切れの総数にする
         if (pickCount > pizzaManager.PizzaSlices.Count) pickCount = (uint)pizzaManager.PizzaSlices.Count;
 
@@ -226,10 +238,13 @@ public class SystemManager : MonoBehaviour
     /// <returns></returns>
     IEnumerator DebugPick(float shootTime)
     {
-        // 念の為再度ハイライト
-        foreach (int index in pickIndexes)
+        if (pickIndexes.Count > 0)
         {
-            pizzaManager.PizzaSlices[index].EnableHighlightObject();
+            // 念の為再度ハイライト
+            foreach (int index in pickIndexes)
+            {
+                pizzaManager.PizzaSlices[index].EnableHighlightObject();
+            }
         }
 
         pizzaManager.StartSpin();// 回転開始
@@ -278,6 +293,8 @@ public class SystemManager : MonoBehaviour
 
     IEnumerator PickPizzaPhase()
     {
+        if (pickIndexes.Count < 1) yield return null;
+
         // 取得
         Debug.Log("取得");
         pizzaManager.TakePizzaSlice(pickIndexes);

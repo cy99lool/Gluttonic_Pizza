@@ -4153,7 +4153,7 @@ MonoBehaviour:
   - {fileID: 451519604}
   - {fileID: 1303400099}
   - {fileID: 1301756388}
-  rotateSpeed: 0
+  rotateSpeed: 18
 --- !u!114 &415189332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11482,7 +11482,7 @@ MonoBehaviour:
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
     bulletCount: 0
-  reloadBulletValue: 5
+  reloadBulletValue: 1000000
 --- !u!4 &901040593
 Transform:
   m_ObjectHideFlags: 0
@@ -11835,12 +11835,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
-    ip: 192.168.100.49
+    ip: 192.168.1.7
     port: 3000
     trackObject: {fileID: 0}
     cursorInfo: {fileID: 0}
   clients:
-  - ip: 192.168.100.194
+  - ip: 192.168.1.8
     port: 3001
     trackObject: {fileID: 6997102}
     cursorInfo: {fileID: 6997107}

@@ -22,6 +22,8 @@ public class FoodMove : MonoBehaviour
 
     // ステータスとして他のクラスにまとめるかも（ポイントの倍率等を設定する場合もあるかも）
     [Header("チーム"), SerializeField] TeamColor team;
+    public TeamColor Team => team;
+
     [Header("入手されるときのポイント"), SerializeField] int point = 10;
     public int ScorePoint => point;
 
@@ -35,7 +37,15 @@ public class FoodMove : MonoBehaviour
 
     bool isFalling = false;
 
-    public TeamColor Team => team;
+    List<FoodMove> mergedFoods = new List<FoodMove>();
+    public List<FoodMove> MergedFoods => mergedFoods;
+
+    FoodMove? parent = null;
+
+    public void SetFoodParent(FoodMove parent)
+    {
+        this.parent = parent;
+    }
 
     // Start is called before the first frame update
     protected void Start()
@@ -226,6 +236,78 @@ public class FoodMove : MonoBehaviour
         if (velocity.x * velocity.x <= BreakThreshold && velocity.z * velocity.z <= BreakThreshold) velocity = Vector3.zero;// 停止
 
         myRb.velocity = velocity;
+    }
+
+    public void OnMerge(FoodMove target)
+    {
+        // 何もくっついていなければ探索を行わずにくっつける
+        if(mergedFoods.Count == GameConstants.Zero)
+        {
+            Merge(mergedFoods, target);
+            return;
+        }
+
+        // 全く同じ食べ物がくっついていないか確かめる（これから木構造を探索する処理をいれる予定、現状は自身の持っているリスト内だけでの判定のため）
+        foreach(FoodMove food in mergedFoods)
+        {
+            if (food == target) return;
+        }
+
+        // くっつける
+        Merge(mergedFoods, target);
+    }
+
+    void Merge(List<FoodMove> mergedFoods, FoodMove food)
+    {
+        // リストに追加
+        mergedFoods.Add(food);
+
+        // トランスフォームの親設定
+        food.transform.SetParent(transform);
+        food.SetFoodParent(this);
+    }
+
+    public void OnEat(FoodMove target)
+    {
+        // 結合の解除
+        target.UnMerge();
+
+        // 消滅処理（エフェクトもいれるならここに）
+        Destroy(target.gameObject);
+    }
+
+    public void UnMerge()
+    {
+        // 結合がなければなにもしない
+        if(parent == null && mergedFoods.Count == GameConstants.Zero) return;
+
+        // 親子付けの引き継ぎ
+        // 親がない場合
+        if(parent != null)
+        {
+            if (mergedFoods.Count > 0)
+            {
+                for (int i = mergedFoods.Count - 1; i >= 0; i--)
+                {
+                    // 親子付けの解除
+                    mergedFoods[i].transform.SetParent(parent.transform);
+                    mergedFoods[i].SetFoodParent(parent);
+                }
+            }
+        }
+        // 親がある場合
+        else
+        {
+            if (mergedFoods.Count > 0)
+            {
+                for (int i = mergedFoods.Count - 1; i >= 0; i--)
+                {
+                    // 親子付けの解除
+                    mergedFoods[i].transform.SetParent(null);
+                    mergedFoods[i].SetFoodParent(null);
+                }
+            }
+        }
     }
 
     void OnTriggerEnter(Collider other)

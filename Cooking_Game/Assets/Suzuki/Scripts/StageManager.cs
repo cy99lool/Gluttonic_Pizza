@@ -12,13 +12,16 @@ public class StageManager : MonoBehaviour
             Rigidbody rb;
             public Rigidbody Rigidbody => rb;
 
-            float reflectRate;
-            public float ReflectRate => reflectRate;
+            FoodMove food;
+            public FoodMove Food => food;
 
-            public FoodReflectInfo(Rigidbody rb, float reflectRate)
+
+
+            public FoodReflectInfo( FoodMove foodMove)
             {
-                this.rb = rb;
-                this.reflectRate = reflectRate;
+                this.rb = foodMove.Rigidbody;
+                this.food = foodMove;
+
             }
         }
 
@@ -28,10 +31,10 @@ public class StageManager : MonoBehaviour
         FoodReflectInfo second;
         public FoodReflectInfo Second => second;
 
-        public InfoForReflect(Rigidbody firstRb, float firstReflectRate, Rigidbody secondRb, float secondReflectRate)
+        public InfoForReflect(FoodMove firstFood, FoodMove secondFood)
         {
-            first = new FoodReflectInfo(firstRb, firstReflectRate);
-            second = new FoodReflectInfo(secondRb, secondReflectRate);
+            first = new FoodReflectInfo(firstFood);
+            second = new FoodReflectInfo(secondFood);
         }
 
         /// <summary>
@@ -49,7 +52,7 @@ public class StageManager : MonoBehaviour
     [System.Serializable]
     class TrackObject
     {
-        const float Magnification = 2f;// 係数
+        const float Magnification = 3f;// 係数
         const float BowAngleYCorrection = 90f;// 弓のY軸回転の修正値
 
         static readonly Vector3 DirectionArrowAngles = new Vector3(90f, 0f, 0f);
@@ -217,7 +220,8 @@ public class StageManager : MonoBehaviour
         {
             for (int i = reflectList.Count - 1; i >= 0; i--)
             {
-                Reflect(reflectList[i]);
+                //Reflect(reflectList[i]);
+
                 reflectList.RemoveAt(i);// リストから削除
             }
         }
@@ -241,7 +245,7 @@ public class StageManager : MonoBehaviour
         // リストに何も無ければ追加
         if (reflectList.Count == 0)
         {
-            reflectList.Add(new InfoForReflect(self.Rigidbody, self.ReflectRate, opponent.Rigidbody, opponent.ReflectRate));
+            reflectList.Add(new InfoForReflect(self, opponent));
             return;
         }
         // リストにすでに入っているとき
@@ -250,7 +254,7 @@ public class StageManager : MonoBehaviour
             // リストに含まれているものでなければ追加
             if (!reflect.IsSame(self.Rigidbody, opponent.Rigidbody))
             {
-                reflectList.Add(new InfoForReflect(self.Rigidbody, self.ReflectRate, opponent.Rigidbody, opponent.ReflectRate));// 追加
+                reflectList.Add(new InfoForReflect(self, opponent));// 追加
                 return;
             }
         }
@@ -276,18 +280,32 @@ public class StageManager : MonoBehaviour
         // それぞれの勢いの設定
         if (baseRb == reflectInfo.First.Rigidbody)
         {
-            firstVelocity = baseVelocity * -reflectInfo.First.ReflectRate;
-            secondVelocity = baseVelocity * reflectInfo.Second.ReflectRate;
+            firstVelocity = baseVelocity * -reflectInfo.First.Food.ReflectRate;
+            secondVelocity = baseVelocity * reflectInfo.Second.Food.ReflectRate;
         }
         else
         {
-            firstVelocity = baseVelocity * reflectInfo.First.ReflectRate;
-            secondVelocity = baseVelocity * -reflectInfo.Second.ReflectRate;
+            firstVelocity = baseVelocity * reflectInfo.First.Food.ReflectRate;
+            secondVelocity = baseVelocity * -reflectInfo.Second.Food.ReflectRate;
         }
 
         // 速度を加算
         reflectInfo.First.Rigidbody.velocity += firstVelocity;
         reflectInfo.Second.Rigidbody.velocity += secondVelocity;
+    }
+
+    void OnHit(InfoForReflect reflectInfo)
+    {
+
+    }
+
+    /// <summary>
+    /// つながっている食べ物全体にある色を返す
+    /// </summary>
+    /// <param name="food"></param>
+    void GetFoodColors(FoodMove food)
+    {
+        // 幅優先で、再帰を使う予定
     }
 
     /// <summary>
