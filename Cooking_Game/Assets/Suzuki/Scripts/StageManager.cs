@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
+using System.Linq;
 
 public class StageManager : MonoBehaviour
 {
@@ -223,8 +224,7 @@ public class StageManager : MonoBehaviour
         {
             for (int i = reflectList.Count - 1; i >= 0; i--)
             {
-                // 一旦反射を消している
-                //Reflect(reflectList[i]);
+                Reflect(reflectList[i]);
 
                 reflectList.RemoveAt(i);// リストから削除
             }
@@ -237,6 +237,7 @@ public class StageManager : MonoBehaviour
                 mergeEventList[i].First.Food.OnMerge(mergeEventList[i].Second.Food);
 
                 mergeEventList.RemoveAt(i);// リストから削除
+                Debug.Log("[MERGE]");
             }
         }
         // 食べる
@@ -247,6 +248,7 @@ public class StageManager : MonoBehaviour
                 eatEventList[i].First.Food.OnEat(eatEventList[i].Second.Food);
 
                 eatEventList.RemoveAt(i);// リストから削除
+                Debug.Log("[EAT]");
             }
         }
 
@@ -295,7 +297,9 @@ public class StageManager : MonoBehaviour
             list.Add(new InfoForReflect(self, target));
             return;
         }
-        // リストにすでに入っているとき
+        // リストにすでに入っているときは追加しない
+        if (list.Any(e => ((e.First.Food == self && e.Second.Food == target) || (e.First.Food == self && e.Second.Food == target)))) return;
+
         foreach (InfoForReflect item in list)
         {
             // リストに含まれているものでなければ追加
@@ -305,6 +309,8 @@ public class StageManager : MonoBehaviour
                 return;
             }
         }
+
+        list.Add(new InfoForReflect(self, target));// 追加
     }
 
     /// <summary>
@@ -312,6 +318,9 @@ public class StageManager : MonoBehaviour
     /// </summary>
     void Reflect(InfoForReflect reflectInfo)
     {
+        if (reflectInfo.First.Rigidbody == null || reflectInfo.Second.Rigidbody == null) return;
+
+        // RigidBodyのIsKinemanicも加味する予定
         Rigidbody baseRb = reflectInfo.First.Rigidbody.velocity.magnitude >= reflectInfo.Second.Rigidbody.velocity.magnitude ?
             reflectInfo.First.Rigidbody : reflectInfo.Second.Rigidbody;
 

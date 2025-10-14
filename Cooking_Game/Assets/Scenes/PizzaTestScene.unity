@@ -501,12 +501,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
-    ip: 192.168.100.194
+    ip: 192.168.100.199
     port: 3001
     trackObject: {fileID: 6997102}
     cursorInfo: {fileID: 6997107}
   clients:
-  - ip: 192.168.100.49
+  - ip: 192.168.100.55
     port: 3000
     trackObject: {fileID: 0}
     cursorInfo: {fileID: 0}
@@ -10938,7 +10938,7 @@ MonoBehaviour:
     minArrowWidth: 0.1
     pullMangification: {x: 0.02, y: 0.15}
     maxDistance: 10
-    basePower: 28
+    basePower: 22
   - trackObject: {fileID: 1096351118}
     pivot: {fileID: 805130839}
     bow: {fileID: 1909105021}
@@ -10947,7 +10947,7 @@ MonoBehaviour:
     minArrowWidth: 0.5
     pullMangification: {x: 0.01, y: 0.15}
     maxDistance: 10
-    basePower: 28
+    basePower: 22
   - trackObject: {fileID: 1060310169}
     pivot: {fileID: 1937847803}
     bow: {fileID: 1884615885}
@@ -10956,7 +10956,7 @@ MonoBehaviour:
     minArrowWidth: 0.5
     pullMangification: {x: 0.01, y: 0.15}
     maxDistance: 10
-    basePower: 28
+    basePower: 22
   - trackObject: {fileID: 1241167012}
     pivot: {fileID: 1546358861}
     bow: {fileID: 960801225}
@@ -10965,7 +10965,7 @@ MonoBehaviour:
     minArrowWidth: 0.5
     pullMangification: {x: 0.01, y: 0.15}
     maxDistance: 10
-    basePower: 28
+    basePower: 22
   reflectList: []
 --- !u!4 &813842545
 Transform:
@@ -11835,24 +11835,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
-    ip: 192.168.1.7
+    ip: 192.168.100.55
     port: 3000
     trackObject: {fileID: 0}
     cursorInfo: {fileID: 0}
   clients:
-  - ip: 192.168.1.8
+  - ip: 192.168.100.199
     port: 3001
     trackObject: {fileID: 6997102}
     cursorInfo: {fileID: 6997107}
-  - ip: 192.168.100.78
+  - ip: 192.168.100.84
     port: 3002
     trackObject: {fileID: 1096351114}
     cursorInfo: {fileID: 1096351119}
-  - ip: 192.168.100.70
+  - ip: 192.168.100.76
     port: 3003
     trackObject: {fileID: 1060310165}
     cursorInfo: {fileID: 1060310170}
-  - ip: 192.168.100.60
+  - ip: 192.168.100.66
     port: 3004
     trackObject: {fileID: 1241167008}
     cursorInfo: {fileID: 1241167013}
@@ -12092,12 +12092,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
-    ip: 192.168.100.60
+    ip: 192.168.100.66
     port: 3004
     trackObject: {fileID: 1241167008}
     cursorInfo: {fileID: 1241167013}
   clients:
-  - ip: 192.168.100.49
+  - ip: 192.168.100.55
     port: 3000
     trackObject: {fileID: 0}
     cursorInfo: {fileID: 0}
@@ -12119,7 +12119,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &952148038
 Transform:
   m_ObjectHideFlags: 0
@@ -17101,12 +17101,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
-    ip: 192.168.100.78
+    ip: 192.168.100.84
     port: 3002
     trackObject: {fileID: 1096351114}
     cursorInfo: {fileID: 1096351119}
   clients:
-  - ip: 192.168.100.49
+  - ip: 192.168.100.55
     port: 3000
     trackObject: {fileID: 0}
     cursorInfo: {fileID: 0}
@@ -19604,7 +19604,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1335428795
 Transform:
   m_ObjectHideFlags: 0
@@ -31961,12 +31961,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
-    ip: 192.168.100.70
+    ip: 192.168.100.76
     port: 3003
     trackObject: {fileID: 1060310165}
     cursorInfo: {fileID: 1060310170}
   clients:
-  - ip: 192.168.100.49
+  - ip: 192.168.100.55
     port: 3000
     trackObject: {fileID: 0}
     cursorInfo: {fileID: 0}
