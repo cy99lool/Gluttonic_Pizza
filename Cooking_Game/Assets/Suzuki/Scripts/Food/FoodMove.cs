@@ -9,6 +9,10 @@ public class FoodMove : MonoBehaviour
 
     [SerializeField] Rigidbody myRb;
     public Rigidbody Rigidbody => myRb;
+
+    [SerializeField] Collider myCollider;
+    public Collider Collider => myCollider;
+
     [Header("モデルのアニメーター"), SerializeField] Animator animator;
     [Header("重力"), SerializeField] float gravity = 9.8f;
     [Header("一秒あたりの減速率"), SerializeField] float brakeRate = 1.8f;
@@ -275,7 +279,7 @@ public class FoodMove : MonoBehaviour
             return;
         }
 
-        // 全く同じ食べ物がくっついていないか確かめる（これから木構造を探索する処理をいれる予定、現状は自身の持っているリスト内だけでの判定のため）
+        // 全く同じ食べ物がくっついていないか確かめる
         foreach (FoodMove food in mergedFoods)
         {
             if (food.Root == target.Root) return;
@@ -291,20 +295,45 @@ public class FoodMove : MonoBehaviour
         if (target == this) return;
         if (ContainsRecursive(Root, target)) return;
 
-        // リストに追加
-        if (!mergedFoods.Contains(target)) mergedFoods.Add(target);
+        // targetのつながっている全メンバーを取得
+        List<FoodMove> targetGroup = new List<FoodMove>();
+        CollectAllConnected(target.Root, targetGroup);
+
+        // つながるときの位置調整
+        Vector3 offset = myCollider.ClosestPoint(target.transform.position) - transform.position;
+        foreach(FoodMove member in targetGroup)
+        {
+            member.transform.position += offset;
+            member.Rigidbody.isKinematic = true;// rootのrigidbodyの影響を受けてもらうため
+        }
+
+        // グループ全員を新しいRoot配下に変更
+        foreach(FoodMove member in targetGroup)
+        {
+            // トランスフォームの親設定
+            member.transform.SetParent(transform);
+            member.SetFoodParent(this);
+
+            // めり込みの対策
+            Vector3 localPosition = member.transform.localPosition;
+            localPosition.y = 0f;
+            member.transform.localPosition = localPosition;
+            
+            // 傾きの対策
+            Vector3 eulerAngles = member.transform.eulerAngles;
+            eulerAngles.x = 0f;
+            eulerAngles.z = 0f;
+            member.transform.eulerAngles = eulerAngles;
+
+            // Rootのキャッシュ更新
+            member.UpdateRootRecursive(Root);
+
+            // リストに追加
+            if(!mergedFoods.Contains(member)) mergedFoods.Add(member);
+        }
 
         // つながってきた食べ物の勢いを取得
         Vector3 velocity = target.Rigidbody.velocity;
-
-        // トランスフォームの親設定
-        target.transform.SetParent(transform);
-        target.SetFoodParent(this);
-        target.Rigidbody.isKinematic = true;// rootのrigidbodyの影響を受けてもらうため
-
-        // rootのキャッシュ更新
-        FoodMove currentRoot = Root;
-        target.UpdateRootRecursive(currentRoot);
 
         const float ForceAtten = 0.05f;
         // rootにトルクや速度をかける（結合した勢いで回転するイメージ）（勢いを親にある程度の割合で渡す予定、つながってる合計の個数で勢いを割るかも）
@@ -352,9 +381,28 @@ public class FoodMove : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Rootからすべてのつながっている食べ物を取得
+    /// </summary>
+    void CollectAllConnected(FoodMove root, List<FoodMove> result)
+    {
+        // nullやすでに追加済みなら追加しない
+        if(root == null || result.Contains(root)) return;
+
+        result.Add(root);
+        // つながっている子全てで再帰的に探索
+        foreach(FoodMove child in  root.mergedFoods)
+        {
+            CollectAllConnected(child, result);
+        }
+    }
+
     public void OnEat(FoodMove target)
     {
         if (target == null) return;
+
+        // 自身や他のmergedFoodsリストから削除
+        if(mergedFoods.Contains(target)) mergedFoods.Remove(target);
 
         // 結合の解除
         target.UnMerge();
@@ -363,13 +411,19 @@ public class FoodMove : MonoBehaviour
         Destroy(target.gameObject);
     }
 
-    public void UnMerge()
+    bool unmerging = false;
+    protected void UnMerge()
     {
-        // 結合がなければなにもしない
+        // 結合がない、もしくは結合解除中はなにもしない
         if (parent == null && mergedFoods.Count == GameConstants.Zero) return;
+        if (unmerging) return;
+
+        // 結合解除中
+        unmerging = true;
 
         // mergetFoodリストのコピーを作成する
         List<FoodMove> childrenToUnmerge = new List<FoodMove>(mergedFoods);
+        mergedFoods.Clear();
 
         // 親子付けの引き継ぎ
         //// 親がある場合
@@ -406,7 +460,7 @@ public class FoodMove : MonoBehaviour
             {
                 foreach (FoodMove child in mergedFoods)
                 {
-                    if (child == null) continue;
+                    if (child == null || child.Equals(null)) continue;
 
                     // 親子付けの解除
                     child.transform.SetParent(null);
@@ -414,7 +468,7 @@ public class FoodMove : MonoBehaviour
                     child.UpdateRootRecursive(null);
 
                     // 再度自身のrigidbodyで動かせるように
-                    child.Rigidbody.isKinematic = false;
+                    if(child.Rigidbody != null) child.Rigidbody.isKinematic = false;
                 }
 
                 //for (int i = mergedFoods.Count - 1; i >= 0; i--)
@@ -433,7 +487,7 @@ public class FoodMove : MonoBehaviour
             }
         //}
 
-        mergedFoods.Clear();
+        unmerging = false;
     }
 
     void UpdateRootRecursive(FoodMove newRoot)
@@ -471,11 +525,16 @@ public class FoodMove : MonoBehaviour
                         case InteractionType.Eat:
                             // 結合済みの食材は食べる機能を持たない
                             if (Root == this && mergedFoods.Count == GameConstants.Zero) stageManager.AddEatEventList(this, opponentFood);
-                            break;
+                            else if (Root == this) stageManager.AddReflectList(this, opponentFood);
+                                break;
 
                         case InteractionType.None:
-                            stageManager.AddReflectList(this, opponentFood);
-                            break;
+                            {
+                                // 捕食する側の食材が吹き飛ばないように
+                                if(FoodInteractionRules.GetInteractionType(opponentFood.team, team) != InteractionType.Eat)
+                                stageManager.AddReflectList(this, opponentFood);
+                                break;
+                            }
 
                         default:
                             break;
@@ -486,6 +545,38 @@ public class FoodMove : MonoBehaviour
                 //stageManager.AddReflectList(this, opponentFood);
             }
         }
+    }
+
+    const int DefaultCount = 1;
+    /// <summary>
+    /// 自身につながっている食材の総数を求める
+    /// </summary>
+    /// <param name="visited">探索した食材の記録</param>
+    /// <returns>つながっている食材の総数</returns>
+    public int GetConnectedCount(HashSet<FoodMove> visited =  null)
+    {
+        // 最初のみ初期化
+        if(visited == null) visited = new HashSet<FoodMove>();
+
+        // 無限再帰を防止
+        if(visited.Contains(this)) return 0;
+
+        // 探索した対象に自身を記録
+        visited.Add(this);
+
+        // カウントを初期化（自身をあらかじめ数える）
+        int count = DefaultCount;
+
+        // 子を再帰的に探索
+        foreach(FoodMove child in mergedFoods)
+        {
+            if (child != null) count += child.GetConnectedCount(visited);
+        }
+
+        // 親方向も確認
+        if(parent != null) parent.GetConnectedCount(visited);
+
+        return count;
     }
 
     /// <summary>
@@ -534,18 +625,22 @@ public static class FoodInteractionRules
     private static readonly Dictionary<(TeamColor, TeamColor), InteractionType> rules = new Dictionary<(TeamColor, TeamColor), InteractionType>
     {
         // ==== Red ====
+        {(TeamColor.Red, TeamColor.Red), InteractionType.None },
         {(TeamColor.Red, TeamColor.Green), InteractionType.Eat },
         {(TeamColor.Red, TeamColor.Yellow), InteractionType.Merge },
 
         // ==== Blue ====
+        {(TeamColor.Blue, TeamColor.Blue), InteractionType.None },
         {(TeamColor.Blue, TeamColor.Green), InteractionType.Merge },
         {(TeamColor.Blue, TeamColor.Red), InteractionType.Eat},
 
         // ==== Green ====
+        {(TeamColor.Green, TeamColor.Green), InteractionType.None },
         {(TeamColor.Green, TeamColor.Yellow), InteractionType.Eat },
         {(TeamColor.Green, TeamColor.Blue), InteractionType.Merge },
 
         // ==== Yellow ====
+        {(TeamColor.Yellow, TeamColor.Yellow), InteractionType.None },
         {(TeamColor.Yellow, TeamColor.Red), InteractionType.Merge },
         {(TeamColor.Yellow, TeamColor.Blue), InteractionType.Eat },
     };

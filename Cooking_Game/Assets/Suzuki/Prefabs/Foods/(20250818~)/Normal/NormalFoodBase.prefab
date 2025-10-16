@@ -78,6 +78,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myRb: {fileID: 1818010819203474787}
+  myCollider: {fileID: 1818010819203474784}
   animator: {fileID: 1818010819203474785}
   gravity: 9.8
   brakeRate: 3

@@ -286,10 +286,10 @@ public class StageManager : MonoBehaviour
         //    }
         //}
 
-        AddInfoForReflectList(self, opponent, reflectList);
+        AddInfoForReflectList(reflectList, self, opponent);
     }
 
-    void AddInfoForReflectList(FoodMove self, FoodMove target, List<InfoForReflect> list)
+    void AddInfoForReflectList(List<InfoForReflect> list, FoodMove self, FoodMove target)
     {
         // リストに何も無ければ追加
         if (list.Count == 0)
@@ -298,21 +298,24 @@ public class StageManager : MonoBehaviour
             return;
         }
         // リストにすでに入っているときは追加しない
-        if (list.Any(e => ((e.First.Food == self && e.Second.Food == target) || (e.First.Food == self && e.Second.Food == target)))) return;
-
-        foreach (InfoForReflect item in list)
-        {
-            // リストに含まれているものでなければ追加
-            if (!item.IsSame(self.Rigidbody, target.Rigidbody))
-            {
-                list.Add(new InfoForReflect(self, target));// 追加
-                return;
-            }
-        }
+        if (HasPair(list, self, target)) return;
 
         list.Add(new InfoForReflect(self, target));// 追加
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="list"></param>
+    /// <param name="first"></param>
+    /// <param name="second"></param>
+    /// <returns></returns>
+    bool HasPair(List<InfoForReflect> list, FoodMove first, FoodMove second)
+    {
+        return list.Any(e => (e.First.Food == first &&  e.Second.Food == second) || (e.First.Food == second && e.Second.Food == first));
+    }
+
+    const float MaxReflectScale = 1f;
     /// <summary>
     /// 衝突時の反射
     /// </summary>
@@ -345,19 +348,19 @@ public class StageManager : MonoBehaviour
             secondVelocity = baseVelocity * -reflectInfo.Second.Food.ReflectRate;
         }
 
-        // 速度を加算
-        reflectInfo.First.Rigidbody.velocity += firstVelocity;
-        reflectInfo.Second.Rigidbody.velocity += secondVelocity;
+        // 速度を加算（つながってる数に応じて勢いを減らす）
+        reflectInfo.First.Food.Root.Rigidbody.velocity += firstVelocity * (MaxReflectScale / (reflectInfo.First.Food.GetConnectedCount()));
+        reflectInfo.Second.Food.Root.Rigidbody.velocity += secondVelocity * (MaxReflectScale / (reflectInfo.Second.Food.GetConnectedCount()));
     }
 
     public void AddMergeEventList(FoodMove self, FoodMove target)
     {
-        AddInfoForReflectList(self, target, mergeEventList);
+        AddInfoForReflectList(mergeEventList, self, target);
     }
 
     public void AddEatEventList(FoodMove self, FoodMove target)
     {
-        AddInfoForReflectList(self, target, eatEventList);
+        AddInfoForReflectList(eatEventList, self, target);
     }
 
     /// <summary>
