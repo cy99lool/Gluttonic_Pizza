@@ -40,6 +40,7 @@ public class FoodMove : MonoBehaviour
     protected bool IsGround => isGround;
 
     bool isFalling = false;
+    bool eaten = false;// 捕食を行ったかどうか
 
     List<FoodMove> mergedFoods = new List<FoodMove>();
     public List<FoodMove> MergedFoods => mergedFoods;
@@ -332,13 +333,19 @@ public class FoodMove : MonoBehaviour
             if(!mergedFoods.Contains(member)) mergedFoods.Add(member);
         }
 
+        // Rootの傾き調整
+        Vector3 rootEulerAngles = Root.transform.eulerAngles;
+        rootEulerAngles.x = 0f;
+        rootEulerAngles.z = 0f;
+        Root.transform.eulerAngles = rootEulerAngles;
+
         // つながってきた食べ物の勢いを取得
         Vector3 velocity = target.Rigidbody.velocity;
 
-        const float ForceAtten = 0.05f;
+        const float MaxReflectRate = 1f;
         // rootにトルクや速度をかける（結合した勢いで回転するイメージ）（勢いを親にある程度の割合で渡す予定、つながってる合計の個数で勢いを割るかも）
-        Root.AddTorque(Vector3.up, velocity.magnitude * ForceAtten);
-        Root.AddForce(velocity.normalized, velocity.magnitude * ForceAtten);
+        Root.AddTorque(Vector3.up, velocity.magnitude * (MaxReflectRate / Root.GetConnectedCount()));
+        Root.AddForce(velocity.normalized, velocity.magnitude * (MaxReflectRate / Root.GetConnectedCount()));
 
         // 子になるオブジェクトの勢いを消す
         target.myRb.velocity = Vector3.zero;
@@ -397,6 +404,7 @@ public class FoodMove : MonoBehaviour
         }
     }
 
+    const float EatenFactor = 1.5f;
     public void OnEat(FoodMove target)
     {
         if (target == null) return;
@@ -409,6 +417,10 @@ public class FoodMove : MonoBehaviour
 
         // 消滅処理（エフェクトもいれるならここに）
         Destroy(target.gameObject);
+
+        // 捕食を行った後処理
+        transform.localScale *= EatenFactor;
+        //animator.SetBool()
     }
 
     bool unmerging = false;
@@ -523,8 +535,12 @@ public class FoodMove : MonoBehaviour
                             break;
 
                         case InteractionType.Eat:
-                            // 結合済みの食材は食べる機能を持たない
-                            if (Root == this && mergedFoods.Count == GameConstants.Zero) stageManager.AddEatEventList(this, opponentFood);
+                            // 結合済みの食材や、すでに一度捕食を行った食材は捕食機能を持たない
+                            if (Root == this && mergedFoods.Count == GameConstants.Zero && !eaten)
+                            {
+                                stageManager.AddEatEventList(this, opponentFood);
+                                eaten = true;
+                            }
                             else if (Root == this) stageManager.AddReflectList(this, opponentFood);
                                 break;
 

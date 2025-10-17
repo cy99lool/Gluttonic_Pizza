@@ -113,7 +113,7 @@ public class BowControler : MonoBehaviour
 
         // 矢の生成
         currentArrow = Instantiate(arrowPrefab, shootPoint.position, Quaternion.identity);
-        currentArrow.GetComponent<Rigidbody>().isKinematic = true;
+        //currentArrow.GetComponent<Rigidbody>().isKinematic = true;
 
         // 矢の向きを設定
         SetArrowDirection();
