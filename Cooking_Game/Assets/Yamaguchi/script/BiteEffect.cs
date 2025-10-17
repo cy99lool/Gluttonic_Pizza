@@ -3,30 +3,34 @@ using System.Collections;
 
 public class BiteEffect : MonoBehaviour
 {
-    [SerializeField] private Transform upperRoot;
-    [SerializeField] private Transform lowerRoot;
-    [SerializeField] private Transform effectPoint;   // 口の中央
-    [SerializeField] private ParticleSystem hitEffect;
-    [SerializeField] private float biteSpeed = 8f;
-    [SerializeField] private float biteAngle = 30f;
-    [SerializeField] private float holdTime = 0.1f;
+    [SerializeField] private Transform upperRoot;     // 上の歯
+    [SerializeField] private Transform lowerRoot;     // 下の歯
+    [SerializeField] private Transform effectPoint;   // 噛み合わせ中心
+    [SerializeField] private ParticleSystem hitEffect; // パーティクル
+    [SerializeField] private float moveDistance = 0.2f; // 上下移動距離
+    [SerializeField] private float biteSpeed = 8f;      // 噛み速度
+    [SerializeField] private float holdTime = 0.1f;     // 閉じたまま時間
+    [SerializeField] private float moveOffset = 0.3f;   // 出現位置補正（距離）
+    [SerializeField] private float lifeTime = 2f;       // 自動削除時間
 
-    private Quaternion upperStartRot;
-    private Quaternion lowerStartRot;
+    private Vector3 upperStartPos;
+    private Vector3 lowerStartPos;
     private bool isBiting = false;
+    private Transform target;
 
     void Start()
     {
-        upperStartRot = upperRoot.localRotation;
-        lowerStartRot = lowerRoot.localRotation;
+        upperStartPos = upperRoot.localPosition;
+        lowerStartPos = lowerRoot.localPosition;
     }
 
-    void Update()
+    /// <summary>
+    /// 対象を設定して噛みつく
+    /// </summary>
+    public void SetTarget(Transform targetTransform)
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Bite();
-        }
+        target = targetTransform;
+        Bite();
     }
 
     public void Bite()
@@ -39,54 +43,44 @@ public class BiteEffect : MonoBehaviour
     {
         isBiting = true;
 
-        Quaternion upperOpen = Quaternion.Euler(0, 0, biteAngle);
-        Quaternion lowerOpen = Quaternion.Euler(0, 0, -biteAngle);
-
-        // 歯を開く
-        while (Quaternion.Angle(upperRoot.localRotation, upperOpen) > 0.1f)
+        // --- 方向計算（2D用、Z軸固定） ---
+        if (target != null)
         {
-            upperRoot.localRotation = Quaternion.RotateTowards(upperRoot.localRotation, upperOpen, biteSpeed * Time.deltaTime * 60);
-            lowerRoot.localRotation = Quaternion.RotateTowards(lowerRoot.localRotation, lowerOpen, biteSpeed * Time.deltaTime * 60);
+            Vector3 dir = (target.position - transform.position).normalized;
+            dir.z = 0;
+
+            // 口の位置を対象方向に少しだけ近づける
+            transform.position += dir * moveOffset;
+        }
+
+        // --- 歯を閉じる ---
+        Vector3 upperDown = upperStartPos + Vector3.down * moveDistance;
+        Vector3 lowerUp = lowerStartPos + Vector3.up * moveDistance;
+
+        while (Vector3.Distance(upperRoot.localPosition, upperDown) > 0.001f)
+        {
+            upperRoot.localPosition = Vector3.MoveTowards(upperRoot.localPosition, upperDown, biteSpeed * Time.deltaTime);
+            lowerRoot.localPosition = Vector3.MoveTowards(lowerRoot.localPosition, lowerUp, biteSpeed * Time.deltaTime);
             yield return null;
+        }
+
+        // --- パーティクル再生 ---
+        if (hitEffect != null && effectPoint != null)
+        {
+            hitEffect.transform.position = effectPoint.position;
+            hitEffect.Play();
         }
 
         yield return new WaitForSeconds(holdTime);
 
-        // パーティクル再生
-        if (hitEffect != null && effectPoint != null)
+        // --- 元に戻す ---
+        while (Vector3.Distance(upperRoot.localPosition, upperStartPos) > 0.001f)
         {
-            hitEffect.transform.position = effectPoint.position; // 口の中央
-            hitEffect.Play();
-        }
-
-        // 歯を閉じる
-        while (Quaternion.Angle(upperRoot.localRotation, upperStartRot) > 0.1f)
-        {
-            upperRoot.localRotation = Quaternion.RotateTowards(upperRoot.localRotation, upperStartRot, biteSpeed * Time.deltaTime * 60);
-            lowerRoot.localRotation = Quaternion.RotateTowards(lowerRoot.localRotation, lowerStartRot, biteSpeed * Time.deltaTime * 60);
+            upperRoot.localPosition = Vector3.MoveTowards(upperRoot.localPosition, upperStartPos, biteSpeed * Time.deltaTime);
+            lowerRoot.localPosition = Vector3.MoveTowards(lowerRoot.localPosition, lowerStartPos, biteSpeed * Time.deltaTime);
             yield return null;
         }
 
         isBiting = false;
-    }
-
-    // 🔹 ここから追加：ターゲット方向に向かせるメソッド
-    public void SetDirection(Vector3 targetPos)
-    {
-        Vector3 dir = targetPos - transform.position;
-        dir.z = 0;
-        if (dir.sqrMagnitude < 0.0001f) return;
-
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-
-        transform.position += dir.normalized * 0.2f; // 噛む位置調整
-    }
-
-    // Renderer を強制ON
-    private void SetRenderersEnabled(Transform t, bool enabled)
-    {
-        var renderers = t.GetComponentsInChildren<Renderer>();
-        foreach (var r in renderers) r.enabled = enabled;
     }
 }
