@@ -671,7 +671,9 @@ public class UDPMulti : MonoBehaviour
             List<CursorInfo.Mode> canModes = clientInfo.Cursor.CanModes;
 
             HostMessageDto hostMessageDto = new HostMessageDto(systemManager, canModes);
-            byte[] dtoMessage = System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(hostMessageDto));// Jsonに変換
+            string hostMessageDtoJson = JsonUtility.ToJson(hostMessageDto);
+            byte[] dtoMessage = System.Text.Encoding.UTF8.GetBytes(hostMessageDtoJson);// Jsonに変換
+            HostMessageDto debugDto = JsonUtility.FromJson<HostMessageDto>(hostMessageDtoJson);
             byte[] hostMessage = MergeBytes(udpMessage, dtoMessage);
 
             SendAsyncToPlayers(hostMessage);
@@ -805,7 +807,7 @@ static class MultiPlayerMessenger
         byte[] z = BitConverter.GetBytes(vector3.z);
         return x.Concat(y).Concat(z).ToArray();// 連結
     }
-    public static byte[] ToByte(this FoodMove.TeamColor teamColor)
+    public static byte[] ToByte(this TeamColor teamColor)
     {
         return BitConverter.GetBytes((int) teamColor);
     }
@@ -821,10 +823,10 @@ static class MultiPlayerMessenger
         string infoJson = System.Text.Encoding.UTF8.GetString(bytes, startIndex, bytes.Length - startIndex);// Json部分を抽出
         return JsonUtility.FromJson<UDPMulti.ClientInfo>(infoJson);// 本来の形式に直す
     }
-    public static FoodMove.TeamColor ToTeamColor(this byte[] bytes, int startIndex = 0)
+    public static TeamColor ToTeamColor(this byte[] bytes, int startIndex = 0)
     {
         int number = BitConverter.ToInt32(bytes, startIndex);
-        return (FoodMove.TeamColor)number;
+        return (TeamColor)number;
     }
     public static Vector3 ToVector3(this byte[] bytes, int startIndex)
     {

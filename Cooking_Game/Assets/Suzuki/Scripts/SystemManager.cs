@@ -8,8 +8,8 @@ public class SystemManager : MonoBehaviour
     [System.Serializable]
     public class Team
     {
-        [SerializeField] FoodMove.TeamColor color;
-        public FoodMove.TeamColor Color => color;
+        [SerializeField] TeamColor color;
+        public TeamColor Color => color;
 
         [SerializeField] int score;
         public int Score => score;
@@ -21,7 +21,10 @@ public class SystemManager : MonoBehaviour
         public TMPro.TextMeshProUGUI PickTimeText => pickTimeText;
 
         // ----- リザルト表示 -----
-        [Header("リザルト表示\nメイン画面のスコア表示オブジェクト"), SerializeField] GameObject mainResultUI;
+        [Header("リザルト表示\nメイン画面のリザルトのスクリプト"), SerializeField] Result result;
+        public Result Result => result;
+
+        [Header("メイン画面のスコア表示オブジェクト"), SerializeField] GameObject mainResultUI;
         public GameObject MainResultUI => mainResultUI;
 
         [Header("〃のスコアバー"), SerializeField] RectTransform mainScoreBar;
@@ -38,7 +41,7 @@ public class SystemManager : MonoBehaviour
         const int DefaultBulletCountValue = 0;// 初期化するときの弾数
         const int DefaultBulletSubValue = 1;
 
-        int bulletCount;// 発射可能弾数
+        [SerializeField]int bulletCount;// 発射可能弾数
         public int BulletCount => bulletCount;
         public bool Shootable => bulletCount > 0;// 発射できるかどうか、後々演出で一時停止を実装するなら条件を増やす
 
@@ -62,6 +65,7 @@ public class SystemManager : MonoBehaviour
             this.score += score;
         }
     }
+    [Header("メイン画面のリザルトのスクリプト"), SerializeField] Result mainResult;
 
     [SerializeField] List<Team> teams;
     public List<Team> Teams => teams;
@@ -98,10 +102,10 @@ public class SystemManager : MonoBehaviour
         for (int i = 0; i < teams.Count; i++)
         {
             // 色ごとのスコアを取得（リスト内の順番がバラバラでも問題ないように）
-            if (teams[i].Color == FoodMove.TeamColor.Red) redScore = teams[i].Score;
-            if (teams[i].Color == FoodMove.TeamColor.Blue) blueScore = teams[i].Score;
-            if (teams[i].Color == FoodMove.TeamColor.Green) greenScore = teams[i].Score;
-            if (teams[i].Color == FoodMove.TeamColor.Yellow) yellowScore = teams[i].Score;
+            if (teams[i].Color == TeamColor.Red) redScore = teams[i].Score;
+            if (teams[i].Color == TeamColor.Blue) blueScore = teams[i].Score;
+            if (teams[i].Color == TeamColor.Green) greenScore = teams[i].Score;
+            if (teams[i].Color == TeamColor.Yellow) yellowScore = teams[i].Score;
         }
 
         for (int i = 0; i < teams.Count; i++)
@@ -128,17 +132,21 @@ public class SystemManager : MonoBehaviour
 
     List<int> pickIndexes = new List<int>();
 
-    const float RouletteTime = 3f;// ルーレット演出の長さ
-    const float ShootableTime = 30f;
-    const float PreparePizzaTime = 5f;// ピザ取得準備の時間
+    const float RouletteTime = 1f;// ルーレット演出の長さ
+    const int pickNum = 1;
+    const float ShootableTime = 45f;
+    const float PreparePizzaTime = 2f;// ピザ取得準備の時間
+    const int phaseCount = 3;// フェーズの数
     IEnumerator Main()
     {
         if (!isStarted) isStarted = true;
+        int counter = GameConstants.Zero;
 
-        while (pizzaManager.PizzaSlices.Count > 0)
+        //while (pizzaManager.PizzaSlices.Count > 0)
+        while(counter < phaseCount)
         {
             // 発射準備フェーズ
-            yield return StartCoroutine(PizzaSelectPhase(RouletteTime));
+            //yield return StartCoroutine(PizzaSelectPhase(RouletteTime, pickNum));
 
             // 食材発射フェーズ（デバッグ、後で名前変える）
             yield return StartCoroutine(DebugPick(ShootableTime));
@@ -147,7 +155,9 @@ public class SystemManager : MonoBehaviour
             yield return StartCoroutine(PreparePickPizzaPhase(PreparePizzaTime));
 
             // ピザ取得フェーズ
-            yield return StartCoroutine(PickPizzaPhase());
+            //yield return StartCoroutine(PickPizzaPhase());
+
+            counter++;
         }
 
         // リザルトフェーズ
@@ -169,13 +179,17 @@ public class SystemManager : MonoBehaviour
         float timer = GameConstants.FirstTimerValue;
         while (timer < rouletteTime)
         {
+            timer += Time.deltaTime;
+
+            if (pickIndexes.Count == GameConstants.Zero) yield return null;// 取得するピザがなければ演出カット
+            
             // ルーレット演出をいれる
             foreach(int index in pickIndexes)
             {
                 pizzaManager.PizzaSlices[index].EnableHighlightObject();
             }
 
-            timer += Time.deltaTime;
+            
             yield return null;
         }
     }
@@ -187,6 +201,9 @@ public class SystemManager : MonoBehaviour
     /// <returns>取得するピザの番号リスト</returns>
     List<int> SelectPizzaSlices(uint pickCount = 1)
     {
+        // 選択個数が0個なら初期化されたものを返す
+        if (pickCount == GameConstants.Zero) return new List<int>();
+
         // 選択個数がピザ切れの総数より多かった場合は、ピザ切れの総数にする
         if (pickCount > pizzaManager.PizzaSlices.Count) pickCount = (uint)pizzaManager.PizzaSlices.Count;
 
@@ -221,10 +238,13 @@ public class SystemManager : MonoBehaviour
     /// <returns></returns>
     IEnumerator DebugPick(float shootTime)
     {
-        // 念の為再度ハイライト
-        foreach (int index in pickIndexes)
+        if (pickIndexes.Count > 0)
         {
-            pizzaManager.PizzaSlices[index].EnableHighlightObject();
+            // 念の為再度ハイライト
+            foreach (int index in pickIndexes)
+            {
+                pizzaManager.PizzaSlices[index].EnableHighlightObject();
+            }
         }
 
         pizzaManager.StartSpin();// 回転開始
@@ -273,6 +293,8 @@ public class SystemManager : MonoBehaviour
 
     IEnumerator PickPizzaPhase()
     {
+        if (pickIndexes.Count < 1) yield return null;
+
         // 取得
         Debug.Log("取得");
         pizzaManager.TakePizzaSlice(pickIndexes);
@@ -282,6 +304,20 @@ public class SystemManager : MonoBehaviour
 
     IEnumerator ResultPhase()
     {
-        yield return null;
+        for(int i = 0; i < teams.Count; i++)
+        {
+            //break;// デバッグ用
+            if (teams[i].Result == null) continue;
+
+            if (!teams[i].Result.gameObject.activeInHierarchy) teams[i].Result.gameObject.SetActive(true);
+            if (!teams[i].Result.gameObject.activeInHierarchy) continue;
+
+            yield return teams[i].Result.ShowResult();
+        }
+
+        if (mainResult.gameObject.activeInHierarchy)
+        {
+            yield return StartCoroutine(mainResult.ShowResult());
+        }
     }
 }

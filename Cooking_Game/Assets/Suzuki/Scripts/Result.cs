@@ -15,9 +15,11 @@ public class Result : MonoBehaviour
     // リザルト画面表示
     public IEnumerator ShowResult()
     {
+        if (resultGroup != null) resultGroup.SetActive(true);// リザルトUIを有効化
+
         systemManager.Teams.Sort((a, b) => (a.Score - b.Score));// スコアの大きい順にソート
 
-        yield return ExtendScoreBar(systemManager.Teams);
+        yield return StartCoroutine(ExtendScoreBar(systemManager.Teams));// スコアのバーを伸ばす
     }
 
     IEnumerator ExtendScoreBar(List<SystemManager.Team> teams)
@@ -27,7 +29,7 @@ public class Result : MonoBehaviour
         // 順位の位置設定
         for (int i = 0; i < teams.Count; i++)
         {
-            if (teams[i].MainScoreBar != null) teams[i].MainScoreBar.anchoredPosition = mainUIBarPositions[i].anchoredPosition;
+            if (teams[i].MainScoreBar != null && mainUIBarPositions[i] != null) teams[i].MainScoreBar.anchoredPosition = mainUIBarPositions[i].anchoredPosition;
         }
 
         // 伸ばす
@@ -50,6 +52,5 @@ public class Result : MonoBehaviour
 
             yield return null;
         }
-
     }
 }

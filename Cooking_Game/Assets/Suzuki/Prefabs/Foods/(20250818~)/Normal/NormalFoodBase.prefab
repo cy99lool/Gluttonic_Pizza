@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 1584060787817551926}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
+  m_LocalScale: {x: 0.525, y: 0.525, z: 0.525}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 9072938486506187595}
@@ -78,10 +78,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myRb: {fileID: 1818010819203474787}
+  myCollider: {fileID: 1818010819203474784}
   animator: {fileID: 1818010819203474785}
   gravity: 9.8
-  brakeRate: 1.8
-  onGroundDistance: 1.2
+  brakeRate: 3
+  onGroundDistance: 10
   eraseLimit: 5
   brakeMask:
     serializedVersion: 2
@@ -92,7 +93,7 @@ MonoBehaviour:
   hitMask:
     serializedVersion: 2
     m_Bits: 256
-  myReflectRate: 90
+  myReflectRate: 70
   team: 0
   point: 10
 --- !u!96 &984628512631221679
