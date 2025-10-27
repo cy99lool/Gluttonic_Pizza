@@ -136,14 +136,16 @@ public class SystemManager : MonoBehaviour
     const int pickNum = 1;
     const float ShootableTime = 45f;
     const float PreparePizzaTime = 2f;// ピザ取得準備の時間
-    const int phaseCount = 3;// フェーズの数
+    const int PhaseCount = 3;// フェーズの数
+    const int PinePhase = 2;
+    const int LastPhase = 3;
     IEnumerator Main()
     {
         if (!isStarted) isStarted = true;
-        int counter = GameConstants.Zero;
+        int counter = GameConstants.One;
 
         //while (pizzaManager.PizzaSlices.Count > 0)
-        while(counter < phaseCount)
+        while(counter <= PhaseCount)
         {
             // 発射準備フェーズ
             //yield return StartCoroutine(PizzaSelectPhase(RouletteTime, pickNum));
@@ -156,6 +158,9 @@ public class SystemManager : MonoBehaviour
 
             // ピザ取得フェーズ
             //yield return StartCoroutine(PickPizzaPhase());
+
+            // フェーズ終了時処理
+            yield return StartCoroutine(EndPhase(counter));
 
             counter++;
         }
@@ -261,6 +266,11 @@ public class SystemManager : MonoBehaviour
             timer += Time.deltaTime;
             UpdatePickTimeUI(shootTime - timer);
 
+            // パインの召喚処理
+
+            // ピザを取られるフェーズの処理
+
+
             // 全員が食材を発射し終えたら途中でも次のフェーズへ
             if(IsAllPlayerUnShootable()) yield break;
 
@@ -299,6 +309,19 @@ public class SystemManager : MonoBehaviour
         Debug.Log("取得");
         pizzaManager.TakePizzaSlice(pickIndexes);
         
+        yield return null;
+    }
+
+    IEnumerator EndPhase(int phaseCounter)
+    {
+        int nextPhase = phaseCounter++;// 次のフェーズを取得
+
+        // パイン開始フラグを設定予定
+        //if (nextPhase == PinePhase) 
+
+        // 魔王のピック開始フラグを設定予定
+        //if(nextPhase == LastPhase)
+
         yield return null;
     }
 
