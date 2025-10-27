@@ -225,9 +225,8 @@ public class StageManager : MonoBehaviour
             for (int i = reflectList.Count - 1; i >= 0; i--)
             {
                 Reflect(reflectList[i]);
-
-                reflectList.RemoveAt(i);// リストから削除
             }
+            reflectList.Clear();// リストをクリア
         }
         // くっつける
         if (mergeEventList.Count > 0)
@@ -235,10 +234,9 @@ public class StageManager : MonoBehaviour
             for(int i = mergeEventList.Count - 1;i >= 0;i--)
             {
                 mergeEventList[i].First.Food.OnMerge(mergeEventList[i].Second.Food);
-
-                mergeEventList.RemoveAt(i);// リストから削除
                 Debug.Log("[MERGE]");
             }
+            mergeEventList.Clear();// リストをクリア
         }
         // 食べる
         if(eatEventList.Count > 0)
@@ -246,12 +244,10 @@ public class StageManager : MonoBehaviour
             for(int i =  eatEventList.Count - 1; i>=0;i--)
             {
                 eatEventList[i].First.Food.OnEat(eatEventList[i].Second.Food);
-
-                eatEventList.RemoveAt(i);// リストから削除
                 Debug.Log("[EAT]");
             }
+            eatEventList.Clear();// リストをクリア
         }
-
     }
 
     public void SummonAndShotFood(FoodMove foodPrefab, Vector3 summonPosition, Vector3 shotDirection, Vector3 pivotPos, float power)
@@ -269,23 +265,6 @@ public class StageManager : MonoBehaviour
 
     public void AddReflectList(FoodMove self, FoodMove opponent)
     {
-        //// リストに何も無ければ追加
-        //if (reflectList.Count == 0)
-        //{
-        //    reflectList.Add(new InfoForReflect(self, opponent));
-        //    return;
-        //}
-        //// リストにすでに入っているとき
-        //foreach (InfoForReflect reflect in reflectList)
-        //{
-        //    // リストに含まれているものでなければ追加
-        //    if (!reflect.IsSame(self.Rigidbody, opponent.Rigidbody))
-        //    {
-        //        reflectList.Add(new InfoForReflect(self, opponent));// 追加
-        //        return;
-        //    }
-        //}
-
         AddInfoForReflectList(reflectList, self, opponent);
     }
 
