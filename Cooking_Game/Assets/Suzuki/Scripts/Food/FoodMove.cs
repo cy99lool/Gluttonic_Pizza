@@ -14,6 +14,8 @@ public class FoodMove : MonoBehaviour
     public Collider Collider => myCollider;
 
     [Header("モデルのアニメーター"), SerializeField] Animator animator;
+
+    [Header("--- 移動関係の設定 ---")]
     [Header("重力"), SerializeField] float gravity = 9.8f;
     [Header("一秒あたりの減速率"), SerializeField] float brakeRate = 1.8f;
     [Header("地面についている判定の距離"), SerializeField] float onGroundDistance = 0.15f;
@@ -24,6 +26,12 @@ public class FoodMove : MonoBehaviour
     [Header("ぶつかったときの反射率（%）"), Range(0f, 100f), SerializeField] float myReflectRate = 90f;
     public float ReflectRate => myReflectRate;
 
+    [Header("--- 爆弾関係の設定 ---")]
+    [Header("爆弾になるまでに必要なつながる数"), SerializeField] int bombNum = 3;
+    [Header("起爆時間"), SerializeField] float explodeTimer = 5f;
+    [Header("爆発時に生成するプレハブ"), SerializeField] GameObject explodePrefab;
+
+    [Header("--- その他設定 ---")]
     // ステータスとして他のクラスにまとめるかも（ポイントの倍率等を設定する場合もあるかも）
     [Header("チーム"), SerializeField] TeamColor team;
     public TeamColor Team => team;
@@ -112,8 +120,45 @@ public class FoodMove : MonoBehaviour
 
     protected void FixedUpdate()
     {
-        FallUpdate();
-        AnimatorUpdate();
+        FallUpdate();       // 落下の更新処理
+        AnimatorUpdate();   // アニメーションの更新処理
+        BombUpdate();       // 爆弾の更新処理
+    }
+
+    float bombTimer = GameConstants.FirstTimerValue;
+
+    void BombUpdate()
+    {
+        // 爆弾フラグが有効化の間だけカウントダウンや起爆処理を行う
+        if (!bomb)
+        {
+            // タイマーのリセット
+            if (bombTimer != GameConstants.FirstTimerValue) bombTimer = GameConstants.FirstTimerValue;
+
+            return;
+        }
+
+        // タイマーを更新して、起爆時間になったら起爆
+        bombTimer += Time.deltaTime;
+
+        if (bombTimer >= explodeTimer) Explode();
+    }
+
+    /// <summary>
+    /// 起爆時の処理、Rootだけで呼び出される想定
+    /// </summary>
+    void Explode()
+    {
+        // Rootのみで行う
+        if (this != Root) return;
+
+        Debug.Log("[BOMB]");
+
+        // 起爆時のプレハブ生成
+        if (explodePrefab != null) Instantiate(explodePrefab, transform.position, Quaternion.identity);
+
+        // オブジェクト破壊
+        Destroy(gameObject);
     }
 
     /// <summary>
@@ -128,9 +173,14 @@ public class FoodMove : MonoBehaviour
 
     void AnimatorUpdate()
     {
-        if (animator == null) return;// nullチェック
+        // nullチェック
+        if (animator == null) return;
 
-        if (animator.GetBool("Ready") && isGround) animator.SetBool("Ready", false);// 発射後ピザに着地したときは通常モードへ移行
+        // 発射後ピザに着地したときは通常モードへ移行
+        if (animator.GetBool("Ready") && isGround) animator.SetBool("Ready", false);
+
+        // 爆弾アニメーション
+        //animator.SetBool("Bomb", bomb);
     }
 
     void FallUpdate()
@@ -331,7 +381,9 @@ public class FoodMove : MonoBehaviour
         Merge(ref mergedFoods, target);
     }
 
-    const int BombNum = 5;
+    //  爆発カウントダウンの有効化フラグ
+    bool bomb = false;
+
     void Merge(ref List<FoodMove> mergedFoods, FoodMove target)
     {
         if (target == null || this == null) return;
@@ -393,9 +445,10 @@ public class FoodMove : MonoBehaviour
         target.myRb.velocity = Vector3.zero;
 
         // ある程度つながったら爆弾化
-        if (GetConnectedCount() >= BombNum)
+        if (GetConnectedCount() >= bombNum)
         {
-
+            // 爆弾フラグを有効化
+            Root.bomb = true;
         }
     }
 
@@ -530,22 +583,11 @@ public class FoodMove : MonoBehaviour
                 // 再度自身のrigidbodyで動かせるように
                 if (child.Rigidbody != null) child.Rigidbody.isKinematic = false;
             }
-
-            //for (int i = mergedFoods.Count - 1; i >= 0; i--)
-            //{
-            //    if (mergedFoods[i] != null)
-            //    {
-            //        // 親子付けの解除
-            //        mergedFoods[i].transform.SetParent(null);
-            //        mergedFoods[i].SetFoodParent(null);
-            //        mergedFoods[i].UpdateRootRecursive(null);
-
-            //        // 再度自身のrigidbodyで動かせるように
-            //        mergedFoods[i].Rigidbody.isKinematic = false;
-            //    }
-            //}
         }
         //}
+
+        // 爆弾の解除判定
+        if (GetConnectedCount() < bombNum) Root.bomb = false;
 
         unmerging = false;
     }
@@ -579,7 +621,8 @@ public class FoodMove : MonoBehaviour
                     switch (type)
                     {
                         case InteractionType.Merge:
-                            stageManager.AddMergeEventList(this, opponentFood);
+                            // 爆弾化していない状態のときのみ結合
+                            if(!Root.bomb && !opponentFood.Root.bomb) stageManager.AddMergeEventList(this, opponentFood);
                             break;
 
                         case InteractionType.Eat:
