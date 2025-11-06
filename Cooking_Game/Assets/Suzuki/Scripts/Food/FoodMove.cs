@@ -31,6 +31,9 @@ public class FoodMove : MonoBehaviour
     [Header("起爆時間"), SerializeField] float explodeTimer = 5f;
     [Header("爆発時に生成するプレハブ"), SerializeField] GameObject explodePrefab;
 
+    [Header("--- エフェクトの設定 ---")]
+    [Header("爆発カウントエフェクト"), SerializeField] GameObject bombCountDownEffect;
+
     [Header("--- その他設定 ---")]
     // ステータスとして他のクラスにまとめるかも（ポイントの倍率等を設定する場合もあるかも）
     [Header("チーム"), SerializeField] TeamColor team;
@@ -135,6 +138,9 @@ public class FoodMove : MonoBehaviour
             // タイマーのリセット
             if (bombTimer != GameConstants.FirstTimerValue) bombTimer = GameConstants.FirstTimerValue;
 
+            // 起爆カウントエフェクトの非表示化
+            if (bombCountEffectObject != null && bombCountEffectObject.activeSelf) bombCountEffectObject.SetActive(false);
+
             return;
         }
 
@@ -145,17 +151,27 @@ public class FoodMove : MonoBehaviour
     }
 
     /// <summary>
-    /// 起爆時の処理、Rootだけで呼び出される想定
+    /// 起爆時の処理
     /// </summary>
     void Explode()
     {
-        // Rootのみで行う
-        if (this != Root) return;
 
         Debug.Log("[BOMB]");
 
+        // Rigidbodyの無効化
+        Rigidbody.isKinematic = false;
+
         // 起爆時のプレハブ生成
         if (explodePrefab != null) Instantiate(explodePrefab, transform.position, Quaternion.identity);
+
+        // 起爆カウントエフェクトの非表示化
+        if (bombCountEffectObject != null && bombCountEffectObject.activeSelf) bombCountEffectObject.SetActive(false);
+
+        // 再帰的に起爆
+        foreach (FoodMove child in this.mergedFoods)
+        {
+            child.Explode();
+        }
 
         // オブジェクト破壊
         Destroy(gameObject);
@@ -383,6 +399,7 @@ public class FoodMove : MonoBehaviour
 
     //  爆発カウントダウンの有効化フラグ
     bool bomb = false;
+    GameObject bombCountEffectObject = null;
 
     void Merge(ref List<FoodMove> mergedFoods, FoodMove target)
     {
@@ -449,6 +466,18 @@ public class FoodMove : MonoBehaviour
         {
             // 爆弾フラグを有効化
             Root.bomb = true;
+
+            // エフェクトを生成
+            if (bombCountDownEffect != null && bombCountEffectObject == null) bombCountEffectObject = Instantiate(bombCountDownEffect);
+
+            // エフェクトのオブジェクトが存在しているかnullチェック
+            if (bombCountEffectObject == null) return;
+                
+            // エフェクトの位置を調整
+            bombCountEffectObject.transform.position = transform.position;
+
+            // エフェクトを有効化
+            if(!bombCountEffectObject.activeSelf) bombCountEffectObject.SetActive(true);
         }
     }
 
@@ -615,6 +644,9 @@ public class FoodMove : MonoBehaviour
                 // 同じ根をもつ結合関係にある食べ物同士は反応させない
                 if (opponentFood.Root != this.Root)
                 {
+                    // stageManagerが設定されていなければreturn
+                    if (stageManager == null) return;
+
                     // 衝突時の相性を取得
                     InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team);
 

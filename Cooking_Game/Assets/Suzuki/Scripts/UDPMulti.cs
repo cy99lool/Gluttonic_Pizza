@@ -16,6 +16,15 @@ public class UDPMulti : MonoBehaviour
         [SerializeField] string ip = "127.0.0.1";// 何も指定されなければ自身を指す
         public string IP => ip;
 
+        /// <summary>
+        /// IPアドレスの設定
+        /// </summary>
+        /// <param name="ip">設定するIPアドレス</param>
+        public void SetIP(string ip)
+        {
+            this.ip = ip;
+        }
+
         [SerializeField] int port = 0;
         public int Port => port;
 
@@ -329,6 +338,29 @@ public class UDPMulti : MonoBehaviour
         {
             RegisterOpponentPort(client.IP, client.Port);
         }
+    }
+
+    /// <summary>
+    /// IPアドレスをフィールドに入力できるした後に変更を反映
+    /// </summary>
+    public void ApplyIPChange(int playerNum, string ip)
+    {
+        // リストのサイズ以上のときは変更を適用しない
+        if (playerNum > clients.Count) return;
+
+        // 接続をリクエストするプレイヤーリストのインデックスに変換
+        PlayerIndex playerIndex = (PlayerIndex)(playerNum - GameConstants.One);
+
+        // IPアドレスを適用
+        clients[(int)playerIndex].SetIP(ip);
+    }
+
+    enum PlayerIndex
+    {
+        first = 0,
+        second = 1,
+        third = 2,
+        fourth = 3,
     }
 
     /// <summary>
