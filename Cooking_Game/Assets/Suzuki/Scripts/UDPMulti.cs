@@ -341,6 +341,18 @@ public class UDPMulti : MonoBehaviour
     }
 
     /// <summary>
+    /// 自身のIPアドレスを更新
+    /// </summary>
+    /// <param name="ip"></param>
+    public void UpdateMyIP(string ip)
+    {
+        if (ip == null) return;
+
+        // 適用
+        myInfo.SetIP(ip);
+    }
+
+    /// <summary>
     /// IPアドレスをフィールドに入力できるした後に変更を反映
     /// </summary>
     public void ApplyIPChange(int playerNum, string ip)

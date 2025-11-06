@@ -25133,6 +25133,7 @@ GameObject:
   - component: {fileID: 1702566234}
   - component: {fileID: 1702566236}
   - component: {fileID: 1702566235}
+  - component: {fileID: 1702566237}
   m_Layer: 5
   m_Name: IP
   m_TagString: Untagged
@@ -25257,6 +25258,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1702566233}
   m_CullTransparentMesh: 1
+--- !u!114 &1702566237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1702566233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 624d91e99ce059a488267044f24b24af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myIPText: {fileID: 1702566235}
+  udpMulti: {fileID: 920145363}
 --- !u!1 &1706258773
 GameObject:
   m_ObjectHideFlags: 0
