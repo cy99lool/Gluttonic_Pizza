@@ -13,6 +13,7 @@ public class UDPMulti : MonoBehaviour
     [Serializable]
     public class ClientInfo
     {
+        [Header("--- 接続情報設定 ---")]
         [SerializeField] string ip = "127.0.0.1";// 何も指定されなければ自身を指す
         public string IP => ip;
 
@@ -28,17 +29,21 @@ public class UDPMulti : MonoBehaviour
         [SerializeField] int port = 0;
         public int Port => port;
 
+        [Header("--- 同期設定 ---")]
         [Header("同期するオブジェクト"), SerializeField] GameObject trackObject;
         public GameObject TrackObject => trackObject;
+
+        [Header("接続状況を確認するオブジェクト"), SerializeField] ConnectionInfo connectionCheckObject;
+        public ConnectionInfo ConnectionCheckObject => connectionCheckObject;
 
         // アイテム適用情報を持つデータのクラス
         [SerializeField] CursorInfo cursorInfo;
         public CursorInfo Cursor => cursorInfo;
 
         IPEndPoint endPoint;
-        float disconnectTimer;
-
         public IPEndPoint EndPoint => endPoint;
+
+        float disconnectTimer;
         public float DisconnectTimer => disconnectTimer;
 
         // コンストラクタ
@@ -238,6 +243,9 @@ public class UDPMulti : MonoBehaviour
                 // 再接続を要求
                 RequestReconnection(connectedPlayerInfos[i].IP, connectedPlayerInfos[i].Port);
 
+                // 切断時の処理
+                if(connectedPlayerInfos[i].ConnectionCheckObject != null) connectedPlayerInfos[i].ConnectionCheckObject.OnDisconnect();
+
                 // 接続リストから削除
                 connectedPlayerInfos.RemoveAt(i);
             }
@@ -416,10 +424,7 @@ public class UDPMulti : MonoBehaviour
                             // ClientInfoがなくてもキューに追加する
                             ReceivedUnit ConnectCheckUnit = new ReceivedUnit(senderEP, receivedBytes, new ClientInfo(senderEP.Address.ToString(), senderEP.Port));
                             messageQueue.Enqueue(ConnectCheckUnit);
-                            Debug.Log("Enqueue成功 Info=" + (ConnectCheckUnit.Info?.IP ?? "null"));// デバッグ
-                            Debug.Log("CheckConnect呼ぶ");
                             CheckConnect(ConnectCheckUnit);// 接続状態の更新
-                            Debug.Log("CheckConnect呼んだ");
                             continue;
                         }
 
@@ -427,11 +432,8 @@ public class UDPMulti : MonoBehaviour
                         try
                         {
                             // 接続時
-                            // ClientInfoを取得
-                            foundInfo = SearchClientInfo(receivedBytes.ToClientInfo(sizeof(Int32)));// UDPMessage型のメッセージの先にあるJsonファイルから、ClientInfoを取得する
-
-                            //Debug.Log($"受け取ったメッセージ長: {receivedBytes.Length}");
-                            //messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, clientInfo));
+                            // UDPMessage型のメッセージの先にあるJsonファイルから、ClientInfoを取得する
+                            foundInfo = SearchClientInfo(receivedBytes.ToClientInfo(sizeof(Int32)));
                         }
                         catch
                         {
@@ -439,15 +441,6 @@ public class UDPMulti : MonoBehaviour
                             foundInfo = null;
                             //Debug.LogWarning($"Jsonのパース失敗 {System.Text.Encoding.UTF8.GetString(receivedBytes)}");
                         }
-                        //catch
-                        //{
-                        //    // 通信時
-                        //    string objectInfoJson = System.Text.Encoding.UTF8.GetString(receivedBytes, sizeof(Int32), receivedBytes.Length - sizeof(Int32));// UDPMessage型のメッセージの先
-                        //    ObjectInfo objectInfo = JsonUtility.FromJson<ObjectInfo>(objectInfoJson);
-
-                        //    Debug.Log($"ポート：{objectInfo.ClientInfo.Port}, 受け取った位置：{objectInfo.Position}");
-                        //    messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, objectInfo.ClientInfo));
-                        //}
 
                         if (foundInfo == null)
                         {
@@ -469,12 +462,9 @@ public class UDPMulti : MonoBehaviour
                         // メッセージをキューに追加
                         ReceivedUnit unit = new ReceivedUnit(senderEP, receivedBytes, foundInfo);
                         messageQueue.Enqueue(unit);
-                        Debug.Log("Enqueue成功 Info=" + (unit.Info?.IP ?? "null"));// デバッグ
 
                         // 接続している状況の更新
-                        Debug.Log("CheckConnect呼ぶ");
                         CheckConnect(unit);
-                        Debug.Log("CheckConnect呼んだ");
 
                         //Debug.Log($"[RECEIVE] {DateTime.Now:HH:mm:ss.fff} bytes={receivedBytes.Length} from={senderEP}");// デバッグ
                     }
@@ -590,7 +580,7 @@ public class UDPMulti : MonoBehaviour
 
                     client.SendAsync(message, message.Length, unit.SenderEP);// 送信
 
-                    ActivateTrackObject(unit);
+                    OnConnect(unit);
                     CheckConnect(unit);
                     break;
                 }
@@ -609,7 +599,7 @@ public class UDPMulti : MonoBehaviour
                     }
                     Debug.Log("他の人から接続がありました:" + unit.Info.Port);
 
-                    ActivateTrackObject(unit);
+                    OnConnect(unit);
                     CheckConnect(unit);
                     break;
                 }
@@ -787,9 +777,36 @@ public class UDPMulti : MonoBehaviour
         sendThread.Start();
     }
 
+    void OnConnect(ReceivedUnit unit)
+    {
+        if (unit.Info == null) return;// ReceivedUnitがnullなら何もしない
+
+        // 接続済みアイコンの有効化
+        ActivateConnectIcon(unit);
+
+        // 同期するオブジェクトを有効化
+        ActivateTrackObject(unit);
+    }
+
+    /// <summary>
+    /// 接続済みアイコンの有効化
+    /// </summary>
+    /// <param name="unit">接続した相手の情報</param>
+    void ActivateConnectIcon(ReceivedUnit unit)
+    {
+        if (unit.Info.ConnectionCheckObject == null) return;// nullチェック
+
+        // 接続済みアイコンの有効化を命令
+        unit.Info.ConnectionCheckObject.OnConnect();
+    }
+
+    /// <summary>
+    /// 同期するオブジェクトの有効化
+    /// </summary>
+    /// <param name="unit">接続した相手の情報</param>
     void ActivateTrackObject(ReceivedUnit unit)
     {
-        if (unit.Info == null || unit.Info.TrackObject == null) return;// Infoがnullであったり、動かす対象が登録されていない（ピザの画面を映すPC）場合は動かさない
+        if (unit.Info.TrackObject == null) return;// 動かす対象が登録されていない（ピザの画面を映すPC）場合は動かさない
 
         for (int i = 0; i < connectedPlayerInfos.Count; i++)
         {
