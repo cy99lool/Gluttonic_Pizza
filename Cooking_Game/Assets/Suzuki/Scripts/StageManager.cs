@@ -296,7 +296,7 @@ public class StageManager : MonoBehaviour
     {
         foreach (TrackObject trackObject in trackObjects)
         {
-            if (trackObject.Cursor.Team == acquirer.Team)// 取得したチームを見つける
+            if (trackObject.Cursor.Team.Color == acquirer.Team)// 取得したチームを見つける
             {
                 trackObject.Cursor.SetModeFlag(item.Mode);// 移行可能なモードに追加
                 Destroy(item.gameObject);// フィールドからアイテムを削除
