@@ -155,7 +155,8 @@ public class FoodMove : MonoBehaviour
     /// </summary>
     void Explode()
     {
-
+        // Rigidbodyがnullのとき（すでに削除されていたら）return
+        if (Rigidbody == null) return;
         Debug.Log("[BOMB]");
 
         // Rigidbodyの無効化

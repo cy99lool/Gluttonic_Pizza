@@ -82,8 +82,8 @@ public class ConnectionInfo : MonoBehaviour
         baseText = "接続済み";
 
         // 接続済みアイコンへ変化
-        connectWaitIcon.enabled = false;
-        connectedIcon.enabled = true;
+        connectWaitIcon.gameObject.SetActive(false);
+        connectedIcon.gameObject.SetActive(true);
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class ConnectionInfo : MonoBehaviour
         textTimer = GameConstants.FirstTimerValue;
 
         // 接続待ちアイコンへ変化
-        connectWaitIcon.enabled = true;
-        connectedIcon.enabled = false;
+        connectWaitIcon.gameObject.SetActive(true);
+        connectedIcon.gameObject.SetActive(false);
     }
 }
