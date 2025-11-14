@@ -7519,9 +7519,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: NormalFoodMushroom Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 4704903018388628121, guid: 43ac8ef82c6bff54398bfb448d283624, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5332540077317290019, guid: 43ac8ef82c6bff54398bfb448d283624, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5332540077317290019, guid: 43ac8ef82c6bff54398bfb448d283624, type: 3}
       propertyPath: m_LocalPosition.x
@@ -20007,7 +20011,7 @@ Transform:
   - {fileID: 925734809}
   - {fileID: 1523512086}
   m_Father: {fileID: 0}
-  m_RootOrder: 16
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &839532379
 MonoBehaviour:
@@ -22290,7 +22294,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &952148038
 Transform:
   m_ObjectHideFlags: 0
@@ -28609,7 +28613,7 @@ Transform:
   - {fileID: 1555506066}
   - {fileID: 113263227}
   m_Father: {fileID: 0}
-  m_RootOrder: 14
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!1 &1204438560
 GameObject:
@@ -32841,7 +32845,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1335428795
 Transform:
   m_ObjectHideFlags: 0
@@ -34817,7 +34821,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8397455487565910213, guid: 9faa2861417176c4ea71411954b16d16, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8397455487565910213, guid: 9faa2861417176c4ea71411954b16d16, type: 3}
       propertyPath: m_LocalScale.x
@@ -36243,9 +36247,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: NormalFoodPepper Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 2870327256795685395, guid: 334e97b062b1e184da8544007a2c5142, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3215187238293731497, guid: 334e97b062b1e184da8544007a2c5142, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3215187238293731497, guid: 334e97b062b1e184da8544007a2c5142, type: 3}
       propertyPath: m_LocalPosition.x
@@ -37118,7 +37126,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1194984758907287050, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1194984758907287050, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
       propertyPath: m_LocalPosition.x
@@ -37163,6 +37171,10 @@ PrefabInstance:
     - target: {fileID: 2008219376512986288, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
       propertyPath: m_Name
       value: NormalFoodAvocado Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 2008219376512986288, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
@@ -38097,7 +38109,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 15
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: -90}
 --- !u!1 &1581980891
 GameObject:
@@ -39315,7 +39327,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1611934250
 RectTransform:
   m_ObjectHideFlags: 0
@@ -40095,7 +40107,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1679529773
 RectTransform:
   m_ObjectHideFlags: 0
@@ -43831,7 +43843,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1843423417
 RectTransform:
   m_ObjectHideFlags: 0
@@ -46856,7 +46868,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7525583437042795969, guid: 5f4476b882407e6468a3fe33aaf7d060, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7525583437042795969, guid: 5f4476b882407e6468a3fe33aaf7d060, type: 3}
       propertyPath: m_LocalScale.x
@@ -52809,7 +52821,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2039328184
 RectTransform:
   m_ObjectHideFlags: 0
@@ -53312,6 +53324,10 @@ PrefabInstance:
     - target: {fileID: 8190534429889335181, guid: e2ff532b2b5b4c5428c7b54f9a460917, type: 3}
       propertyPath: m_Name
       value: NormalFoodPumpkin Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 8190534429889335181, guid: e2ff532b2b5b4c5428c7b54f9a460917, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8854445236900418871, guid: e2ff532b2b5b4c5428c7b54f9a460917, type: 3}
       propertyPath: m_RootOrder

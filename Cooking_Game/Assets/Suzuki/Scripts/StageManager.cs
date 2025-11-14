@@ -295,6 +295,8 @@ public class StageManager : MonoBehaviour
     }
 
     const float MaxReflectScale = 1f;
+    //const float ResolvePenetrationThreshold = 0.5f;
+    //const float ResolvePenetrationFactor = 10f;
     /// <summary>
     /// 衝突時の反射
     /// </summary>
@@ -307,6 +309,21 @@ public class StageManager : MonoBehaviour
             reflectInfo.First.Rigidbody : reflectInfo.Second.Rigidbody;
 
         Vector3 baseVelocity = reflectInfo.First.Rigidbody.velocity + reflectInfo.Second.Rigidbody.velocity;// お互いの勢いを足す
+
+        //Vector3 direction = (reflectInfo.Second.Rigidbody.transform.position - reflectInfo.First.Rigidbody.position);
+        //float distance = direction.magnitude;
+        //// 重なりの防止
+        //if (distance <= ResolvePenetrationThreshold)
+        //{
+
+        //    // 力を加える方向
+        //    direction.Normalize();
+
+        //    float penetrationDepth = ResolvePenetrationThreshold - distance;
+        //    baseVelocity = direction * penetrationDepth * ResolvePenetrationFactor;
+
+        //    //baseVelocity = baseRb == reflectInfo.First.Rigidbody ? -distance : distance;
+        //}
 
         // 勢いを計算しやすいように変換
         baseVelocity /= BaseKeepReflectSpeedRate;// 後で食材ごとに%を変換しないで済むようにしている

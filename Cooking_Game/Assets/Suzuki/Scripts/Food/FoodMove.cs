@@ -94,7 +94,7 @@ public class FoodMove : MonoBehaviour
         if (this.team != targetColor && otherColor != targetColor) otherColor = this.team;
 
         // 再帰的に探索
-        foreach(FoodMove child in this.mergedFoods)
+        foreach (FoodMove child in this.mergedFoods)
         {
             (int childTargetCount, int childOtherCount) = child.CountColorRecursively(targetColor, ref otherColor);
             targetCount += childTargetCount;
@@ -473,12 +473,12 @@ public class FoodMove : MonoBehaviour
 
             // エフェクトのオブジェクトが存在しているかnullチェック
             if (bombCountEffectObject == null) return;
-                
+
             // エフェクトの位置を調整
             bombCountEffectObject.transform.position = transform.position;
 
             // エフェクトを有効化
-            if(!bombCountEffectObject.activeSelf) bombCountEffectObject.SetActive(true);
+            if (!bombCountEffectObject.activeSelf) bombCountEffectObject.SetActive(true);
         }
     }
 
@@ -643,42 +643,40 @@ public class FoodMove : MonoBehaviour
             if (other.gameObject.TryGetComponent<FoodMove>(out FoodMove opponentFood))// 相手が食べ物なら
             {
                 // 同じ根をもつ結合関係にある食べ物同士は反応させない
-                if (opponentFood.Root != this.Root)
+                if (opponentFood.Root == this.Root) return;
+                // stageManagerが設定されていなければreturn
+                if (stageManager == null) return;
+
+                // 衝突時の相性を取得
+                InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team);
+
+                switch (type)
                 {
-                    // stageManagerが設定されていなければreturn
-                    if (stageManager == null) return;
+                    case InteractionType.Merge:
+                        // 爆弾化していない状態のときのみ結合
+                        if (!Root.bomb && !opponentFood.Root.bomb) stageManager.AddMergeEventList(this, opponentFood);
+                        break;
 
-                    // 衝突時の相性を取得
-                    InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team);
+                    case InteractionType.Eat:
+                        // 結合済みの食材や、すでに一度捕食を行った食材は捕食機能を持たない
+                        if (Root == this && mergedFoods.Count == GameConstants.Zero && !unEatable)
+                        {
+                            stageManager.AddEatEventList(this, opponentFood);
+                            unEatable = true;
+                        }
+                        else if (Root == this) stageManager.AddReflectList(this, opponentFood);
+                        break;
 
-                    switch (type)
-                    {
-                        case InteractionType.Merge:
-                            // 爆弾化していない状態のときのみ結合
-                            if(!Root.bomb && !opponentFood.Root.bomb) stageManager.AddMergeEventList(this, opponentFood);
+                    case InteractionType.None:
+                        {
+                            // 捕食する側の食材が吹き飛ばないように
+                            if (FoodInteractionRules.GetInteractionType(opponentFood.team, team) != InteractionType.Eat)
+                                stageManager.AddReflectList(this, opponentFood);
                             break;
+                        }
 
-                        case InteractionType.Eat:
-                            // 結合済みの食材や、すでに一度捕食を行った食材は捕食機能を持たない
-                            if (Root == this && mergedFoods.Count == GameConstants.Zero && !unEatable)
-                            {
-                                stageManager.AddEatEventList(this, opponentFood);
-                                unEatable = true;
-                            }
-                            else if (Root == this) stageManager.AddReflectList(this, opponentFood);
-                            break;
-
-                        case InteractionType.None:
-                            {
-                                // 捕食する側の食材が吹き飛ばないように
-                                if (FoodInteractionRules.GetInteractionType(opponentFood.team, team) != InteractionType.Eat)
-                                    stageManager.AddReflectList(this, opponentFood);
-                                break;
-                            }
-
-                        default:
-                            break;
-                    }
+                    default:
+                        break;
                 }
 
                 //Reflect(myRb, oppoentRb);
