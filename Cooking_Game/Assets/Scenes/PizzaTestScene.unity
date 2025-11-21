@@ -8281,7 +8281,9 @@ MonoBehaviour:
   myCollider: {fileID: 0}
   animator: {fileID: 1622978786}
   gravity: 9.8
+  maxAngularVelocity: 7
   brakeRate: 1.8
+  rotateBrakeRate: 20
   onGroundDistance: 0.15
   eraseLimit: 5
   brakeMask:
@@ -8300,6 +8302,9 @@ MonoBehaviour:
   bombCountDownEffect: {fileID: 0}
   team: 0
   point: 10
+  fangAnimator: {fileID: 0}
+  fangDissaperAnimationTime: 0.5
+  eatenFactor: 1.1
 --- !u!43 &395596600
 Mesh:
   m_ObjectHideFlags: 0
@@ -9714,6 +9719,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 836782990}
     m_Modifications:
+    - target: {fileID: 4209752550774986353, guid: e2ff532b2b5b4c5428c7b54f9a460917, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7636753829916998164, guid: e2ff532b2b5b4c5428c7b54f9a460917, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -10228,7 +10237,9 @@ MonoBehaviour:
   myCollider: {fileID: 0}
   animator: {fileID: 304903645}
   gravity: 9.8
+  maxAngularVelocity: 7
   brakeRate: 1.8
+  rotateBrakeRate: 20
   onGroundDistance: 0.15
   eraseLimit: 5
   brakeMask:
@@ -10247,6 +10258,9 @@ MonoBehaviour:
   bombCountDownEffect: {fileID: 0}
   team: 0
   point: 10
+  fangAnimator: {fileID: 0}
+  fangDissaperAnimationTime: 0.5
+  eatenFactor: 1.1
 --- !u!1 &463417520
 GameObject:
   m_ObjectHideFlags: 0
@@ -11386,6 +11400,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 836782990}
     m_Modifications:
+    - target: {fileID: 760466570976852837, guid: 43ac8ef82c6bff54398bfb448d283624, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4704903018388628121, guid: 43ac8ef82c6bff54398bfb448d283624, type: 3}
       propertyPath: m_Name
       value: NormalFoodMushroom_Effect
@@ -11880,8 +11898,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.4, y: 1, z: 1.4}
+  m_Center: {x: 0, y: 0, z: -0.09}
 --- !u!23 &569468909
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -16267,7 +16285,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &697007448
 Transform:
   m_ObjectHideFlags: 0
@@ -20934,6 +20952,7 @@ MonoBehaviour:
   teams:
   - color: 0
     score: 0
+    shootCT: 1
     scoreText: {fileID: 682609552}
     pickTimeText: {fileID: 1146503673}
     result: {fileID: 862567330}
@@ -20941,9 +20960,9 @@ MonoBehaviour:
     mainScoreBar: {fileID: 0}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
-    bulletCount: 999999
   - color: 1
     score: 0
+    shootCT: 0
     scoreText: {fileID: 801704762}
     pickTimeText: {fileID: 1611782053}
     result: {fileID: 1824460197}
@@ -20951,9 +20970,9 @@ MonoBehaviour:
     mainScoreBar: {fileID: 0}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
-    bulletCount: 999999
   - color: 2
     score: 0
+    shootCT: 0
     scoreText: {fileID: 1293919561}
     pickTimeText: {fileID: 703397921}
     result: {fileID: 314942894}
@@ -20961,9 +20980,9 @@ MonoBehaviour:
     mainScoreBar: {fileID: 0}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
-    bulletCount: 999999
   - color: 3
     score: 0
+    shootCT: 0
     scoreText: {fileID: 1584859132}
     pickTimeText: {fileID: 258409422}
     result: {fileID: 879510505}
@@ -20971,7 +20990,6 @@ MonoBehaviour:
     mainScoreBar: {fileID: 0}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
-    bulletCount: 999999
   reloadBulletValue: 1000000
 --- !u!4 &901040593
 Transform:
@@ -20986,7 +21004,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &907152440
 GameObject:
@@ -21663,7 +21681,9 @@ MonoBehaviour:
   myCollider: {fileID: 0}
   animator: {fileID: 1048393596}
   gravity: 9.8
+  maxAngularVelocity: 7
   brakeRate: 1.8
+  rotateBrakeRate: 20
   onGroundDistance: 0.15
   eraseLimit: 5
   brakeMask:
@@ -21682,6 +21702,9 @@ MonoBehaviour:
   bombCountDownEffect: {fileID: 0}
   team: 0
   point: 10
+  fangAnimator: {fileID: 0}
+  fangDissaperAnimationTime: 0.5
+  eatenFactor: 1.1
 --- !u!1 &929133375
 GameObject:
   m_ObjectHideFlags: 0
@@ -23791,8 +23814,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.4, y: 1, z: 1.4}
+  m_Center: {x: 0, y: 0, z: -0.09}
 --- !u!23 &1016503683
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -27586,6 +27609,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4577029275437946762, guid: 334e97b062b1e184da8544007a2c5142, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7787822587026373615, guid: 334e97b062b1e184da8544007a2c5142, type: 3}
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
@@ -36457,7 +36484,9 @@ MonoBehaviour:
   myCollider: {fileID: 0}
   animator: {fileID: 1930619056}
   gravity: 9.8
+  maxAngularVelocity: 7
   brakeRate: 1.8
+  rotateBrakeRate: 20
   onGroundDistance: 0.15
   eraseLimit: 5
   brakeMask:
@@ -36476,6 +36505,9 @@ MonoBehaviour:
   bombCountDownEffect: {fileID: 0}
   team: 0
   point: 10
+  fangAnimator: {fileID: 0}
+  fangDissaperAnimationTime: 0.5
+  eatenFactor: 1.1
 --- !u!1 &1530424422
 GameObject:
   m_ObjectHideFlags: 0
@@ -37870,6 +37902,10 @@ PrefabInstance:
     - target: {fileID: 2008219376512986288, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
       propertyPath: m_Name
       value: NormalFoodAvocado_Effect
+      objectReference: {fileID: 0}
+    - target: {fileID: 5771421115574990156, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1666271611991478756, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
@@ -39809,8 +39845,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.4, y: 1, z: 1.4}
+  m_Center: {x: 0, y: 0, z: -0.09}
 --- !u!23 &1638543663
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -42411,8 +42447,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.4, y: 1, z: 1.4}
+  m_Center: {x: 0, y: 0, z: -0.09}
 --- !u!23 &1765697261
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -47213,7 +47249,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 9181932fe076aa84a960ed83d55bc845, type: 3}
       propertyPath: m_RootOrder
-      value: 14
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 9181932fe076aa84a960ed83d55bc845, type: 3}
       propertyPath: m_LocalScale.x

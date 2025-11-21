@@ -210,7 +210,7 @@ public class StageManager : MonoBehaviour
             if (trackObjects[i].IsMoving)
             {
                 // 動かしているときのエフェクトを入れる予定
-                Debug.Log("moving");
+                //Debug.Log("moving");
             }
             // ドラッグ中の矢の表示
             trackObjects[i].UpdateArrow();

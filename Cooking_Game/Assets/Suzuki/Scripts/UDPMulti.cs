@@ -630,7 +630,7 @@ public class UDPMulti : MonoBehaviour
                         // 自身の色についての情報だった場合
                         if(myInfo.Cursor.Team.Color == team.Color)
                         {
-                            myInfo.Cursor.Team.SetBulletCount(team.BulletCount);// 残弾数を同期
+                            //myInfo.Cursor.Team.SetBulletCount(team.BulletCount);// 残弾数を同期
                             myInfo.Cursor.SetModeFlag(receiveDto.CanModes);// 強化の使用可能状況を同期
                             break;
                         }

@@ -14,6 +14,8 @@ public class SystemManager : MonoBehaviour
         [SerializeField] int score;
         public int Score => score;
 
+        [Header("発射後のクールタイム"), SerializeField] float shootCT;
+
         [Header("チームの情報UIテキスト"), SerializeField] TMPro.TextMeshProUGUI scoreText;
         public TMPro.TextMeshProUGUI ScoreText => scoreText;
 
@@ -21,7 +23,9 @@ public class SystemManager : MonoBehaviour
         public TMPro.TextMeshProUGUI PickTimeText => pickTimeText;
 
         // ----- リザルト表示 -----
-        [Header("リザルト表示\nメイン画面のリザルトのスクリプト"), SerializeField] Result result;
+        [Header("--- リザルト表示 ---")]
+        [Header("メイン画面")]
+        [Header("メイン画面のリザルトのスクリプト"), SerializeField] Result result;
         public Result Result => result;
 
         [Header("メイン画面のスコア表示オブジェクト"), SerializeField] GameObject mainResultUI;
@@ -30,7 +34,8 @@ public class SystemManager : MonoBehaviour
         [Header("〃のスコアバー"), SerializeField] RectTransform mainScoreBar;
         public RectTransform MainScoreBar => mainScoreBar;
 
-        [Header("\nタブレット画面のスコア表示オブジェクト"), SerializeField] GameObject tabletResuiltUI;
+        [Header("タブレット画面")]
+        [Header("タブレット画面のスコア表示オブジェクト"), SerializeField] GameObject tabletResuiltUI;
         public GameObject TabletResuiltUI => tabletResuiltUI;
 
         [Header("〃のスコアバー"), SerializeField] RectTransform tabletScoreBar;
@@ -41,24 +46,48 @@ public class SystemManager : MonoBehaviour
         const int DefaultBulletCountValue = 0;// 初期化するときの弾数
         const int DefaultBulletSubValue = 1;
 
-        [SerializeField]int bulletCount;// 発射可能弾数
-        public int BulletCount => bulletCount;
-        public bool Shootable => bulletCount > 0;// 発射できるかどうか、後々演出で一時停止を実装するなら条件を増やす
+        //[SerializeField]int bulletCount;// 発射可能弾数
+        //public int BulletCount => bulletCount;
 
-        public void SetBulletCount(int count)// 発射可能弾数の設定
+        float shootableTimer = GameConstants.FirstTimerValue;
+        public float ShootableTimer => shootableTimer;
+
+        /// <summary>
+        /// 発射CTを設定
+        /// </summary>
+        public void SetShootCT()
         {
-            bulletCount = count;
+            shootableTimer = shootCT;
         }
-        public void ResetBulletCount()
+
+        public void ResetShootCT()
         {
-            bulletCount = DefaultBulletCountValue;
+            shootableTimer = GameConstants.Zero;
         }
-        public void SubtractBullet(int value = DefaultBulletSubValue)
+
+        public void SubstractCT(float daltaTime)
         {
-            // 弾数を減らす
-            bulletCount -= value;
-            if(bulletCount < 0) bulletCount = DefaultBulletCountValue;
+            shootableTimer -= daltaTime;
+
+            if (Shootable) ResetShootCT();
         }
+
+        public bool Shootable => shootableTimer <= GameConstants.Zero;// 発射できるかどうか、後々演出で一時停止を実装するなら条件を増やす
+
+        //public void SetBulletCount(int count)// 発射可能弾数の設定
+        //{
+        //    bulletCount = count;
+        //}
+        //public void ResetBulletCount()
+        //{
+        //    bulletCount = DefaultBulletCountValue;
+        //}
+        //public void SubtractBullet(int value = DefaultBulletSubValue)
+        //{
+        //    // 弾数を減らす
+        //    bulletCount -= value;
+        //    if(bulletCount < 0) bulletCount = DefaultBulletCountValue;
+        //}
 
         public void AddScore(int score)
         {
@@ -83,6 +112,8 @@ public class SystemManager : MonoBehaviour
 
         isStarted = false;
 
+        SetAllPlayerShootable(teams);
+
         //StartCoroutine(Main());
     }
 
@@ -90,6 +121,11 @@ public class SystemManager : MonoBehaviour
     {
         // UIを更新
         UpdateScoreUI();
+    }
+
+    void FixedUpdate()
+    {
+        UpdateShootCT();
     }
 
     /// <summary>
@@ -112,6 +148,14 @@ public class SystemManager : MonoBehaviour
         {
             // テキストの更新
             teams[i].ScoreText.text = $"赤:{redScore:D2}青:{blueScore:D2}\n緑:{greenScore:D2}黄:{yellowScore:D2}";
+        }
+    }
+
+    void UpdateShootCT()
+    {
+        foreach(Team team in teams)
+        {
+            if(!team.Shootable) team.SubstractCT(Time.deltaTime);
         }
     }
 
@@ -172,10 +216,7 @@ public class SystemManager : MonoBehaviour
     IEnumerator PizzaSelectPhase(float rouletteTime, uint pickCount = 1)
     {
         // 確実に誰も発射できないように
-        foreach (Team team in teams)
-        {
-            team.ResetBulletCount();
-        }
+        SetAllPlayerUnshootable(teams);
 
         // 取得するピザの番号を取得
         pickIndexes = SelectPizzaSlices(pickCount);
@@ -196,6 +237,16 @@ public class SystemManager : MonoBehaviour
 
             
             yield return null;
+        }
+    }
+
+    // すべてのプレイヤーを発射不可にする
+    void SetAllPlayerUnshootable(List<Team> teams)
+    {
+        foreach (Team team in teams)
+        {
+            //team.ResetBulletCount();
+            team.SetShootCT();
         }
     }
 
@@ -254,12 +305,9 @@ public class SystemManager : MonoBehaviour
 
         pizzaManager.StartSpin();// 回転開始
 
-        // プレイヤーは発射できるように（残弾数の補充）
-        foreach(Team team in teams)
-        {
-            team.SetBulletCount(reloadBulletValue);
-        }
-
+        // プレイヤーは発射できるように
+        SetAllPlayerShootable(teams);
+        
         float timer = GameConstants.FirstTimerValue;
         while (timer < shootTime)
         {
@@ -276,6 +324,18 @@ public class SystemManager : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    /// <summary>
+    /// 全プレイヤーを発射可能な状態にする
+    /// </summary>
+    void SetAllPlayerShootable(List<Team> teams)
+    {
+        foreach (Team team in teams)
+        {
+            team.ResetShootCT();
+        }
+
     }
 
     /// <summary>
@@ -296,6 +356,9 @@ public class SystemManager : MonoBehaviour
     IEnumerator PreparePickPizzaPhase(float preparePizzaTime)
     {
         pizzaManager.StopSpin();// 回転停止
+
+        // プレイヤーは発射不可
+        SetAllPlayerUnshootable(teams);
 
         // 取得待機演出
         yield return StartCoroutine(pizzaManager.PrepareTakePizza(preparePizzaTime));

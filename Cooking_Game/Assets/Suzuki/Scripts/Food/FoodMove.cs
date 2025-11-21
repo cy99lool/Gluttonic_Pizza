@@ -17,7 +17,9 @@ public class FoodMove : MonoBehaviour
 
     [Header("--- 移動関係の設定 ---")]
     [Header("重力"), SerializeField] float gravity = 9.8f;
-    [Header("一秒あたりの減速率"), SerializeField] float brakeRate = 1.8f;
+    [Header("角速度の最大値"), SerializeField] float maxAngularVelocity = 7f;
+    [Header("一秒あたりの速度の減速率"), SerializeField] float brakeRate = 1.8f;
+    [Header("一秒あたりの回転の減速率"), SerializeField] float rotateBrakeRate = 20f;
     [Header("地面についている判定の距離"), SerializeField] float onGroundDistance = 0.15f;
     [Header("消えるまでの時間"), SerializeField] float eraseLimit = 5f;
     [Header("ブレーキをかけるレイヤー"), SerializeField] LayerMask brakeMask;
@@ -42,16 +44,23 @@ public class FoodMove : MonoBehaviour
     [Header("入手されるときのポイント"), SerializeField] int point = 10;
     public int ScorePoint => point;
 
+    [Header("牙のアニメーター"), SerializeField] Animator fangAnimator;
+    [Header("牙の縮むアニメーション時間"), SerializeField] float fangDissaperAnimationTime = 0.5f;
+    //[Header("〃の縮む速度(1で縮まない)"), Range(1f, 10f), SerializeField] float fangShrinkSpeed = 2f;
+    [Header("捕食後のサイズ倍率"), SerializeField] float eatenFactor = 1.1f;
+
     StageManager stageManager;
     float eraseTimer = GameConstants.FirstTimerValue;
 
-    float BrakePower => 1f - brakeRate * Time.deltaTime;
+    float BrakePower => (GameConstants.MaxPercentage - brakeRate) / GameConstants.MaxPercentage;
+    float RotateBreakPower => (GameConstants.MaxPercentage - rotateBrakeRate) / GameConstants.MaxPercentage;
 
     bool isGround = false;
     protected bool IsGround => isGround;
 
     bool isFalling = false;
     bool unEatable = false;// 捕食を行ったかどうか
+    bool fangDisappered = false;
 
     List<FoodMove> mergedFoods = new List<FoodMove>();
     public List<FoodMove> MergedFoods => mergedFoods;
@@ -124,8 +133,46 @@ public class FoodMove : MonoBehaviour
     protected void FixedUpdate()
     {
         FallUpdate();       // 落下の更新処理
+        RotateLimitter(maxAngularVelocity);// 回転の制御
         AnimatorUpdate();   // アニメーションの更新処理
         BombUpdate();       // 爆弾の更新処理
+
+        // 捕食能力がなくなった食べ物は牙を非表示に
+        if (!fangDisappered)
+        {
+            if (unEatable && fangAnimator != null && fangAnimator.gameObject.activeSelf)
+            {
+                StartCoroutine(FangDisapper(fangDissaperAnimationTime));
+                fangDisappered = true;
+            }
+        }
+    }
+
+    IEnumerator FangDisapper(float shrinkTime)
+    {
+        float shrinkRate = GameConstants.One / shrinkTime;
+        float timer = GameConstants.FirstTimerValue;
+
+        Vector3 localScale = fangAnimator.gameObject.transform.localScale;
+
+        while(timer < shrinkTime)
+        {
+            // 大きさを縮小
+            if(localScale.x > GameConstants.Zero) localScale.x -= shrinkRate * Time.deltaTime;
+            if (localScale.y > GameConstants.Zero) localScale.y -= shrinkRate * Time.deltaTime;
+            if (localScale.z > GameConstants.Zero) localScale.z -= shrinkRate * Time.deltaTime;
+
+            // 適用
+            fangAnimator.gameObject.transform.localScale = localScale;
+
+            // タイマー加算
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        // 非表示に変更
+        fangAnimator.gameObject.SetActive(false);
     }
 
     float bombTimer = GameConstants.FirstTimerValue;
@@ -163,7 +210,7 @@ public class FoodMove : MonoBehaviour
         Rigidbody.isKinematic = false;
 
         // 起爆時のプレハブ生成
-        if (explodePrefab != null) Instantiate(explodePrefab, transform.position, Quaternion.identity);
+        if (this == Root && explodePrefab != null) Instantiate(explodePrefab, transform.position, Quaternion.identity);
 
         // 起爆カウントエフェクトの非表示化
         if (bombCountEffectObject != null && bombCountEffectObject.activeSelf) bombCountEffectObject.SetActive(false);
@@ -176,6 +223,23 @@ public class FoodMove : MonoBehaviour
 
         // オブジェクト破壊
         Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// 角度と回転の速度を制御
+    /// </summary>
+    /// <param name="maxAngularVelocity">角速度の最高速制限</param>
+    void RotateLimitter(float maxAngularVelocity)
+    {
+        // y軸以外の回転を0にする（床に平行にするため）
+        Vector3 localEulerAngles = transform.localEulerAngles;
+        localEulerAngles.x = GameConstants.Zero;
+        localEulerAngles.z = GameConstants.Zero;
+
+        transform.localEulerAngles = localEulerAngles;// 適用
+
+        // 角速度を制限する
+        myRb.maxAngularVelocity = maxAngularVelocity;
     }
 
     /// <summary>
@@ -198,6 +262,11 @@ public class FoodMove : MonoBehaviour
 
         // 爆弾アニメーション
         //animator.SetBool("Bomb", bomb);
+
+        // 牙のアニメーション
+        if (fangAnimator == null) return;
+
+        if (!fangAnimator.GetBool("Shoot") && animator.GetBool("Ready")) fangAnimator.SetBool("Shoot", true);
     }
 
     void FallUpdate()
@@ -261,7 +330,7 @@ public class FoodMove : MonoBehaviour
                 {
                     // 着地点の設定
                     Vector3 hitPos = groundHit.ClosestPoint(transform.position);
-                    hitPos.y += transform.localScale.y * GameConstants.HalfMultiplyer;// 貫通対策
+                    hitPos.y += transform.localScale.y * GameConstants.HalfMultiplyer + 1f;// 貫通対策
 
                     // 着地点に位置を設定
                     transform.position = hitPos;
@@ -358,11 +427,16 @@ public class FoodMove : MonoBehaviour
     void Brake()
     {
         Vector3 velocity = myRb.velocity;
+
+        // y方向の勢いをなくす
+        velocity.y = GameConstants.Zero;
+
         Vector3 angulerVelocity = myRb.angularVelocity;
 
+        // ブレーキ
         velocity.x *= BrakePower;
         velocity.z *= BrakePower;
-        angulerVelocity *= BrakePower * BrakePower;
+        angulerVelocity *= RotateBreakPower;
 
         // 速度が一定以下になったら停止
         if (velocity.x * velocity.x <= BreakThreshold && velocity.z * velocity.z <= BreakThreshold) velocity = Vector3.zero;
@@ -372,8 +446,9 @@ public class FoodMove : MonoBehaviour
 
         if (angulerVelocity.y * angulerVelocity.y <= BreakThreshold) angulerVelocity = Vector3.zero;
 
+        // 速度の適用
         myRb.velocity = velocity;
-
+        myRb.angularVelocity = angulerVelocity;
 
     }
 
@@ -455,8 +530,9 @@ public class FoodMove : MonoBehaviour
         Vector3 velocity = target.Rigidbody.velocity;
 
         const float MaxReflectRate = 1f;
+        const float TorqueFactor = 0.1f;
         // rootにトルクや速度をかける（結合した勢いで回転するイメージ）（勢いを親にある程度の割合で渡す予定、つながってる合計の個数で勢いを割るかも）
-        Root.AddTorque(Vector3.up, velocity.magnitude * (MaxReflectRate / Root.GetConnectedCount()));
+        Root.AddTorque(Vector3.up, velocity.normalized.magnitude * TorqueFactor * (MaxReflectRate / Root.GetConnectedCount()));
         Root.AddForce(velocity.normalized, velocity.magnitude * (MaxReflectRate / Root.GetConnectedCount()));
 
         // 子になるオブジェクトの勢いを消す
@@ -535,7 +611,6 @@ public class FoodMove : MonoBehaviour
         }
     }
 
-    const float EatenFactor = 1.5f;
     public void OnEat(FoodMove target)
     {
         if (target == null) return;
@@ -550,7 +625,7 @@ public class FoodMove : MonoBehaviour
         Destroy(target.gameObject);
 
         // 捕食を行った後処理
-        transform.localScale *= EatenFactor;
+        transform.localScale *= eatenFactor;
         //animator.SetBool()
     }
 
@@ -632,6 +707,57 @@ public class FoodMove : MonoBehaviour
         foreach (FoodMove child in mergedFoods)
         {
             if (child != null && child != this) child.UpdateRootRecursive(root);
+        }
+    }
+
+    // コライダーでのテスト
+    void OnCollisionEnter(Collision collision)
+    {
+        if (CompareLayer(hitMask, collision.gameObject.layer))
+        {
+            // 衝突時の処理（エフェクトの再生等、マネージャーに衝突を知らせるだけにする予定（お互いで衝突処理が呼び出されて異常な速度でふっとばし合うため））
+            if (collision.gameObject.TryGetComponent<FoodMove>(out FoodMove opponentFood))// 相手が食べ物なら
+            {
+                // 同じ根をもつ結合関係にある食べ物同士は反応させない
+                if (opponentFood.Root == this.Root) return;
+                // stageManagerが設定されていなければreturn
+                if (stageManager == null) return;
+
+                // 衝突時の相性を取得
+                InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team);
+
+                switch (type)
+                {
+                    case InteractionType.Merge:
+                        // 爆弾化していない状態のときのみ結合
+                        if (!Root.bomb && !opponentFood.Root.bomb) stageManager.AddMergeEventList(this, opponentFood);
+                        break;
+
+                    case InteractionType.Eat:
+                        // 結合済みの食材や、すでに一度捕食を行った食材は捕食機能を持たない
+                        if (Root == this && mergedFoods.Count == GameConstants.Zero && !unEatable)
+                        {
+                            stageManager.AddEatEventList(this, opponentFood);
+                            unEatable = true;
+                        }
+                        else if (Root == this) stageManager.AddReflectList(this, opponentFood);
+                        break;
+
+                    case InteractionType.None:
+                        {
+                            // 捕食する側の食材が吹き飛ばないように
+                            if (FoodInteractionRules.GetInteractionType(opponentFood.team, team) != InteractionType.Eat)
+                                stageManager.AddReflectList(this, opponentFood);
+                            break;
+                        }
+
+                    default:
+                        break;
+                }
+
+                //Reflect(myRb, oppoentRb);
+                //stageManager.AddReflectList(this, opponentFood);
+            }
         }
     }
 

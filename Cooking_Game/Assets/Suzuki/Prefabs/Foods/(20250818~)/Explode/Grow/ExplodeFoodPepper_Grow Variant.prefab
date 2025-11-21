@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &4132653897761225024
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1329684727057596172, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_Name
+      value: ExplodeFoodPepper_Grow
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596174, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: foods.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596174, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: foods.Array.data[0]
+      value: 
+      objectReference: {fileID: 5695544502987591265}
+    - target: {fileID: 1329684727057596174, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: foods.Array.data[1]
+      value: 
+      objectReference: {fileID: 5695544502987591265}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+--- !u!4 &3110263195944044111 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1329684727057596175, guid: 0919680ae61dc534c83c383b5ba760e4, type: 3}
+  m_PrefabInstance: {fileID: 4132653897761225024}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4301804976307943998
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 3110263195944044111}
+    m_Modifications:
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300994087707464625, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680932961528023307, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+      propertyPath: m_Name
+      value: GrownFoodPepper Variant
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+--- !u!114 &5695544502987591265 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8410955372354253919, guid: e73c001dbc1ab8c4d91b799020fffb7c, type: 3}
+  m_PrefabInstance: {fileID: 4301804976307943998}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 397d679b45f0213439a40e149936b7e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
