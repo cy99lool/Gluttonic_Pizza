@@ -368,7 +368,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 105968574241087334, guid: 28f5fbbbe9106a1459f1fdcacbb8b8be, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.77
+      value: -2.07
       objectReference: {fileID: 0}
     - target: {fileID: 105968574241087334, guid: 28f5fbbbe9106a1459f1fdcacbb8b8be, type: 3}
       propertyPath: m_LocalPosition.y
@@ -376,7 +376,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 105968574241087334, guid: 28f5fbbbe9106a1459f1fdcacbb8b8be, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.09
+      value: -0.76
       objectReference: {fileID: 0}
     - target: {fileID: 105968574241087334, guid: 28f5fbbbe9106a1459f1fdcacbb8b8be, type: 3}
       propertyPath: m_LocalRotation.w
@@ -409,7 +409,7 @@ PrefabInstance:
     - target: {fileID: 128194301536124409, guid: 28f5fbbbe9106a1459f1fdcacbb8b8be, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -5974445620860990690, guid: d4799b66516bc5f44a63029c79963f55, type: 3}
+      objectReference: {fileID: 2100000, guid: dcf9db5fe4187ce4e87809aafd0f9050, type: 2}
     - target: {fileID: 735117496017667548, guid: 28f5fbbbe9106a1459f1fdcacbb8b8be, type: 3}
       propertyPath: m_Name
       value: avocado_2
@@ -451,6 +451,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5145652720965880506, guid: dd9e9f2d319260f44a0d14a5596e7b6b, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 5dd300fcca71ec5498b7d13686781269, type: 2}
     - target: {fileID: 5878271234082441404, guid: dd9e9f2d319260f44a0d14a5596e7b6b, type: 3}
       propertyPath: m_Name
       value: pepper_2 (1)
@@ -461,7 +465,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6545982228475793926, guid: dd9e9f2d319260f44a0d14a5596e7b6b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.24
+      value: -17.26
       objectReference: {fileID: 0}
     - target: {fileID: 6545982228475793926, guid: dd9e9f2d319260f44a0d14a5596e7b6b, type: 3}
       propertyPath: m_LocalPosition.y
@@ -469,7 +473,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6545982228475793926, guid: dd9e9f2d319260f44a0d14a5596e7b6b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.05
+      value: -2.56
       objectReference: {fileID: 0}
     - target: {fileID: 6545982228475793926, guid: dd9e9f2d319260f44a0d14a5596e7b6b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -556,6 +560,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7286674981888455623, guid: b038dfd22a450624aacc1723ac117af1, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e9ff276a661633d4ba2518d109c2dfe1, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b038dfd22a450624aacc1723ac117af1, type: 3}
 --- !u!1001 &8836967350542350222
@@ -569,6 +577,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mushroom_animation
       objectReference: {fileID: 0}
+    - target: {fileID: 2175346053114188641, guid: 66786dc9592b2d242aec2b4da88b2357, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 19b74285e9fb7da4d8ec2b48d5e16e19, type: 2}
     - target: {fileID: 2202093535788790270, guid: 66786dc9592b2d242aec2b4da88b2357, type: 3}
       propertyPath: m_RootOrder
       value: 4
