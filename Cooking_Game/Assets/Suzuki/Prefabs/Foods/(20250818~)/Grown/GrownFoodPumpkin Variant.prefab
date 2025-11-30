@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 275294272675793305, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -8421535984043420365, guid: 409d78f12e22e5045b11a881344e28bb, type: 3}
+      objectReference: {fileID: 2100000, guid: e9ff276a661633d4ba2518d109c2dfe1, type: 2}
     - target: {fileID: 1524712319456267167, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
       propertyPath: m_Name
       value: GrownFoodPumpkin Variant

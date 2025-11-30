@@ -738,7 +738,7 @@ public class FoodMove : MonoBehaviour
                         if (Root == this && mergedFoods.Count == GameConstants.Zero && !unEatable)
                         {
                             stageManager.AddEatEventList(this, opponentFood);
-                            unEatable = true;
+                            //unEatable = true;
                         }
                         else if (Root == this) stageManager.AddReflectList(this, opponentFood);
                         break;

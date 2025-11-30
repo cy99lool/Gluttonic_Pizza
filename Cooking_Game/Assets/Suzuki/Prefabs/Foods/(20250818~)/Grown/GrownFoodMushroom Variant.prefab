@@ -10,10 +10,10 @@ PrefabInstance:
     - target: {fileID: 275294272675793305, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -8156785155133570018, guid: 472120d0dd7924140b69f899573dc79a, type: 3}
+      objectReference: {fileID: 2100000, guid: 19b74285e9fb7da4d8ec2b48d5e16e19, type: 2}
     - target: {fileID: 1524712319456267167, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
       propertyPath: m_Name
-      value: GrownFoodMushroom
+      value: GrownFoodMushroom Variant
       objectReference: {fileID: 0}
     - target: {fileID: 1867221532973430472, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
       propertyPath: m_Controller

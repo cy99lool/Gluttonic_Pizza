@@ -180,7 +180,7 @@ public class SystemManager : MonoBehaviour
     const int pickNum = 1;
     const float ShootableTime = 45f;
     const float PreparePizzaTime = 2f;// ピザ取得準備の時間
-    const int PhaseCount = 3;// フェーズの数
+    const int PhaseCount = 10000;// フェーズの数
     const int PinePhase = 2;
     const int LastPhase = 3;
     IEnumerator Main()
@@ -194,17 +194,18 @@ public class SystemManager : MonoBehaviour
             // 発射準備フェーズ
             //yield return StartCoroutine(PizzaSelectPhase(RouletteTime, pickNum));
 
-            // 食材発射フェーズ（デバッグ、後で名前変える）
-            yield return StartCoroutine(DebugPick(ShootableTime));
+            // 食材発射フェーズ
+            yield return StartCoroutine(ShootFoodPhase(ShootableTime));
 
             // ピザ取得待機フェーズ
-            yield return StartCoroutine(PreparePickPizzaPhase(PreparePizzaTime));
+            //yield return StartCoroutine(PreparePickPizzaPhase(PreparePizzaTime));
 
             // ピザ取得フェーズ
             //yield return StartCoroutine(PickPizzaPhase());
+            //yield return StartCoroutine(PickAllPizzaPhase());
 
             // フェーズ終了時処理
-            yield return StartCoroutine(EndPhase(counter));
+            //yield return StartCoroutine(EndPhase(counter));
 
             counter++;
         }
@@ -292,8 +293,20 @@ public class SystemManager : MonoBehaviour
     /// </summary>
     /// <param name="shootTime">発射可能時間</param>
     /// <returns></returns>
-    IEnumerator DebugPick(float shootTime)
+    IEnumerator ShootFoodPhase(float shootTime)
     {
+        // 完全に焼けるテクスチャになるまでの時間
+        float cookRate = GameConstants.One / shootTime;
+
+        // ピザの焼けるマテリアル
+        List<Material> cookedMaterials = new List<Material>();
+
+        // マテリアルを登録
+        foreach(PizzaSlice slice in pizzaManager.PizzaSlices)
+        {
+            cookedMaterials.Add(slice.CookedMaterial);
+        }
+
         if (pickIndexes.Count > 0)
         {
             // 念の為再度ハイライト
@@ -311,16 +324,23 @@ public class SystemManager : MonoBehaviour
         float timer = GameConstants.FirstTimerValue;
         while (timer < shootTime)
         {
-            timer += Time.deltaTime;
+            // UI更新
             UpdatePickTimeUI(shootTime - timer);
+
+            // ピザの焼けるマテリアルへと変えていく
+            //foreach(Material cookedMaterial in cookedMaterials)
+            //{
+            //    cookedMaterial.SetColor()
+            //}
 
             // パインの召喚処理
 
             // ピザを取られるフェーズの処理
 
-
+            // 時間経過
+            timer += Time.deltaTime;
             // 全員が食材を発射し終えたら途中でも次のフェーズへ
-            if(IsAllPlayerUnShootable()) yield break;
+            if (IsAllPlayerUnShootable()) yield break;
 
             yield return null;
         }
@@ -375,6 +395,14 @@ public class SystemManager : MonoBehaviour
         yield return null;
     }
 
+    IEnumerator PickAllPizzaPhase()
+    {
+        // 取得
+        pizzaManager.TakeAllPizza();
+
+        yield return null;
+    }
+
     IEnumerator EndPhase(int phaseCounter)
     {
         int nextPhase = phaseCounter++;// 次のフェーズを取得
@@ -390,6 +418,8 @@ public class SystemManager : MonoBehaviour
 
     IEnumerator ResultPhase()
     {
+        mainResult.gameObject.SetActive(true);
+
         for(int i = 0; i < teams.Count; i++)
         {
             //break;// デバッグ用

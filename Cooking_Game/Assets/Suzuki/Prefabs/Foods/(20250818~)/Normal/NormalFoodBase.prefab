@@ -97,7 +97,7 @@ MonoBehaviour:
   hitMask:
     serializedVersion: 2
     m_Bits: 256
-  myReflectRate: 30
+  myReflectRate: 90
   bombNum: 3
   explodeTimer: 2
   explodePrefab: {fileID: 0}

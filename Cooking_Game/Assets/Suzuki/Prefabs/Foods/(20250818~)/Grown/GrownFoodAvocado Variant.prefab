@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 275294272675793305, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -5974445620860990690, guid: d4799b66516bc5f44a63029c79963f55, type: 3}
+      objectReference: {fileID: 2100000, guid: dcf9db5fe4187ce4e87809aafd0f9050, type: 2}
     - target: {fileID: 1524712319456267167, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
       propertyPath: m_Name
       value: GrownFoodAvocado Variant
