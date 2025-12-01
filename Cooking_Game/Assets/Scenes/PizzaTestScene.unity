@@ -1758,6 +1758,50 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &66106656
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 66106658}
+  - component: {fileID: 66106657}
+  m_Layer: 0
+  m_Name: VibrateManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &66106657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 66106656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97d05549c5e10524ba17d91ff7256243, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &66106658
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 66106656}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 18
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &68428772
 GameObject:
   m_ObjectHideFlags: 0
@@ -6762,6 +6806,11 @@ Transform:
   m_Father: {fileID: 770407190}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &302988620 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 7771637656494854284, guid: 334e97b062b1e184da8544007a2c5142, type: 3}
+  m_PrefabInstance: {fileID: 1171931581}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &304903645 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 3104135452255362884, guid: 334e97b062b1e184da8544007a2c5142, type: 3}
@@ -8686,7 +8735,7 @@ MonoBehaviour:
   bombCountDownEffect: {fileID: 0}
   team: 0
   point: 10
-  fangAnimator: {fileID: 0}
+  fangAnimator: {fileID: 1562069060}
   fangDissaperAnimationTime: 0.5
   eatenFactor: 1.1
 --- !u!43 &395596600
@@ -10856,7 +10905,7 @@ MonoBehaviour:
   bombCountDownEffect: {fileID: 0}
   team: 0
   point: 10
-  fangAnimator: {fileID: 0}
+  fangAnimator: {fileID: 302988620}
   fangDissaperAnimationTime: 0.5
   eatenFactor: 1.1
 --- !u!1 &463417520
@@ -20294,6 +20343,7 @@ MonoBehaviour:
     bowStringController: {fileID: 986156400}
     directionArrow: {fileID: 1243914858}
     minArrowWidth: 0.1
+    eatModeChargeSeconds: 2.5
     pullMangification: {x: 0.02, y: 0.15}
     maxDistance: 10
     basePower: 22
@@ -20303,6 +20353,7 @@ MonoBehaviour:
     bowStringController: {fileID: 770407192}
     directionArrow: {fileID: 575740708}
     minArrowWidth: 0.5
+    eatModeChargeSeconds: 2.5
     pullMangification: {x: 0.01, y: 0.15}
     maxDistance: 10
     basePower: 22
@@ -20312,6 +20363,7 @@ MonoBehaviour:
     bowStringController: {fileID: 1807604930}
     directionArrow: {fileID: 391263063}
     minArrowWidth: 0.5
+    eatModeChargeSeconds: 2.5
     pullMangification: {x: 0.01, y: 0.15}
     maxDistance: 10
     basePower: 22
@@ -20321,10 +20373,12 @@ MonoBehaviour:
     bowStringController: {fileID: 1982831116}
     directionArrow: {fileID: 1437723871}
     minArrowWidth: 0.5
+    eatModeChargeSeconds: 2.5
     pullMangification: {x: 0.01, y: 0.15}
     maxDistance: 10
     basePower: 22
   reflectList: []
+  vibrateManager: {fileID: 66106657}
 --- !u!4 &813842545
 Transform:
   m_ObjectHideFlags: 0
@@ -22371,7 +22425,7 @@ MonoBehaviour:
   bombCountDownEffect: {fileID: 0}
   team: 0
   point: 10
-  fangAnimator: {fileID: 0}
+  fangAnimator: {fileID: 1985308838}
   fangDissaperAnimationTime: 0.5
   eatenFactor: 1.1
 --- !u!1 &929133375
@@ -22986,7 +23040,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &952148038
 Transform:
   m_ObjectHideFlags: 0
@@ -33046,7 +33100,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1300383760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33913,7 +33967,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1335428795
 Transform:
   m_ObjectHideFlags: 0
@@ -37546,7 +37600,7 @@ MonoBehaviour:
   bombCountDownEffect: {fileID: 0}
   team: 0
   point: 10
-  fangAnimator: {fileID: 0}
+  fangAnimator: {fileID: 1577749885}
   fangDissaperAnimationTime: 0.5
   eatenFactor: 1.1
 --- !u!1 &1524888739
@@ -38650,6 +38704,11 @@ Transform:
   m_Father: {fileID: 1807604928}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1562069060 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 955951097778196486, guid: 43ac8ef82c6bff54398bfb448d283624, type: 3}
+  m_PrefabInstance: {fileID: 535547615}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1573807040
 GameObject:
   m_ObjectHideFlags: 0
@@ -39050,6 +39109,11 @@ PrefabInstance:
     - {fileID: 1666271611991478756, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
     - {fileID: 1666271611991478757, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
+--- !u!95 &1577749885 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 4442109990721322258, guid: e2ff532b2b5b4c5428c7b54f9a460917, type: 3}
+  m_PrefabInstance: {fileID: 432404327}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1578970657
 GameObject:
   m_ObjectHideFlags: 0
@@ -48126,6 +48190,11 @@ MonoBehaviour:
   stringRenderer: {fileID: 1835159116}
   maxPullDistance: 40
   maxForce: 20
+--- !u!95 &1985308838 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 6328037728761781807, guid: b124007196b4c2d4e831907878c0bc47, type: 3}
+  m_PrefabInstance: {fileID: 1577334632}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1988699359
 GameObject:
   m_ObjectHideFlags: 0
@@ -54417,7 +54486,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2039328184
 RectTransform:
   m_ObjectHideFlags: 0

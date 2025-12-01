@@ -70,12 +70,20 @@ public class StageManager : MonoBehaviour
 
         [Header("方向を示す矢"), SerializeField] Transform directionArrow;
         [Header("矢の太さ(最小)"), SerializeField] float minArrowWidth = 0.5f;
+        [Header("捕食モードになるまでの時間（秒）"), SerializeField] float eatModeChargeSeconds = 2.5f;
         [Header("引っ張った距離に応じてサイズにかける倍率"), SerializeField] Vector2 pullMangification = new Vector2(0.01f, 0.15f);
         [Header("伸ばせる最大距離"), SerializeField] float maxDistance = 7f;
         [SerializeField] float basePower = 20f;
 
         Vector3 startPos;
         Vector3 lastPos;
+        float pullTimer = GameConstants.FirstTimerValue;
+        bool eatMode = false;// 捕食モードかどうか
+        public bool EatMode => eatMode;
+
+        bool eatModeChanged = false;// 捕食モードに切り替わった瞬間か
+        public bool EatModeChanged => eatModeChanged;
+
         CursorInfo cursorInfo;
         public CursorInfo Cursor => cursorInfo;
         public FoodMove FoodPrefab => cursorInfo.Food;
@@ -136,6 +144,20 @@ public class StageManager : MonoBehaviour
                 {
                     directionArrow.gameObject.SetActive(true);// 方向を示す矢を有効化
                     bowStringController.StartAim();// 弦を引っ張り始める
+                    pullTimer = GameConstants.FirstTimerValue;// タイマーをリセット
+                    eatMode = false;
+                    eatModeChanged = false;
+                }
+
+                // 引張時間を経過
+                pullTimer += Time.deltaTime;
+                // 一定時間を超えたら捕食を有効化する
+                if(pullTimer >= eatModeChargeSeconds)
+                {
+                    // 捕食可能状態の切り替わりフラグの設定
+                    if (eatMode) eatModeChanged = true;
+
+                    eatMode = true;
                 }
 
                 Vector3 pivotPosition = pivot.position;
@@ -179,6 +201,8 @@ public class StageManager : MonoBehaviour
     List<InfoForReflect> mergeEventList = new List<InfoForReflect>();
     List<InfoForReflect> eatEventList = new List<InfoForReflect>();
 
+    [Header("振動のマネージャー"), SerializeField] VibrateManager vibrateManager;
+
     void Start()
     {
         for (int i = 0; i < trackObjects.Count; i++)
@@ -186,6 +210,9 @@ public class StageManager : MonoBehaviour
             trackObjects[i].SetStartPos();
             trackObjects[i].SetCursorInfo();
         }
+
+        // Androidのみ振動を有効化
+        if (vibrateManager.IsAndroid) vibrateManager.EnableVibrate();
     }
 
     void FixedUpdate()
@@ -198,7 +225,7 @@ public class StageManager : MonoBehaviour
                 if (trackObjects[i].Cursor.Shootable)
                 {
                     // 具材を生成して発射
-                    SummonAndShotFood(trackObjects[i].FoodPrefab, trackObjects[i].TrackPosition + Vector3.up * 0.5f, trackObjects[i].ShotDirection, trackObjects[i].PivotPos, trackObjects[i].Power);
+                    SummonAndShotFood(trackObjects[i].FoodPrefab, trackObjects[i].EatMode, trackObjects[i].TrackPosition + Vector3.up * 0.5f, trackObjects[i].ShotDirection, trackObjects[i].PivotPos, trackObjects[i].Power);
                 }
 
                 // 弦の引き絞りを終了
@@ -214,6 +241,9 @@ public class StageManager : MonoBehaviour
             }
             // ドラッグ中の矢の表示
             trackObjects[i].UpdateArrow();
+
+            // 捕食可能になったときの処理
+            if (trackObjects[i].EatModeChanged) OnEatableChanged(trackObjects[i]);
 
             // ドラッグ位置の履歴を更新
             trackObjects[i].UpdateLastPosition();
@@ -250,17 +280,32 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    public void SummonAndShotFood(FoodMove foodPrefab, Vector3 summonPosition, Vector3 shotDirection, Vector3 pivotPos, float power)
+    /// <summary>
+    /// 捕食可能になったときの演出・処理
+    /// </summary>
+    void OnEatableChanged(TrackObject trackObject)
+    {
+        // 振動
+        vibrateManager.Vibrate(VibrationSituations.FullyCharged);
+
+        // 弓についている食べ物にも牙を出す
+        trackObject.BowStringController.CurrentArrow.EnableEatMode();
+    }
+
+    public void SummonAndShotFood(FoodMove foodPrefab,bool eatMode, Vector3 summonPosition, Vector3 shotDirection, Vector3 pivotPos, float power)
     {
         // 具材の生成
         GameObject food = Instantiate(foodPrefab.gameObject, summonPosition, Quaternion.identity);
-        FoodMove move = food.GetComponent<FoodMove>();
+        FoodMove foodMove = food.GetComponent<FoodMove>();
+
+        // 捕食可能モードの設定
+        if(eatMode) foodMove.EnableEatMode();
 
         // 発射する方を向かせる
         food.transform.LookAt(pivotPos);
 
         // 発射
-        move.AddForce(shotDirection, power);
+        foodMove.AddForce(shotDirection, power);
     }
 
     public void AddReflectList(FoodMove self, FoodMove opponent)

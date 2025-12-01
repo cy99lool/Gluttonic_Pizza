@@ -464,6 +464,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FangPrefab
       objectReference: {fileID: 0}
+    - target: {fileID: 844289127748257103, guid: 671cc508c7a672346a55703e32517633, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 671cc508c7a672346a55703e32517633, type: 3}
 --- !u!95 &6481984776528784041 stripped

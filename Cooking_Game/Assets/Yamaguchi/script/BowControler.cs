@@ -11,7 +11,8 @@ public class BowControler : MonoBehaviour
     public float maxPullDistance = 2f;
     public float maxForce = 30f;
 
-    private GameObject currentArrow;
+    private FoodBeforeShoot currentArrow;
+    public FoodBeforeShoot CurrentArrow => currentArrow;
     private GameObject arrowEffect;
     private bool isAiming = false;
     private Vector3 startMousePos;
@@ -112,7 +113,7 @@ public class BowControler : MonoBehaviour
         startMousePos = shootPoint.position;// 最初の位置を記録している
 
         // 矢の生成
-        currentArrow = Instantiate(arrowPrefab, shootPoint.position, Quaternion.identity);
+        currentArrow = Instantiate(arrowPrefab, shootPoint.position, Quaternion.identity).GetComponent<FoodBeforeShoot>();
         //currentArrow.GetComponent<Rigidbody>().isKinematic = true;
 
         // 矢の向きを設定
@@ -179,7 +180,7 @@ public class BowControler : MonoBehaviour
         //rb.AddForce(direction * force, ForceMode.Impulse);
 
         // 矢の消去
-        GameObject.Destroy(currentArrow);
+        GameObject.Destroy(currentArrow.gameObject);
 
         isAiming = false;
         ResetStringRendererPos(); // 弦を戻す

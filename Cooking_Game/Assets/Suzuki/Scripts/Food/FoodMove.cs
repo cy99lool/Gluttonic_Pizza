@@ -59,7 +59,7 @@ public class FoodMove : MonoBehaviour
     protected bool IsGround => isGround;
 
     bool isFalling = false;
-    bool unEatable = false;// 捕食を行ったかどうか
+    bool eatMode = false;// 捕食モードかどうか
     bool fangDisappered = false;
 
     List<FoodMove> mergedFoods = new List<FoodMove>();
@@ -130,6 +130,18 @@ public class FoodMove : MonoBehaviour
         isGround = false;
     }
 
+    /// <summary>
+    /// 捕食モードを有効化する
+    /// </summary>
+    public void EnableEatMode()
+    {
+        eatMode = true;
+        fangDisappered = false;
+
+        // 牙を表示
+        if (fangAnimator != null) fangAnimator.gameObject.SetActive(true);
+    }
+
     protected void FixedUpdate()
     {
         FallUpdate();       // 落下の更新処理
@@ -140,7 +152,7 @@ public class FoodMove : MonoBehaviour
         // 捕食能力がなくなった食べ物は牙を非表示に
         if (!fangDisappered)
         {
-            if (unEatable && fangAnimator != null && fangAnimator.gameObject.activeSelf)
+            if (!eatMode && fangAnimator != null && fangAnimator.gameObject.activeSelf)
             {
                 StartCoroutine(FangDisapper(fangDissaperAnimationTime));
                 fangDisappered = true;
@@ -442,7 +454,7 @@ public class FoodMove : MonoBehaviour
         if (velocity.x * velocity.x <= BreakThreshold && velocity.z * velocity.z <= BreakThreshold) velocity = Vector3.zero;
 
         // ある程度減速していた場合食べる機能を無効化
-        if (velocity.x * velocity.x <= UnEatableThreshold && velocity.z * velocity.z <= UnEatableThreshold) unEatable = true;
+        if (velocity.x * velocity.x <= UnEatableThreshold && velocity.z * velocity.z <= UnEatableThreshold) eatMode = false;
 
         if (angulerVelocity.y * angulerVelocity.y <= BreakThreshold) angulerVelocity = Vector3.zero;
 
@@ -724,7 +736,7 @@ public class FoodMove : MonoBehaviour
                 if (stageManager == null) return;
 
                 // 衝突時の相性を取得
-                InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team);
+                InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team, eatMode);
 
                 switch (type)
                 {
@@ -735,7 +747,7 @@ public class FoodMove : MonoBehaviour
 
                     case InteractionType.Eat:
                         // 結合済みの食材や、すでに一度捕食を行った食材は捕食機能を持たない
-                        if (Root == this && mergedFoods.Count == GameConstants.Zero && !unEatable)
+                        if (Root == this && mergedFoods.Count == GameConstants.Zero && eatMode)
                         {
                             stageManager.AddEatEventList(this, opponentFood);
                             //unEatable = true;
@@ -746,7 +758,7 @@ public class FoodMove : MonoBehaviour
                     case InteractionType.None:
                         {
                             // 捕食する側の食材が吹き飛ばないように
-                            if (FoodInteractionRules.GetInteractionType(opponentFood.team, team) != InteractionType.Eat)
+                            if (FoodInteractionRules.GetInteractionType(opponentFood.team, team, opponentFood.eatMode) != InteractionType.Eat)
                                 stageManager.AddReflectList(this, opponentFood);
                             break;
                         }
@@ -774,7 +786,7 @@ public class FoodMove : MonoBehaviour
                 if (stageManager == null) return;
 
                 // 衝突時の相性を取得
-                InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team);
+                InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team, eatMode);
 
                 switch (type)
                 {
@@ -785,10 +797,10 @@ public class FoodMove : MonoBehaviour
 
                     case InteractionType.Eat:
                         // 結合済みの食材や、すでに一度捕食を行った食材は捕食機能を持たない
-                        if (Root == this && mergedFoods.Count == GameConstants.Zero && !unEatable)
+                        if (Root == this && mergedFoods.Count == GameConstants.Zero && eatMode)
                         {
                             stageManager.AddEatEventList(this, opponentFood);
-                            unEatable = true;
+                            eatMode = false;
                         }
                         else if (Root == this) stageManager.AddReflectList(this, opponentFood);
                         break;
@@ -796,7 +808,7 @@ public class FoodMove : MonoBehaviour
                     case InteractionType.None:
                         {
                             // 捕食する側の食材が吹き飛ばないように
-                            if (FoodInteractionRules.GetInteractionType(opponentFood.team, team) != InteractionType.Eat)
+                            if (FoodInteractionRules.GetInteractionType(opponentFood.team, team, opponentFood.eatMode) != InteractionType.Eat)
                                 stageManager.AddReflectList(this, opponentFood);
                             break;
                         }
@@ -886,9 +898,13 @@ public static class FoodInteractionRules
     // ★捕食の場合、{(捕食,被捕食),InteractionType.Eat}の順番
     //
     // ========================================================
-    private static readonly Dictionary<(TeamColor, TeamColor), InteractionType> rules = new Dictionary<(TeamColor, TeamColor), InteractionType>
+    /// <summary>
+    /// 捕食の関係
+    /// </summary>
+    static readonly Dictionary<(TeamColor, TeamColor), InteractionType> eatRule = new Dictionary<(TeamColor, TeamColor), InteractionType>
     {
         // ==== Red ====
+        //{(TeamColor.Red, TeamColor.Red), InteractionType.Eat },
         {(TeamColor.Red, TeamColor.Green), InteractionType.Eat },
         {(TeamColor.Red, TeamColor.Blue), InteractionType.Eat },
         //{(TeamColor.Red, TeamColor.Yellow), InteractionType.Merge },
@@ -899,18 +915,62 @@ public static class FoodInteractionRules
         {(TeamColor.Blue, TeamColor.Yellow), InteractionType.Eat},
 
         // ==== Green ====
+        {(TeamColor.Green, TeamColor.Red), InteractionType.Eat },
+        {(TeamColor.Green, TeamColor.Yellow), InteractionType.Eat },
+        //{(TeamColor.Green, TeamColor.Blue), InteractionType.Merge },
+
+        // ==== Yellow ====
+        //{(TeamColor.Yellow, TeamColor.Red), InteractionType.Merge },
+        {(TeamColor.Yellow, TeamColor.Blue), InteractionType.Eat },
+        {(TeamColor.Yellow, TeamColor.Green), InteractionType.Eat}
+    };
+
+    /// <summary>
+    /// くっつきの関係
+    /// </summary>
+    static readonly Dictionary<(TeamColor, TeamColor), InteractionType> mergeRule = new Dictionary<(TeamColor, TeamColor), InteractionType>
+    {
+        // ==== Red ====
+        //{(TeamColor.Red, TeamColor.Green), InteractionType.Eat },
+        //{(TeamColor.Red, TeamColor.Blue), InteractionType.Eat },
+        {(TeamColor.Red, TeamColor.Yellow), InteractionType.Merge },
+
+        // ==== Blue ====
+        {(TeamColor.Blue, TeamColor.Green), InteractionType.Merge },
+        //{(TeamColor.Blue, TeamColor.Red), InteractionType.Eat},
+        //{(TeamColor.Blue, TeamColor.Yellow), InteractionType.Eat},
+
+        // ==== Green ====
+        //{(TeamColor.Green, TeamColor.Red), InteractionType.Eat },
         //{(TeamColor.Green, TeamColor.Yellow), InteractionType.Eat },
         {(TeamColor.Green, TeamColor.Blue), InteractionType.Merge },
 
         // ==== Yellow ====
         {(TeamColor.Yellow, TeamColor.Red), InteractionType.Merge },
         //{(TeamColor.Yellow, TeamColor.Blue), InteractionType.Eat },
+        //{(TeamColor.Yellow, TeamColor.Green), InteractionType.Eat}
     };
 
-    public static InteractionType GetInteractionType(this TeamColor self, TeamColor other)
+    /// <summary>
+    /// ぶつかったときの反応
+    /// </summary>
+    /// <param name="self">自身</param>
+    /// <param name="other">相手</param>
+    /// <param name="eatMode">捕食モードかどうか</param>
+    /// <returns></returns>
+    public static InteractionType GetInteractionType(this TeamColor self, TeamColor other, bool eatMode)
     {
-        // ルールに当てはまるものは対応したタイプを返す
-        if (rules.TryGetValue((self, other), out InteractionType result)) return result;
+        // 捕食モードのとき
+        if (eatMode)
+        {
+            // ルールに当てはまるものは対応したタイプを返す
+            if (eatRule.TryGetValue((self, other), out InteractionType result)) return result;
+        }
+        else
+        {
+            // ルールに当てはまるものは対応したタイプを返す
+            if (mergeRule.TryGetValue((self, other), out InteractionType result)) return result;
+        }
 
         // 当てはまらなければ何もしない
         return InteractionType.None;
