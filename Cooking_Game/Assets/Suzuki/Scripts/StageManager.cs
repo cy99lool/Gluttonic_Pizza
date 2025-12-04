@@ -17,13 +17,14 @@ public class StageManager : MonoBehaviour
             FoodMove food;
             public FoodMove Food => food;
 
-
+            Vector3 velocity;
+            public Vector3 Velocity => velocity;
 
             public FoodReflectInfo( FoodMove foodMove)
             {
                 this.rb = foodMove.Rigidbody;
                 this.food = foodMove;
-
+                this.velocity = rb.velocity;
             }
         }
 
@@ -273,7 +274,7 @@ public class StageManager : MonoBehaviour
         {
             for(int i =  eatEventList.Count - 1; i>=0;i--)
             {
-                eatEventList[i].First.Food.OnEat(eatEventList[i].Second.Food);
+                eatEventList[i].First.Food.OnEat(eatEventList[i].Second.Food, eatEventList[i].First.Velocity);
                 Debug.Log("[EAT]");
             }
             eatEventList.Clear();// リストをクリア

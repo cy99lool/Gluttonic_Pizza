@@ -13,6 +13,9 @@ public class UDPMulti : MonoBehaviour
     [Serializable]
     public class ClientInfo
     {
+        [Header("設定を保存・取得するJSONファイルの相対パス"), SerializeField] string relativeFilePath;
+        public string RelativeFilePath => relativeFilePath;
+
         [Header("--- 接続情報設定 ---")]
         [SerializeField] string ip = "127.0.0.1";// 何も指定されなければ自身を指す
         public string IP => ip;
@@ -23,6 +26,17 @@ public class UDPMulti : MonoBehaviour
         /// <param name="ip">設定するIPアドレス</param>
         public void SetIP(string ip)
         {
+            this.ip = ip;
+        }
+
+        /// <summary>
+        /// JSONファイルからIPアドレスを設定する
+        /// </summary>
+        public void SetIPFromJson()
+        {
+            string ip = JsonDataManager.LoadIPSetting(relativeFilePath);
+            if (ip == null) return;
+
             this.ip = ip;
         }
 
@@ -183,6 +197,10 @@ public class UDPMulti : MonoBehaviour
         receiveThread.Start();// 受信スレッド開始
 
         isSending = false;
+
+        // ipアドレスをJSONファイルから設定
+        myInfo.SetIPFromJson();
+        foreach (ClientInfo client in clients) client.SetIPFromJson();
     }
 
     float debugTimer = 0f;
@@ -358,6 +376,28 @@ public class UDPMulti : MonoBehaviour
 
         // 適用
         myInfo.SetIP(ip);
+
+        // JSONファイルを更新
+        JsonDataManager.SaveIPSetting(ip, myInfo.RelativeFilePath);
+    }
+
+    /// <summary>
+    /// 接続相手のIPアドレスをJSONファイルから適用する
+    /// </summary>
+    /// <param name="playerNum">登録された相手のインデックス</param>
+    /// <returns>IPアドレス</returns>
+    public string UpdateOtherIP(int playerNum)
+    {
+        // リストのサイズ以上のときは変更を適用しない
+        if (playerNum > clients.Count) return null;
+
+        // 接続をリクエストするプレイヤーリストのインデックスに変換
+        PlayerIndex playerIndex = (PlayerIndex)(playerNum - GameConstants.One);
+
+        // IPアドレスを取得、適用
+        clients[(int)playerIndex].SetIPFromJson();
+
+        return clients[(int)playerIndex].IP;
     }
 
     /// <summary>
@@ -373,6 +413,9 @@ public class UDPMulti : MonoBehaviour
 
         // IPアドレスを適用
         clients[(int)playerIndex].SetIP(ip);
+
+        // JSONファイルに書き出す
+        JsonDataManager.SaveIPSetting(ip, clients[(int)playerIndex].RelativeFilePath);
     }
 
     enum PlayerIndex

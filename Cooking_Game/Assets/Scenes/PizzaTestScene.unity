@@ -1209,13 +1209,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
+    relativeFilePath: Info/Player1/IP/Self.json
     ip: 192.168.100.199
     port: 3001
     trackObject: {fileID: 6997102}
     connectionCheckObject: {fileID: 0}
     cursorInfo: {fileID: 6997107}
   clients:
-  - ip: 192.168.100.45
+  - relativeFilePath: Info/Player1/IP/Host.json
+    ip: 192.168.100.45
     port: 3000
     trackObject: {fileID: 0}
     connectionCheckObject: {fileID: 0}
@@ -1787,6 +1789,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97d05549c5e10524ba17d91ff7256243, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  chargedVibrateTime: 20
 --- !u!4 &66106658
 Transform:
   m_ObjectHideFlags: 0
@@ -22273,28 +22276,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
+    relativeFilePath: Info/Host/IP/Self.json
     ip: 192.168.100.45
     port: 3000
     trackObject: {fileID: 0}
     connectionCheckObject: {fileID: 0}
     cursorInfo: {fileID: 0}
   clients:
-  - ip: 192.168.11.52
+  - relativeFilePath: Info/Host/IP/Player1.json
+    ip: 192.168.11.52
     port: 3001
     trackObject: {fileID: 6997102}
     connectionCheckObject: {fileID: 1390269862}
     cursorInfo: {fileID: 6997107}
-  - ip: 192.168.11.29
+  - relativeFilePath: Info/Host/IP/Player2.json
+    ip: 192.168.11.29
     port: 3002
     trackObject: {fileID: 1096351114}
     connectionCheckObject: {fileID: 1704254682}
     cursorInfo: {fileID: 1096351119}
-  - ip: 192.168.11.43
+  - relativeFilePath: Info/Host/IP/Player3.json
+    ip: 192.168.11.43
     port: 3003
     trackObject: {fileID: 1060310165}
     connectionCheckObject: {fileID: 1939068080}
     cursorInfo: {fileID: 1060310170}
-  - ip: 192.168.11.24
+  - relativeFilePath: Info/Host/IP/Player4.json
+    ip: 192.168.11.24
     port: 3004
     trackObject: {fileID: 1241167008}
     connectionCheckObject: {fileID: 721803923}
@@ -22589,13 +22597,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
+    relativeFilePath: Info/Player4/IP/Self.json
     ip: 192.168.100.66
     port: 3004
     trackObject: {fileID: 1241167008}
     connectionCheckObject: {fileID: 0}
     cursorInfo: {fileID: 1241167013}
   clients:
-  - ip: 192.168.100.45
+  - relativeFilePath: Info/Player4/IP/Host.json
+    ip: 192.168.100.45
     port: 3000
     trackObject: {fileID: 0}
     connectionCheckObject: {fileID: 0}
@@ -31082,13 +31092,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
+    relativeFilePath: Info/Player2/IP/Self.json
     ip: 192.168.100.84
     port: 3002
     trackObject: {fileID: 1096351114}
     connectionCheckObject: {fileID: 0}
     cursorInfo: {fileID: 1096351119}
   clients:
-  - ip: 192.168.100.45
+  - relativeFilePath: Info/Player2/IP/Host.json
+    ip: 192.168.100.45
     port: 3000
     trackObject: {fileID: 0}
     connectionCheckObject: {fileID: 0}
@@ -54188,13 +54200,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myInfo:
+    relativeFilePath: Info/Player3/IP/Self.json
     ip: 192.168.100.76
     port: 3003
     trackObject: {fileID: 1060310165}
     connectionCheckObject: {fileID: 0}
     cursorInfo: {fileID: 1060310170}
   clients:
-  - ip: 192.168.100.45
+  - relativeFilePath: Info/Player3/IP/Host.json
+    ip: 192.168.100.45
     port: 3000
     trackObject: {fileID: 0}
     connectionCheckObject: {fileID: 0}

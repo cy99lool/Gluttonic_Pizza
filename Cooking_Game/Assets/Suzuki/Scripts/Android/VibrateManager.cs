@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class VibrateManager : MonoBehaviour
 {
+    [Header("チャージ完了時の振動時間(ミリ秒)"), SerializeField] int chargedVibrateTime = 20;
+
     bool vibratable; // 振動可能かどうか
 
     /// <summary>
@@ -27,7 +29,7 @@ public class VibrateManager : MonoBehaviour
         switch (situation)
         {
             case VibrationSituations.FullyCharged:
-
+                Vibrate(chargedVibrateTime);
                 break;
         }
     }

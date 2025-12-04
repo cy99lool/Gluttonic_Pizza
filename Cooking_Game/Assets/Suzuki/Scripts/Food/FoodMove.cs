@@ -276,7 +276,7 @@ public class FoodMove : MonoBehaviour
         //animator.SetBool("Bomb", bomb);
 
         // 牙のアニメーション
-        if (fangAnimator == null) return;
+        if (fangAnimator == null || !fangAnimator.isActiveAndEnabled) return;
 
         if (!fangAnimator.GetBool("Shoot") && animator.GetBool("Ready")) fangAnimator.SetBool("Shoot", true);
     }
@@ -499,13 +499,13 @@ public class FoodMove : MonoBehaviour
         List<FoodMove> targetGroup = new List<FoodMove>();
         CollectAllConnected(target.Root, targetGroup);
 
-        // つながるときの位置調整
-        Vector3 offset = myCollider.ClosestPoint(target.transform.position) - transform.position;
-        foreach (FoodMove member in targetGroup)
-        {
-            member.transform.position += offset;
-            member.Rigidbody.isKinematic = true;// rootのrigidbodyの影響を受けてもらうため
-        }
+        //// つながるときの位置調整
+        //Vector3 offset = myCollider.ClosestPoint(target.transform.position) - transform.position;
+        //foreach (FoodMove member in targetGroup)
+        //{
+        //    member.transform.position += offset;
+        //    //member.Rigidbody.isKinematic = true;// rootのrigidbodyの影響を受けてもらうため
+        //}
 
         // Rootの傾き調整
         Vector3 rootEulerAngles = Root.transform.eulerAngles;
@@ -517,13 +517,17 @@ public class FoodMove : MonoBehaviour
         foreach (FoodMove member in targetGroup)
         {
             // トランスフォームの親設定
-            member.transform.SetParent(transform);
+            //member.transform.SetParent(transform);
             member.SetFoodParent(this);
 
+            // FixedJointを追加して接続
+            FixedJoint joint = member.gameObject.AddComponent<FixedJoint>();
+            joint.connectedBody = this.Rigidbody;
+
             // めり込みの対策
-            Vector3 localPosition = member.transform.localPosition;
-            localPosition.y = 0f;
-            member.transform.localPosition = localPosition;
+            //Vector3 localPosition = member.transform.localPosition;
+            //localPosition.y = 0f;
+            //member.transform.localPosition = localPosition;
 
             // 傾きの対策
             Vector3 eulerAngles = member.transform.eulerAngles;
@@ -623,7 +627,7 @@ public class FoodMove : MonoBehaviour
         }
     }
 
-    public void OnEat(FoodMove target)
+    public void OnEat(FoodMove target, Vector3 velocity)
     {
         if (target == null) return;
 
@@ -637,7 +641,15 @@ public class FoodMove : MonoBehaviour
         Destroy(target.gameObject);
 
         // 捕食を行った後処理
+        // 大きくする
         transform.localScale *= eatenFactor;
+
+        // 速度を戻す（コライダーでぶつかって勢いがなくなったことの対策）
+        myRb.velocity = velocity;
+        
+        // 捕食モードの再有効化
+        if(!eatMode) EnableEatMode();
+
         //animator.SetBool()
     }
 
@@ -693,12 +705,15 @@ public class FoodMove : MonoBehaviour
                 if (child == null || child.Equals(null)) continue;
 
                 // 親子付けの解除
-                child.transform.SetParent(null);
+                //child.transform.SetParent(null);
                 child.SetFoodParent(null);
                 child.UpdateRootRecursive(null);
 
+                // Fixed Jointの削除
+                child.RemoveFixedJoint(transform.gameObject);
+
                 // 再度自身のrigidbodyで動かせるように
-                if (child.Rigidbody != null) child.Rigidbody.isKinematic = false;
+                //if (child.Rigidbody != null) child.Rigidbody.isKinematic = false;
             }
         }
         //}
@@ -707,6 +722,18 @@ public class FoodMove : MonoBehaviour
         if (GetConnectedCount() < bombNum) Root.bomb = false;
 
         unmerging = false;
+    }
+
+    void RemoveFixedJoint(GameObject target)
+    {
+        // 自身のFixedJointを全て取得
+        FixedJoint[] joints = GetComponents<FixedJoint>();
+
+        for(int i = joints.Length - 1; i >= 0; i--)
+        {
+            // 目標とつながっているFixedJointを削除
+            if (joints[i] != null && joints[i].connectedBody.gameObject == target) Destroy(joints[i]);
+        }
     }
 
     void UpdateRootRecursive(FoodMove newRoot)
@@ -722,7 +749,7 @@ public class FoodMove : MonoBehaviour
         }
     }
 
-    // コライダーでのテスト
+    // めり込み防止のため、コライダーで衝突は検知することにした
     void OnCollisionEnter(Collision collision)
     {
         if (CompareLayer(hitMask, collision.gameObject.layer))
@@ -773,55 +800,56 @@ public class FoodMove : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (CompareLayer(hitMask, other.gameObject.layer))
-        {
-            // 衝突時の処理（エフェクトの再生等、マネージャーに衝突を知らせるだけにする予定（お互いで衝突処理が呼び出されて異常な速度でふっとばし合うため））
-            if (other.gameObject.TryGetComponent<FoodMove>(out FoodMove opponentFood))// 相手が食べ物なら
-            {
-                // 同じ根をもつ結合関係にある食べ物同士は反応させない
-                if (opponentFood.Root == this.Root) return;
-                // stageManagerが設定されていなければreturn
-                if (stageManager == null) return;
+    // 削除予定、トリガーを使用していたときのもの
+    //void OnTriggerEnter(Collider other)
+    //{
+    //    if (CompareLayer(hitMask, other.gameObject.layer))
+    //    {
+    //        // 衝突時の処理（エフェクトの再生等、マネージャーに衝突を知らせるだけにする予定（お互いで衝突処理が呼び出されて異常な速度でふっとばし合うため））
+    //        if (other.gameObject.TryGetComponent<FoodMove>(out FoodMove opponentFood))// 相手が食べ物なら
+    //        {
+    //            // 同じ根をもつ結合関係にある食べ物同士は反応させない
+    //            if (opponentFood.Root == this.Root) return;
+    //            // stageManagerが設定されていなければreturn
+    //            if (stageManager == null) return;
 
-                // 衝突時の相性を取得
-                InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team, eatMode);
+    //            // 衝突時の相性を取得
+    //            InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team, eatMode);
 
-                switch (type)
-                {
-                    case InteractionType.Merge:
-                        // 爆弾化していない状態のときのみ結合
-                        if (!Root.bomb && !opponentFood.Root.bomb) stageManager.AddMergeEventList(this, opponentFood);
-                        break;
+    //            switch (type)
+    //            {
+    //                case InteractionType.Merge:
+    //                    // 爆弾化していない状態のときのみ結合
+    //                    if (!Root.bomb && !opponentFood.Root.bomb) stageManager.AddMergeEventList(this, opponentFood);
+    //                    break;
 
-                    case InteractionType.Eat:
-                        // 結合済みの食材や、すでに一度捕食を行った食材は捕食機能を持たない
-                        if (Root == this && mergedFoods.Count == GameConstants.Zero && eatMode)
-                        {
-                            stageManager.AddEatEventList(this, opponentFood);
-                            eatMode = false;
-                        }
-                        else if (Root == this) stageManager.AddReflectList(this, opponentFood);
-                        break;
+    //                case InteractionType.Eat:
+    //                    // 結合済みの食材や、すでに一度捕食を行った食材は捕食機能を持たない
+    //                    if (Root == this && mergedFoods.Count == GameConstants.Zero && eatMode)
+    //                    {
+    //                        stageManager.AddEatEventList(this, opponentFood);
+    //                        eatMode = false;
+    //                    }
+    //                    else if (Root == this) stageManager.AddReflectList(this, opponentFood);
+    //                    break;
 
-                    case InteractionType.None:
-                        {
-                            // 捕食する側の食材が吹き飛ばないように
-                            if (FoodInteractionRules.GetInteractionType(opponentFood.team, team, opponentFood.eatMode) != InteractionType.Eat)
-                                stageManager.AddReflectList(this, opponentFood);
-                            break;
-                        }
+    //                case InteractionType.None:
+    //                    {
+    //                        // 捕食する側の食材が吹き飛ばないように
+    //                        if (FoodInteractionRules.GetInteractionType(opponentFood.team, team, opponentFood.eatMode) != InteractionType.Eat)
+    //                            stageManager.AddReflectList(this, opponentFood);
+    //                        break;
+    //                    }
 
-                    default:
-                        break;
-                }
+    //                default:
+    //                    break;
+    //            }
 
-                //Reflect(myRb, oppoentRb);
-                //stageManager.AddReflectList(this, opponentFood);
-            }
-        }
-    }
+    //            //Reflect(myRb, oppoentRb);
+    //            //stageManager.AddReflectList(this, opponentFood);
+    //        }
+    //    }
+    //}
 
     const int DefaultCount = 1;
     /// <summary>
@@ -933,6 +961,7 @@ public static class FoodInteractionRules
         // ==== Red ====
         //{(TeamColor.Red, TeamColor.Green), InteractionType.Eat },
         //{(TeamColor.Red, TeamColor.Blue), InteractionType.Eat },
+        //{(TeamColor.Red, TeamColor.Red), InteractionType.Merge },
         {(TeamColor.Red, TeamColor.Yellow), InteractionType.Merge },
 
         // ==== Blue ====
