@@ -31,22 +31,31 @@ public class VibrateManager : MonoBehaviour
             case VibrationSituations.FullyCharged:
                 Vibrate(chargedVibrateTime);
                 break;
+            default:
+                break;
         }
     }
 
     // Android設定
     AndroidJavaClass unityPlayer;
     AndroidJavaObject currentActivity;
-    AndroidJavaObject vibrator;
+    AndroidJavaObject vibrator = null;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
-
     // 初期化を行う
-    void Start()
+    void Awake()
     {
-        unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-        vibrator = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator");
+        try
+        {
+            unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            vibrator = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator");
+        }
+        // 失敗時
+        catch(System.Exception ex)
+        {
+            vibrator = null;
+        }
     }
 
 #endif
@@ -58,7 +67,14 @@ public class VibrateManager : MonoBehaviour
     void Vibrate(long milliseconds)
     {
         // Androidの振動
-        if(IsAndroid) vibrator.Call("vibrate", milliseconds);
+        if (IsAndroid)
+        {
+            // きちんと取得できている場合
+            if (vibrator != null) vibrator.Call("vibrate", milliseconds);
+
+            // 初期化に失敗したフォールバック
+            else Handheld.Vibrate();
+        }
     }
 
     // Androidかどうか

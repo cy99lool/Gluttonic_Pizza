@@ -95,11 +95,10 @@ public class SystemManager : MonoBehaviour
         }
     }
     [Header("メイン画面のリザルトのスクリプト"), SerializeField] Result mainResult;
+    [Header("サウンドマネージャー"), SerializeField] SoundManager soundManager;
 
     [SerializeField] List<Team> teams;
     public List<Team> Teams => teams;
-
-    [Header("食材の発射可能弾数"), SerializeField] int reloadBulletValue = 5;
 
     bool isStarted;
     public bool IsStarted => isStarted;
@@ -185,7 +184,11 @@ public class SystemManager : MonoBehaviour
     const int LastPhase = 3;
     IEnumerator Main()
     {
-        if (!isStarted) isStarted = true;
+        if (!isStarted)
+        {
+            isStarted = true;
+            //soundManager.PlayBGM()
+        }
         int counter = GameConstants.One;
 
         //while (pizzaManager.PizzaSlices.Count > 0)

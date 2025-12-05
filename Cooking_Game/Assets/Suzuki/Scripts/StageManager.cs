@@ -82,8 +82,9 @@ public class StageManager : MonoBehaviour
         bool eatMode = false;// 捕食モードかどうか
         public bool EatMode => eatMode;
 
-        bool eatModeChanged = false;// 捕食モードに切り替わった瞬間か
-        public bool EatModeChanged => eatModeChanged;
+        bool onEatModeChanged = false;// 捕食モードに切り替わった瞬間か
+        public bool OnEatModeChanged => onEatModeChanged;
+        public bool SetOnEatModeFalse() => onEatModeChanged = false;
 
         CursorInfo cursorInfo;
         public CursorInfo Cursor => cursorInfo;
@@ -147,7 +148,7 @@ public class StageManager : MonoBehaviour
                     bowStringController.StartAim();// 弦を引っ張り始める
                     pullTimer = GameConstants.FirstTimerValue;// タイマーをリセット
                     eatMode = false;
-                    eatModeChanged = false;
+                    onEatModeChanged = false;
                 }
 
                 // 引張時間を経過
@@ -155,10 +156,8 @@ public class StageManager : MonoBehaviour
                 // 一定時間を超えたら捕食を有効化する
                 if(pullTimer >= eatModeChargeSeconds)
                 {
-                    // 捕食可能状態の切り替わりフラグの設定
-                    if (eatMode) eatModeChanged = true;
-
                     eatMode = true;
+                    onEatModeChanged = true;
                 }
 
                 Vector3 pivotPosition = pivot.position;
@@ -244,7 +243,7 @@ public class StageManager : MonoBehaviour
             trackObjects[i].UpdateArrow();
 
             // 捕食可能になったときの処理
-            if (trackObjects[i].EatModeChanged) OnEatableChanged(trackObjects[i]);
+            if (trackObjects[i].OnEatModeChanged) OnEatableChanged(trackObjects[i]);
 
             // ドラッグ位置の履歴を更新
             trackObjects[i].UpdateLastPosition();
@@ -291,6 +290,9 @@ public class StageManager : MonoBehaviour
 
         // 弓についている食べ物にも牙を出す
         trackObject.BowStringController.CurrentArrow.EnableEatMode();
+
+        // 捕食可能状態の切り替わりフラグの無効化
+        trackObject.SetOnEatModeFalse();
     }
 
     public void SummonAndShotFood(FoodMove foodPrefab,bool eatMode, Vector3 summonPosition, Vector3 shotDirection, Vector3 pivotPos, float power)
