@@ -724,7 +724,10 @@ public class UDPMulti : MonoBehaviour
 
         // 位置情報のクラスからJson形式に変換し、メッセージにする
         ObjectInfo myObjectInfo = new ObjectInfo(myInfo, myInfo.TrackObject.transform.position, myInfo.TrackObject.transform.eulerAngles.y);
-        myObjectInfo.OnSend();// 送信前に受診後に使いたい情報を保存しておく
+
+        // 送信前の処理
+        myObjectInfo.OnSend();
+
         string myObjectInfoJson = JsonUtility.ToJson(myObjectInfo);
 
         byte[] myObjectInfoMessage = System.Text.Encoding.UTF8.GetBytes(myObjectInfoJson);// StringをByte配列に変換
@@ -747,12 +750,16 @@ public class UDPMulti : MonoBehaviour
             //byte[] systemManagerMessage = System.Text.Encoding.UTF8.GetBytes(systemManagerJson);
             List<CursorInfo.Mode> canModes = clientInfo.Cursor.CanModes;
 
+            // DTOを作成
             HostMessageDto hostMessageDto = new HostMessageDto(systemManager, canModes);
+            // Jsonに変換
             string hostMessageDtoJson = JsonUtility.ToJson(hostMessageDto);
-            byte[] dtoMessage = System.Text.Encoding.UTF8.GetBytes(hostMessageDtoJson);// Jsonに変換
-            HostMessageDto debugDto = JsonUtility.FromJson<HostMessageDto>(hostMessageDtoJson);
+
+            // メッセージに変換
+            byte[] dtoMessage = System.Text.Encoding.UTF8.GetBytes(hostMessageDtoJson);
             byte[] hostMessage = MergeBytes(udpMessage, dtoMessage);
 
+            // 送信
             SendAsyncToPlayers(hostMessage);
         }
     }

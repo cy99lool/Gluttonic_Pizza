@@ -113,6 +113,9 @@ public class SystemManager : MonoBehaviour
 
         SetAllPlayerShootable(teams);
 
+        // 接続画面のBGMを再生
+        if (soundManager != null) soundManager.PlayBGM(BGMType.ConnectLobby);
+
         //StartCoroutine(Main());
     }
 
@@ -187,7 +190,8 @@ public class SystemManager : MonoBehaviour
         if (!isStarted)
         {
             isStarted = true;
-            //soundManager.PlayBGM()
+            // インゲームBGMを再生
+            if(soundManager != null) soundManager.PlayBGM(BGMType.InGame);
         }
         int counter = GameConstants.One;
 

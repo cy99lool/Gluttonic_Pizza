@@ -33,15 +33,5 @@ public enum BGMType
 public class BGMData : ScriptableObject
 {
     [Header("再生する音一覧"), SerializeField] List<BGMEntry> bgmEntries;
-    public List<BGMEntry> BGMEntries => BGMEntries;
-    public bool IsSame(BGMType soundType)
-    {
-        foreach (BGMEntry bgmEntry in bgmEntries)
-        {
-            // 登録されたタイプと合致するものならtrue
-            if (bgmEntry.SoundType == soundType) return true;
-        }
-        // 無ければfalse
-        return false;
-    }
+    public List<BGMEntry> BGMEntries => bgmEntries;
 }

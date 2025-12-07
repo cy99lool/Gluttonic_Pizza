@@ -13,7 +13,11 @@ MonoBehaviour:
   m_Name: BGMData
   m_EditorClassIdentifier: 
   bgmEntries:
+  - soundType: 1
+    soundName: "\u63A5\u7D9A\u753B\u9762"
+    soundClip: {fileID: 8300000, guid: b0c73001aad493f48b3bdc107ce49135, type: 3}
+    volume: 0.4
   - soundType: 2
     soundName: "\u30B2\u30FC\u30E0\u30D7\u30EC\u30A4\u4E2D"
-    soundClip: {fileID: 0}
-    volume: 1
+    soundClip: {fileID: 8300000, guid: c1df6c62febab6e4a92fd33ba009abf1, type: 3}
+    volume: 0.4

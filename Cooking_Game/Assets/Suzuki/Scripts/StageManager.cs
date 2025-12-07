@@ -202,6 +202,7 @@ public class StageManager : MonoBehaviour
     List<InfoForReflect> eatEventList = new List<InfoForReflect>();
 
     [Header("振動のマネージャー"), SerializeField] VibrateManager vibrateManager;
+    [Header("サウンドのマネージャー"), SerializeField] SoundManager soundManager;
 
     void Start()
     {
@@ -264,6 +265,8 @@ public class StageManager : MonoBehaviour
             for(int i = mergeEventList.Count - 1;i >= 0;i--)
             {
                 mergeEventList[i].First.Food.OnMerge(mergeEventList[i].Second.Food);
+                // 結合SE再生
+                soundManager.PlaySE(PlayerSoundType.Merge, mergeEventList[i].First.Food.transform);
                 Debug.Log("[MERGE]");
             }
             mergeEventList.Clear();// リストをクリア
@@ -274,6 +277,8 @@ public class StageManager : MonoBehaviour
             for(int i =  eatEventList.Count - 1; i>=0;i--)
             {
                 eatEventList[i].First.Food.OnEat(eatEventList[i].Second.Food, eatEventList[i].First.Velocity);
+                // 捕食SE再生
+                soundManager.PlaySE(PlayerSoundType.Eat, mergeEventList[i].First.Food.transform);
                 Debug.Log("[EAT]");
             }
             eatEventList.Clear();// リストをクリア
@@ -331,12 +336,12 @@ public class StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// リスト内に同じペアを含んでいるかどうか
     /// </summary>
-    /// <param name="list"></param>
-    /// <param name="first"></param>
-    /// <param name="second"></param>
-    /// <returns></returns>
+    /// <param name="list">調べるリスト</param>
+    /// <param name="first">1つめ</param>
+    /// <param name="second">2つめ</param>
+    /// <returns>同じペアを含んでいるかどうか</returns>
     bool HasPair(List<InfoForReflect> list, FoodMove first, FoodMove second)
     {
         return list.Any(e => (e.First.Food == first &&  e.Second.Food == second) || (e.First.Food == second && e.Second.Food == first));
