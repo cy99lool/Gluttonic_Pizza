@@ -45,6 +45,12 @@ public class SEPlayer
         audioSource.AudioSource.clip = targetEntry.SoundClip;
         audioSource.AudioSource.volume = targetEntry.Volume;
 
+        // ピッチをランダムで変更
+        float pitch = Random.Range(-targetEntry.PitchVarietion, targetEntry.PitchVarietion);
+        float targetPitch = GameConstants.One;
+        targetPitch += pitch;
+        audioSource.AudioSource.pitch = targetPitch;
+
         // 追尾の設定
         audioSource.SetChaseTransform(playTransform);
 

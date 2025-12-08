@@ -83,7 +83,7 @@ MonoBehaviour:
   myCollider: {fileID: 6790622210075148746}
   animator: {fileID: 1818010819203474785}
   gravity: 9.8
-  maxAngularVelocity: 2
+  maxAngularVelocity: 1
   brakeRate: 8
   rotateBrakeRate: 5
   onGroundDistance: 10
