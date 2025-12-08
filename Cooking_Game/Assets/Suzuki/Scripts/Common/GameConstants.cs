@@ -7,9 +7,15 @@ using UnityEngine;
 /// </summary>
 public static class GameConstants
 {
-    public const float FirstTimerValue = 0f;// タイマーの初期化に使う
-    public const float HalfMultiplyer = 0.5f;// 半分にする際に使う（TransformのSizeから半径を取るときなど）
-    public const float OneSecond = 1f;// 一秒あたりのレートを計算するとき等に使う
+    public const float FirstTimerValue = 0f;        // タイマーの初期化に使う
+    public const int Zero = 0;
+    public const int One = 1;
+    public const float HalfMultiplyer = 0.5f;       // 半分にする際に使う（TransformのSizeから半径を取るときなど）
+    public const float OneSecond = 1f;              // 一秒あたりのレートを計算するとき等に使う
+    public const int MillisecondPerSecond = 1000;   // 1秒は何ミリ秒か
+    public const int DefaultIndex = -1;             // インデックスの初期値
+    public const int HeadIndex = 0;                 // 配列やリストの先頭を指すインデックス
+    public const float MaxPercentage = 100f;        // 100%
 
     /// <summary>
     /// Vector3の割り算

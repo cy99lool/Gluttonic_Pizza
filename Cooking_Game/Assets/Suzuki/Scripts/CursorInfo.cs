@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [System.Serializable] // Json化したときに保存されるように
 public class CursorInfo : MonoBehaviour
@@ -11,6 +12,7 @@ public class CursorInfo : MonoBehaviour
     [System.Serializable]
     public enum Mode
     {
+        None = 0,
         Normal = 1,
         Big = 2,
         Bomb = 3
@@ -27,8 +29,11 @@ public class CursorInfo : MonoBehaviour
 
     const Mode DefaultMode = Mode.Normal;
 
-    [SerializeField] FoodMove.TeamColor team;
-    public FoodMove.TeamColor Team => team;
+    [FormerlySerializedAs("team"), SerializeField] TeamColor teamColor;
+    SystemManager.Team team;
+    public SystemManager.Team Team => team;
+
+    SystemManager systemManager;
 
     [SerializeField] Mode foodMode;
     public Mode FoodMode => foodMode;
@@ -50,34 +55,38 @@ public class CursorInfo : MonoBehaviour
 
     [SerializeField] UnityEngine.UI.Button bigButton;
     [SerializeField] UnityEngine.UI.Button bombButton;
+    [SerializeField] TMPro.TextMeshProUGUI bulletCountText;
 
     List<Mode> canModes;
     public List<Mode> CanModes => canModes;
-    public bool CanBig
-    {
-        get
-        {
-            return GetCanFlag(Mode.Big);// 移行可能モードに巨大化があるかを返す
-        }
-    }
-    public bool CanBomb
-    {
-        get
-        {
-            return GetCanFlag(Mode.Bomb);// 移行可能モードに爆弾化があるかを返す
-        }
-    }
+    public bool Shootable => team.Shootable;
+    public bool CanBig => GetCanFlag(Mode.Big);// 移行可能モードに巨大化があるかを返す
+    public bool CanBomb => GetCanFlag(Mode.Bomb);// 移行可能モードに爆弾化があるかを返す
 
     void Start()
     {
         foodMode = DefaultMode;
         canModes = new List<Mode>();
+
+        // SystemManagerを取得（チームの取得用、JSONファイルにならないようにインスペクタ上ではアタッチしていない）
+        systemManager = FindObjectOfType<SystemManager>();
+
+        // 自身のチームを取得
+        foreach(SystemManager.Team team in systemManager.Teams)
+        {
+            if(teamColor == team.Color)
+            {
+                this.team = team;
+                break;
+            }
+        }
     }
 
     void Update()
     {
         UpdateButtonFillAmount(CanBig, bigButton);// 巨大化ボタンの更新
         UpdateButtonFillAmount(CanBomb, bombButton);// 爆弾化ボタンの更新
+        //UpdateBulletCountUI();// 残弾数の更新
     }
 
     void UpdateButtonFillAmount(bool flag, UnityEngine.UI.Button button)
@@ -88,6 +97,12 @@ public class CursorInfo : MonoBehaviour
         // ボタンが見えないように
         if (!flag && button.image.fillAmount != FillAmountMin) button.image.fillAmount = FillAmountMin;
     }
+
+    //void UpdateBulletCountUI()
+    //{
+    //    if (bulletCountText == null) return;
+    //    bulletCountText.text = $"残弾数:{team.BulletCount}";
+    //}
 
     // 現在の食材のモードを設定
     public void SetMode(Mode mode)
@@ -114,6 +129,12 @@ public class CursorInfo : MonoBehaviour
         this.canModes = canModes;
     }
 
+    void RemoveFlag(Mode mode)
+    {
+        // モードがあるなら
+        if(canModes.Contains(mode)) canModes.Remove(mode);// 移行可能なモードから削除
+    }
+
     bool GetCanFlag(Mode targetMode)
     {
         if (canModes.Count == 0) return false;// 移行可能モードのリストがなければできないと返す
@@ -129,18 +150,31 @@ public class CursorInfo : MonoBehaviour
     {
         switch(foodMode)
         {
+            // 通常弾
+            case Mode.Normal:
+                break;
             // 巨大弾
             case Mode.Big:
                 SetMode(Mode.Normal);// 通常弾に戻す
-                canModes.Remove(Mode.Big);// 巨大化可能状態を解除
+                RemoveFlag(Mode.Big);// 巨大化可能状態を解除
                 break;
             // 爆発弾
             case Mode.Bomb:
                 SetMode(Mode.Normal);// 通常弾に戻す
-                canModes.Remove(Mode.Bomb);// 爆弾化可能状態を解除
+                RemoveFlag(Mode.Bomb);// 爆弾化可能状態を解除
                 break;
             default:
-                break;
+                return;
+        }
+
+        // 発射後の処理
+        if(foodMode != Mode.None && Shootable)
+        {
+            //// 残弾数を減らす
+            //team.SubtractBullet();
+
+            // CTを設定
+            team.SetShootCT();
         }
     }
 

@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 216561514674231856, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -8421535984043420365, guid: 409d78f12e22e5045b11a881344e28bb, type: 3}
+      objectReference: {fileID: 2100000, guid: e9ff276a661633d4ba2518d109c2dfe1, type: 2}
     - target: {fileID: 1584060787817551926, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Name
       value: NormalFoodPumpkin Variant
@@ -19,6 +19,14 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 22100000, guid: 18fbcb07b97b83841bc64beeac4c4879, type: 2}
+    - target: {fileID: 1818010819203474786, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: team
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1818010819203474786, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: explodePrefab
+      value: 
+      objectReference: {fileID: 6187010927415403721, guid: 39722180dc1d2414b809bc77ea1da775, type: 3}
     - target: {fileID: 2211379877717590668, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -61,6 +69,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2211379877717590668, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9063905735174576940, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

@@ -6,30 +6,69 @@ using System.Net.Sockets;
 using System;
 using System.Threading;
 using System.Linq;
+using System.Collections.Concurrent;// ConCurrentQueue（スレッドセーフなキュー）を使う
 
 public class UDPMulti : MonoBehaviour
 {
     [Serializable]
     public class ClientInfo
     {
+        [Header("設定を保存・取得するJSONファイルの相対パス"), SerializeField] string relativeFilePath;
+        public string RelativeFilePath => relativeFilePath;
+
+        [Header("--- 接続情報設定 ---")]
         [SerializeField] string ip = "127.0.0.1";// 何も指定されなければ自身を指す
         public string IP => ip;
+
+        /// <summary>
+        /// IPアドレスの設定
+        /// </summary>
+        /// <param name="ip">設定するIPアドレス</param>
+        public void SetIP(string ip)
+        {
+            this.ip = ip;
+        }
+
+        /// <summary>
+        /// JSONファイルからIPアドレスを設定する
+        /// </summary>
+        public void SetIPFromJson()
+        {
+            string ip = JsonDataManager.LoadIPSetting(relativeFilePath);
+            if (ip == null) return;
+
+            this.ip = ip;
+        }
 
         [SerializeField] int port = 0;
         public int Port => port;
 
+        [Header("--- 同期設定 ---")]
         [Header("同期するオブジェクト"), SerializeField] GameObject trackObject;
         public GameObject TrackObject => trackObject;
+
+        [Header("接続状況を確認するオブジェクト"), SerializeField] ConnectionInfo connectionCheckObject;
+        public ConnectionInfo ConnectionCheckObject => connectionCheckObject;
 
         // アイテム適用情報を持つデータのクラス
         [SerializeField] CursorInfo cursorInfo;
         public CursorInfo Cursor => cursorInfo;
 
         IPEndPoint endPoint;
-        float disconnectTimer;
-
         public IPEndPoint EndPoint => endPoint;
+
+        float disconnectTimer;
         public float DisconnectTimer => disconnectTimer;
+
+        // コンストラクタ
+        public ClientInfo() { }
+
+        public ClientInfo(string ip, int port)
+        {
+            this.ip = ip;
+            this.port = port;
+        }
+
         public void SetEP(IPEndPoint iPEndPoint)
         {
             endPoint = iPEndPoint;
@@ -41,11 +80,10 @@ public class UDPMulti : MonoBehaviour
             // 接続できていない時間の経過
             disconnectTimer += Time.deltaTime;
         }
-        public void ResetDiscconectTimer(float disconnectThreshold)
+        public void ResetDiscconectTimer()
         {
             // 接続できていない時間をリセット
-            // (高速でリセットされるのを防ぐため、若干タイマーが経過した状態のみリセットする)
-            if (disconnectTimer > disconnectThreshold / 10f) disconnectTimer = 0f;
+            disconnectTimer = 0f;
         }
 
         //public void SetCursorInfo()
@@ -101,7 +139,7 @@ public class UDPMulti : MonoBehaviour
         public void OnSend()
         {
             nowFoodMode = clientInfo.Cursor.FoodMode;// 現在のモードを設定
-            Debug.Log(nowFoodMode);
+            //Debug.Log(nowFoodMode);
             canModeList = clientInfo.Cursor.CanModes;// 移行可能なモード一覧を設定
         }
     }
@@ -110,14 +148,14 @@ public class UDPMulti : MonoBehaviour
     {
         ClientInfo clientInfo;
         byte[] message;
-        public IPEndPoint SenderEP => clientInfo.EndPoint;
+        public IPEndPoint SenderEP => clientInfo != null ? clientInfo.EndPoint : null;
         public ClientInfo Info => clientInfo;
         public byte[] Message => message;
 
         public ReceivedUnit(IPEndPoint senderEp, byte[] message, ClientInfo clientInfo)
         {
             this.clientInfo = clientInfo;
-            this.clientInfo.SetEP(senderEp);
+            if (this.clientInfo != null) this.clientInfo.SetEP(senderEp);
             this.message = message;
         }
     }
@@ -125,31 +163,47 @@ public class UDPMulti : MonoBehaviour
     [Header("自分の情報"), SerializeField] ClientInfo myInfo;
     [Header("接続する相手たち"), SerializeField] List<ClientInfo> clients = new List<ClientInfo>();
     [Header("接続が切れた判定をするまでの時間"), SerializeField] float disconnectThreshold = 3f;
+    [SerializeField] SystemManager systemManager;
 
     const int MaxPlayerNum = 4;                                     // 最大プレイヤー数
-    const int MessageStackSize = 15;                                // メッセージの待機列のサイズ
+    const int MessageStackSize = 30;                                // メッセージの待機列のサイズ
     const int PosDataMargin = 3;                                    // 受け取った位置情報の保有可能量
+    const int RecieveBufferSize = 65536;                            // 受信バッファのサイズ
+    const int MaxParsePerFrame = 100;                               // 1フレームごとのパース可能回数
+    const int ThreadSleepMillisecond = 1;                           // スレッドの処理を一時停止する時間（ミリ秒）
 
-    static int sendPerSecond = 20;                                // 1秒に何回送信するか
-    static float SendInterval => GameConstants.OneSecond / sendPerSecond;// 送信ごとの間隔（1秒 / 1秒に送信する回数）
+    static int sendPerSecond = 10;                                // 1秒に何回送信するか
+    static float SendInterval => (GameConstants.OneSecond / sendPerSecond) * GameConstants.MillisecondPerSecond;// 送信ごとの間隔（1秒 / 1秒に送信する回数、ミリ秒の単位）
 
     UdpClient client;
     Thread receiveThread;                                           // 受信用スレッド
     Thread sendThread;                                              // 送信用スレッド
     bool isSendTiming = false;                                      // 送信タイミングかどうかのフラグ
+    volatile bool isReceiving = false;                              // 受信を行っている（受信スレッドをループしている）かどうか
+    bool isSending = false;                                         // 送信を行っているかどうか
     List<IPEndPoint> answerWaiting = new List<IPEndPoint>(MaxPlayerNum);       // 応答待機のリスト
     [SerializeField] List<ClientInfo> connectedPlayerInfos = new List<ClientInfo>(MaxPlayerNum);  // 接続できたプレイヤーのリスト
-    List<ReceivedUnit> messageStack = new List<ReceivedUnit>(MessageStackSize);       // メッセージの待機列
+    ConcurrentQueue<ReceivedUnit> messageQueue = new ConcurrentQueue<ReceivedUnit>();       // メッセージの待機列（ConCurrentQueueを使用することで複数のスレッドでも安心）
     // ゲーム情報
     List<ObjectInfo> otherPlayerObjectInfo = new List<ObjectInfo>(PosDataMargin);
 
     void Start()
     {
         client = new UdpClient(new IPEndPoint(IPAddress.Any, myInfo.Port));
+        client.Client.ReceiveBufferSize = RecieveBufferSize;
+
+        isReceiving = true;
         receiveThread = new Thread(new ThreadStart(ThreadReceive));
         receiveThread.Start();// 受信スレッド開始
+
+        isSending = false;
+
+        // ipアドレスをJSONファイルから設定
+        myInfo.SetIPFromJson();
+        foreach (ClientInfo client in clients) client.SetIPFromJson();
     }
 
+    float debugTimer = 0f;
     void Update()
     {
         // 送信タイミング
@@ -159,27 +213,39 @@ public class UDPMulti : MonoBehaviour
             isSendTiming = false;
         }
 
-        // 受信メッセージがある場合
-        for (int i = 0; i < messageStack.Count; i++)
-        {
-            Parse(messageStack[i]);
-            messageStack.RemoveAt(i);
-            i--;
-        }
+        //// デバッグ、現在のメッセージキューのサイズを1秒ごとにだす
+        //debugTimer += Time.deltaTime;
+        //if (debugTimer >= 1f)
+        //{
+        //    debugTimer = 0f;
+        //    Debug.Log($"[QUEUE] size = {messageQueue.Count}");
+        //    foreach (ClientInfo player in connectedPlayerInfos)
+        //    {
+        //        Debug.Log($"[DisconnectTimer] {player.IP}'s timer = {player.DisconnectTimer}");
+        //    }
+        //}
+
+        // パース
+        ParseMessages();
 
         // 各プレイヤーの情報アップデート
-        for (int i = otherPlayerObjectInfo.Count - 1; i > 0; i--)
+        for (int i = otherPlayerObjectInfo.Count - 1; i >= 0; i--)
         {
             otherPlayerObjectInfo[i].UpdateTransformInfo();// 位置の更新
-            
+
             // 強化状況の更新
-            for(int j = 0; j < clients.Count; j++)
+            for (int j = 0; j < clients.Count; j++)
             {
                 // 対象の特定
                 if (otherPlayerObjectInfo[i].ClientInfo.IP == clients[j].IP)
                 {
-                    clients[j].Cursor.SetMode(otherPlayerObjectInfo[i].NowFoodMode);// 食材のモードを更新
-                    clients[j].Cursor.SetModeFlag(otherPlayerObjectInfo[i].CanModeList);// 移行可能モードを更新
+                    if (clients[j].Cursor != null)
+                    {
+                        // 2回の変更でオブジェクトのモードが揃っていたとき
+                        clients[j].Cursor.SetMode(otherPlayerObjectInfo[i].NowFoodMode);// 食材のモードを更新
+                        clients[j].Cursor.SetModeFlag(otherPlayerObjectInfo[i].CanModeList);// 移行可能モードを更新
+
+                    }
                 }
             }
 
@@ -193,13 +259,79 @@ public class UDPMulti : MonoBehaviour
             if (connectedPlayerInfos[i].DisconnectTimer >= disconnectThreshold)
             {
                 // 再接続を要求
-                RegisterOpponentPort(connectedPlayerInfos[i].IP, connectedPlayerInfos[i].Port);
-                Debug.Log("再接続を要求");
+                RequestReconnection(connectedPlayerInfos[i].IP, connectedPlayerInfos[i].Port);
+
+                // 切断時の処理
+                if(connectedPlayerInfos[i].ConnectionCheckObject != null) connectedPlayerInfos[i].ConnectionCheckObject.OnDisconnect();
 
                 // 接続リストから削除
                 connectedPlayerInfos.RemoveAt(i);
             }
         }
+    }
+
+    void ParseMessages()
+    {
+        ReceivedUnit dequeued;
+        int count = 0;
+        // パース可能回数が残っていて、かつ受信メッセージがある場合
+        while (count < MaxParsePerFrame && messageQueue.TryDequeue(out dequeued))
+        {
+            // メッセージの中身を解読
+            Parse(dequeued);
+            count++;// パース回数を増加
+        }
+    }
+
+    ///// <summary>
+    ///// パース用のスレッド
+    ///// </summary>
+    //void ThreadParse()
+    //{
+    //    ReceivedUnit dequeued;
+
+    //    while (isParsing)
+    //    {
+    //        // 受信メッセージがある場合
+    //        while (messageQueue.TryDequeue(out dequeued))
+    //        {
+    //            // メッセージの中身を解読（現在デバッグのためコメントアウト）
+    //            Parse(dequeued);
+    //        }
+
+    //        // CPUの負荷対策
+    //        Thread.Sleep(ThreadSleepMillisecond);
+    //    }
+    //    Debug.LogWarning("パーススレッド終了");
+    //}
+
+    void RequestReconnection(string ip, int port)
+    {
+        // sendThreadを止め、古いclientを使わないように
+        isSending = false;
+        if (sendThread != null && sendThread.IsAlive) sendThread.Join();// スレッドの終了を待機
+
+        // 受信を停止
+        isReceiving = false;
+        client?.Close();// Receiveがブロックしてるならここで例外を出してループを抜ける
+        if (receiveThread != null && receiveThread.IsAlive) receiveThread.Join();// スレッドの終了を待機
+
+        // ここで新しいソケットとスレッドを作成
+        client = new UdpClient(new IPEndPoint(IPAddress.Any, myInfo.Port));
+        client.Client.ReceiveBufferSize = RecieveBufferSize;
+
+        // 受信を再開
+        isReceiving = true;
+        receiveThread = new Thread(new ThreadStart(ThreadReceive));
+        receiveThread.Start();// 受信スレッド開始
+
+        // 必要に応じて送信を再開
+        RegisterOpponentPort(ip, port);
+        if (!isSending) SendThreadStart();
+
+        // デバッグ
+        Debug.Log("再接続を要求");
+        Debug.LogError($"[RECONNECT] Triggered at {DateTime.Now:HH:mm:ss.fff}");
     }
 
     /// <summary>
@@ -235,6 +367,66 @@ public class UDPMulti : MonoBehaviour
     }
 
     /// <summary>
+    /// 自身のIPアドレスを更新
+    /// </summary>
+    /// <param name="ip"></param>
+    public void UpdateMyIP(string ip)
+    {
+        if (ip == null) return;
+
+        // 適用
+        myInfo.SetIP(ip);
+
+        // JSONファイルを更新
+        JsonDataManager.SaveIPSetting(ip, myInfo.RelativeFilePath);
+    }
+
+    /// <summary>
+    /// 接続相手のIPアドレスをJSONファイルから適用する
+    /// </summary>
+    /// <param name="playerNum">登録された相手のインデックス</param>
+    /// <returns>IPアドレス</returns>
+    public string UpdateOtherIP(int playerNum)
+    {
+        // リストのサイズ以上のときは変更を適用しない
+        if (playerNum > clients.Count) return null;
+
+        // 接続をリクエストするプレイヤーリストのインデックスに変換
+        PlayerIndex playerIndex = (PlayerIndex)(playerNum - GameConstants.One);
+
+        // IPアドレスを取得、適用
+        clients[(int)playerIndex].SetIPFromJson();
+
+        return clients[(int)playerIndex].IP;
+    }
+
+    /// <summary>
+    /// IPアドレスをフィールドに入力できるした後に変更を反映
+    /// </summary>
+    public void ApplyIPChange(int playerNum, string ip)
+    {
+        // リストのサイズ以上のときは変更を適用しない
+        if (playerNum > clients.Count) return;
+
+        // 接続をリクエストするプレイヤーリストのインデックスに変換
+        PlayerIndex playerIndex = (PlayerIndex)(playerNum - GameConstants.One);
+
+        // IPアドレスを適用
+        clients[(int)playerIndex].SetIP(ip);
+
+        // JSONファイルに書き出す
+        JsonDataManager.SaveIPSetting(ip, clients[(int)playerIndex].RelativeFilePath);
+    }
+
+    enum PlayerIndex
+    {
+        first = 0,
+        second = 1,
+        third = 2,
+        fourth = 3,
+    }
+
+    /// <summary>
     /// Byte配列を結合する
     /// </summary>
     /// <returns>結合後のByte配列</returns>
@@ -253,38 +445,95 @@ public class UDPMulti : MonoBehaviour
     /// </summary>
     void ThreadReceive()
     {
-        while (true)
+        try
         {
-            IPEndPoint senderEP = null;
-            try// 情報を受け取れないときに切断されないようにしている
+            while (isReceiving)
             {
-                byte[] receivedBytes = client.Receive(ref senderEP);
-                if (receivedBytes.Length - sizeof(Int32) > 0)
+                IPEndPoint senderEP = null;
+                try// 情報を受け取れないときに切断されないようにしている
                 {
-                    try
-                    {
-                        // 接続時
-                        ClientInfo clientInfo = SearchClientInfo(receivedBytes.ToClientInfo(sizeof(Int32)));// ClientInfoを取得
+                    byte[] receivedBytes = client.Receive(ref senderEP);
+                    Debug.Log($"受信成功 bytes={receivedBytes.Length}");// デバッグ
 
-                        //Debug.Log($"受け取ったメッセージ長: {receivedBytes.Length}");
-                        messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, clientInfo));
-                    }
-                    catch
+                    // メッセージの長さチェック
+                    if (receivedBytes != null && receivedBytes.Length >= sizeof(Int32))
                     {
-                        // 通信時
-                        string objectInfoJson = System.Text.Encoding.UTF8.GetString(receivedBytes, sizeof(Int32), receivedBytes.Length - sizeof(Int32));// UDPMessage型のメッセージの先
-                        ObjectInfo objectInfo = JsonUtility.FromJson<ObjectInfo>(objectInfoJson);
+                        // メッセージの種類を判別
+                        UDPMessageType type = receivedBytes.ToUDPMessageType();
 
-                        Debug.Log($"ポート：{objectInfo.ClientInfo.Port}, 受け取った位置：{objectInfo.Position}");
-                        messageStack.Add(new ReceivedUnit(senderEP, receivedBytes, objectInfo.ClientInfo));
+                        // 接続生存確認のメッセージやホストからのメッセージのとき
+                        if (type == UDPMessageType.ConnectCheck || type == UDPMessageType.HostMessage)
+                        {
+                            // ClientInfoがなくてもキューに追加する
+                            ReceivedUnit ConnectCheckUnit = new ReceivedUnit(senderEP, receivedBytes, new ClientInfo(senderEP.Address.ToString(), senderEP.Port));
+                            messageQueue.Enqueue(ConnectCheckUnit);
+                            CheckConnect(ConnectCheckUnit);// 接続状態の更新
+                            continue;
+                        }
+
+                        ClientInfo foundInfo = null;// メッセージで受信できたClientInfoを入れる
+                        try
+                        {
+                            // 接続時
+                            // UDPMessage型のメッセージの先にあるJsonファイルから、ClientInfoを取得する
+                            foundInfo = SearchClientInfo(receivedBytes.ToClientInfo(sizeof(Int32)));
+                        }
+                        catch
+                        {
+                            // Jsonのパースか変換でエラーが起きたとき、無視して後で処理する
+                            foundInfo = null;
+                            //Debug.LogWarning($"Jsonのパース失敗 {System.Text.Encoding.UTF8.GetString(receivedBytes)}");
+                        }
+
+                        if (foundInfo == null)
+                        {
+                            // 通信時
+                            string objectInfoJson = System.Text.Encoding.UTF8.GetString(receivedBytes, sizeof(Int32), receivedBytes.Length - sizeof(Int32));// UDPMessage型のメッセージの先
+                                                                                                                                                            //Debug.Log($"[RAW MESSAGE] {objectInfoJson}");
+                            ObjectInfo objectInfo = JsonUtility.FromJson<ObjectInfo>(objectInfoJson);// ObjectInfoを取得
+
+                            // 同期するオブジェクトの情報が不完全なときはキューに追加しない
+                            if (objectInfo == null || objectInfo.ClientInfo == null)
+                            {
+                                //Debug.LogWarning("ObjectInfoのパース失敗" + objectInfoJson);
+                                continue;
+                            }
+
+                            foundInfo = objectInfo.ClientInfo;// ClientInfoを設定
+                        }
+
+                        // メッセージをキューに追加
+                        ReceivedUnit unit = new ReceivedUnit(senderEP, receivedBytes, foundInfo);
+                        messageQueue.Enqueue(unit);
+
+                        // 接続している状況の更新
+                        CheckConnect(unit);
+
+                        //Debug.Log($"[RECEIVE] {DateTime.Now:HH:mm:ss.fff} bytes={receivedBytes.Length} from={senderEP}");// デバッグ
                     }
                 }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.ToString());
+                catch (SocketException sockerException)
+                {
+                    if (!isReceiving) break;// clientが閉じられていたら抜ける
+                                            //Debug.LogError($"Socket Exception:{sockerException.Message}");
+                }
+                catch (Exception exception)
+                {
+
+                }
+
             }
         }
+        catch (Exception exception)
+        {
+            Debug.LogError("ThreadReceive Exception" + exception);
+        }
+
+        finally
+        {
+            Debug.LogWarning("ThreadReceive Ended");
+        }
+        //Debug.LogWarning("受信スレッド終了");// デバッグ
     }
 
     /// <summary>
@@ -307,18 +556,23 @@ public class UDPMulti : MonoBehaviour
     /// </summary>
     void ThreadSend()
     {
-        float timer = GameConstants.FirstTimerValue;// タイマーの初期化
-        while (true)
+        // mainのthread以外でTime.deltaTimeを使用することができないため、.NET標準の時間クラスを使用
+        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();// ストップウォッチ開始
+        long last = GameConstants.Zero;
+
+        while (isSending)
         {
             //OnUpdateSend();
 
+            long now = stopwatch.ElapsedMilliseconds;// ストップウォッチ開始からの経過時間を取得
             // 送信タイミングになったとき
-            if (timer >= SendInterval)
+            if (now - last >= SendInterval)
             {
                 isSendTiming = true;
-                timer = GameConstants.FirstTimerValue;// タイマーの初期化
+                last = now;// タイマーの初期化
             }
-            timer += Time.deltaTime;
+            Thread.Sleep(ThreadSleepMillisecond);// CPUの食いすぎを防止する
 
             // Thread.Sleepではネットワークに応答なしと判断される可能性があったため変更している
             //Thread.Sleep(1000 / sendPerSecond);
@@ -334,11 +588,14 @@ public class UDPMulti : MonoBehaviour
         UDPMessageType type = unit.Message.ToUDPMessageType();
         //ClientInfo clientInfo = unit.Message.ToClientInfo(sizeof(Int32));// ClientInfoを取得
 
-        int answerWaitRegisterIndex = answerWaiting.IndexOfPort(unit.SenderEP.Port);
-        int connectedIndex = connectedPlayerInfos.IndexOfPort(unit.SenderEP.Port);
-
-        // 接続している状況の更新
-        CheckConnect(unit);
+        // 接続時に使用する変数の設定
+        int answerWaitRegisterIndex = GameConstants.DefaultIndex;    // 接続待ちリストの中のインデックス
+        int connectedIndex = GameConstants.DefaultIndex;             // 接続済みの中のインデックス
+        if (type == UDPMessageType.AnswerWait || type == UDPMessageType.Answered)
+        {
+            answerWaitRegisterIndex = answerWaiting.IndexOfPort(unit.SenderEP.Port);
+            connectedIndex = connectedPlayerInfos.IndexOfPort(unit.SenderEP.Port);
+        }
 
         //Debug.Log("メッセージを受信");
         switch (type)
@@ -346,13 +603,13 @@ public class UDPMulti : MonoBehaviour
             case UDPMessageType.AnswerWait:
                 {
                     Debug.Log(answerWaitRegisterIndex);
-                    if (answerWaitRegisterIndex == -1) break;// 応答待ちリストに存在しなければ処理を行わない
+                    if (answerWaitRegisterIndex == GameConstants.DefaultIndex) break;// 応答待ちリストに存在しなければ処理を行わない
 
                     connectedPlayerInfos.Add(unit.Info);// 接続済みプレイヤーのリストに追加
                     answerWaiting.RemoveAt(answerWaitRegisterIndex);// 応答待ちリストから削除
 
                     // 初めてプレイヤーと接続したときのみ送信スレッドを開始させる
-                    if (connectedPlayerInfos.Count == 1)
+                    if (!isSending && connectedPlayerInfos.Count == 1)
                     {
                         SendThreadStart();
                     }
@@ -366,7 +623,7 @@ public class UDPMulti : MonoBehaviour
 
                     client.SendAsync(message, message.Length, unit.SenderEP);// 送信
 
-                    ActivateTrackObject(unit);
+                    OnConnect(unit);
                     CheckConnect(unit);
                     break;
                 }
@@ -379,13 +636,13 @@ public class UDPMulti : MonoBehaviour
                     answerWaiting.RemoveAt(answerWaitRegisterIndex);// 応答待ちリストから削除
 
                     // 初めてプレイヤーと接続したときのみ送信スレッドを開始させる
-                    if (connectedPlayerInfos.Count == 1)
+                    if (!isSending && connectedPlayerInfos.Count == 1)
                     {
                         SendThreadStart();
                     }
                     Debug.Log("他の人から接続がありました:" + unit.Info.Port);
 
-                    ActivateTrackObject(unit);
+                    OnConnect(unit);
                     CheckConnect(unit);
                     break;
                 }
@@ -405,6 +662,24 @@ public class UDPMulti : MonoBehaviour
                     // 接続しているかの確認のみなので何もしない
                     break;
                 }
+            case UDPMessageType.HostMessage:
+                {
+                    string dtoJson = System.Text.Encoding.UTF8.GetString(unit.Message, sizeof(Int32), unit.Message.Length - sizeof(Int32));// UDPMessage型のメッセージの先
+                    HostMessageDto receiveDto = JsonUtility.FromJson<HostMessageDto>(dtoJson);// Json形式からSystemManagerに変換
+
+                    // 残弾数や強化状態を反映
+                    foreach(SystemManager.Team team in receiveDto.HostSystemManager.Teams)
+                    {
+                        // 自身の色についての情報だった場合
+                        if(myInfo.Cursor.Team.Color == team.Color)
+                        {
+                            //myInfo.Cursor.Team.SetBulletCount(team.BulletCount);// 残弾数を同期
+                            myInfo.Cursor.SetModeFlag(receiveDto.CanModes);// 強化の使用可能状況を同期
+                            break;
+                        }
+                    }
+                    break;
+                }
             default:
                 {
                     Debug.LogError("形式が違います！");
@@ -415,15 +690,17 @@ public class UDPMulti : MonoBehaviour
 
     void CheckConnect(ReceivedUnit unit)
     {
-        foreach (ClientInfo connectedPlayer in connectedPlayerInfos)
+        //Debug.Log("[CheckConnect] 呼び出し");
+        // connectedPlayerInfos内に渡されたunitに当たるプレイヤーがいるか調べる（いなければnull）
+        ClientInfo existing = connectedPlayerInfos.FirstOrDefault(player => player.IP == unit.Info.IP && player.Port == unit.Info.Port);
+
+        // 見つかった場合
+        if (existing != null)
         {
-            // 接続を確認したのでタイマーをリセット
-            if (unit.Info.IP == connectedPlayer.IP)
-            {
-                connectedPlayer.ResetDiscconectTimer(disconnectThreshold);
-                break;
-            }
+            //Debug.Log("[CheckConnect] 発見" + existing.IP);
+            existing.ResetDiscconectTimer();// 切断判定までのタイマーをリセット
         }
+        //else Debug.Log("[CheckConnect] 発見不可");
     }
 
     /// <summary>
@@ -434,6 +711,7 @@ public class UDPMulti : MonoBehaviour
         // 送信処理
         // (これから自分の番かの判定を追加予定)
         if (myInfo.TrackObject != null) SendInfo();  // 情報を送る
+        else if (systemManager.IsStarted) SendHostMessage();// ホストの情報を送る
         else SendOnlyConnection();                      // 接続しているかどうかの情報のみを送る
     }
 
@@ -446,16 +724,62 @@ public class UDPMulti : MonoBehaviour
 
         // 位置情報のクラスからJson形式に変換し、メッセージにする
         ObjectInfo myObjectInfo = new ObjectInfo(myInfo, myInfo.TrackObject.transform.position, myInfo.TrackObject.transform.eulerAngles.y);
-        myObjectInfo.OnSend();// 送信前に受診後に使いたい情報を保存しておく
+
+        // 送信前の処理
+        myObjectInfo.OnSend();
+
         string myObjectInfoJson = JsonUtility.ToJson(myObjectInfo);
 
         byte[] myObjectInfoMessage = System.Text.Encoding.UTF8.GetBytes(myObjectInfoJson);// StringをByte配列に変換
 
         byte[] posMessage = MergeBytes(udpMessage, myObjectInfoMessage);// メッセージの結合
 
+        //Debug.Log("Send Size:" + posMessage.Length);
         // メッセージの送信
         SendAsyncToPlayers(posMessage);
     }
+
+    void SendHostMessage()
+    {
+        byte[] udpMessage = UDPMessageType.HostMessage.ToByte();// ホストメッセージモード
+
+        foreach(ClientInfo clientInfo in connectedPlayerInfos)
+        {
+            //string systemManagerJson = JsonUtility.ToJson(systemManager);
+
+            //byte[] systemManagerMessage = System.Text.Encoding.UTF8.GetBytes(systemManagerJson);
+            List<CursorInfo.Mode> canModes = clientInfo.Cursor.CanModes;
+
+            // DTOを作成
+            HostMessageDto hostMessageDto = new HostMessageDto(systemManager, canModes);
+            // Jsonに変換
+            string hostMessageDtoJson = JsonUtility.ToJson(hostMessageDto);
+
+            // メッセージに変換
+            byte[] dtoMessage = System.Text.Encoding.UTF8.GetBytes(hostMessageDtoJson);
+            byte[] hostMessage = MergeBytes(udpMessage, dtoMessage);
+
+            // 送信
+            SendAsyncToPlayers(hostMessage);
+        }
+    }
+
+    void SendAsyncToPlayer(byte[] message, IPEndPoint endPoint)
+    {
+        try
+        {
+            client.SendAsync(message, message.Length, endPoint);
+        }
+        catch (SocketException e)
+        {
+            Debug.LogException(e);
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
+    }
+
     /// <summary>
     /// 接続状況の送信を行う
     /// </summary>
@@ -474,19 +798,65 @@ public class UDPMulti : MonoBehaviour
     {
         foreach (ClientInfo clientInfo in connectedPlayerInfos)
         {
-            client.SendAsync(message, message.Length, clientInfo.EndPoint);
+            try
+            {
+                client.SendAsync(message, message.Length, clientInfo.EndPoint);
+                Debug.Log($"[SEND] {DateTime.Now:HH:mm:ss.fff} to={clientInfo.EndPoint}");// デバッグ
+
+            }
+            catch (ObjectDisposedException)
+            {
+                // clientが閉じられたタイミングでは何も行わない
+            }
+            catch (SocketException e)
+            {
+                Debug.LogError(e.Message);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
         }
     }
 
     void SendThreadStart()
     {
+        if (sendThread != null && sendThread.IsAlive) return;// 生きているsendThreadがあるなら更に開始はしない
+        isSending = true;
         sendThread = new Thread(new ThreadStart(ThreadSend));
         sendThread.Start();
     }
 
+    void OnConnect(ReceivedUnit unit)
+    {
+        if (unit.Info == null) return;// ReceivedUnitがnullなら何もしない
+
+        // 接続済みアイコンの有効化
+        ActivateConnectIcon(unit);
+
+        // 同期するオブジェクトを有効化
+        ActivateTrackObject(unit);
+    }
+
+    /// <summary>
+    /// 接続済みアイコンの有効化
+    /// </summary>
+    /// <param name="unit">接続した相手の情報</param>
+    void ActivateConnectIcon(ReceivedUnit unit)
+    {
+        if (unit.Info.ConnectionCheckObject == null) return;// nullチェック
+
+        // 接続済みアイコンの有効化を命令
+        unit.Info.ConnectionCheckObject.OnConnect();
+    }
+
+    /// <summary>
+    /// 同期するオブジェクトの有効化
+    /// </summary>
+    /// <param name="unit">接続した相手の情報</param>
     void ActivateTrackObject(ReceivedUnit unit)
     {
-        if (unit.Info.TrackObject == null) return;// 動かす対象が登録されていない（ピザの画面を映すPC）は動かさない
+        if (unit.Info.TrackObject == null) return;// 動かす対象が登録されていない（ピザの画面を映すPC）場合は動かさない
 
         for (int i = 0; i < connectedPlayerInfos.Count; i++)
         {
@@ -502,9 +872,18 @@ public class UDPMulti : MonoBehaviour
     /// </summary>
     void OnApplicationQuit()
     {
-        if (sendThread != null) sendThread.Abort();
-        if (receiveThread != null) receiveThread.Abort();
-        if (client != null) client.Close();
+        const int ThreadMilliSecondsTimeOut = 500;
+
+        // 送信スレッド
+        isSending = false;
+        if (sendThread != null && sendThread.IsAlive) sendThread.Join(ThreadMilliSecondsTimeOut);// 指定された時間が経過するまで呼び出し元のスレッドをブロック
+
+        // 受信スレッド
+        isReceiving = false;
+        client?.Close();// UDP接続を終了
+        if (receiveThread != null && receiveThread.IsAlive) receiveThread.Join(ThreadMilliSecondsTimeOut);// 指定された時間が経過するまで呼び出し元のスレッドをブロック
+
+        client?.Dispose();// リソースを開放
     }
 }
 
@@ -514,6 +893,7 @@ enum UDPMessageType
     Answered,
     PositionUpdate,
     ConnectCheck,
+    HostMessage,
 }
 
 /// <summary>
@@ -538,6 +918,10 @@ static class MultiPlayerMessenger
         byte[] z = BitConverter.GetBytes(vector3.z);
         return x.Concat(y).Concat(z).ToArray();// 連結
     }
+    public static byte[] ToByte(this TeamColor teamColor)
+    {
+        return BitConverter.GetBytes((int) teamColor);
+    }
 
     // バイト配列からの変換
     public static UDPMessageType ToUDPMessageType(this byte[] bytes, int startIndex = 0)
@@ -550,6 +934,11 @@ static class MultiPlayerMessenger
         string infoJson = System.Text.Encoding.UTF8.GetString(bytes, startIndex, bytes.Length - startIndex);// Json部分を抽出
         return JsonUtility.FromJson<UDPMulti.ClientInfo>(infoJson);// 本来の形式に直す
     }
+    public static TeamColor ToTeamColor(this byte[] bytes, int startIndex = 0)
+    {
+        int number = BitConverter.ToInt32(bytes, startIndex);
+        return (TeamColor)number;
+    }
     public static Vector3 ToVector3(this byte[] bytes, int startIndex)
     {
         float x = BitConverter.ToSingle(bytes, startIndex);
@@ -561,7 +950,7 @@ static class MultiPlayerMessenger
     // ポート番号と一致するリストの番号を検索
     public static int IndexOfPort(this List<UDPMulti.ClientInfo> endPoints, int targetPort)
     {
-        int index = -1;// 合うポートが見つからなければ-1を返すように
+        int index = GameConstants.DefaultIndex;// 合うポートが見つからなければ初期値(-1)を返すように
         for (int i = 0; i < endPoints.Count; i++)
         {
             if (endPoints[i].Port == targetPort) index = i;// 合うポートの番号を設定
@@ -570,7 +959,7 @@ static class MultiPlayerMessenger
     }
     public static int IndexOfPort(this List<IPEndPoint> endPoints, int targetPort)
     {
-        int index = -1;// 合うポートが見つからなければ-1を返すように
+        int index = GameConstants.DefaultIndex;// 合うポートが見つからなければ初期値（-1）を返すように
         for (int i = 0; i < endPoints.Count; i++)
         {
             if (endPoints[i].Port == targetPort) index = i;// 合うポートの番号を設定

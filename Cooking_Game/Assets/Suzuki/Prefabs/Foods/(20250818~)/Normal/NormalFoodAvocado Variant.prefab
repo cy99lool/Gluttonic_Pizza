@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 216561514674231856, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -5974445620860990690, guid: d4799b66516bc5f44a63029c79963f55, type: 3}
+      objectReference: {fileID: 2100000, guid: dcf9db5fe4187ce4e87809aafd0f9050, type: 2}
     - target: {fileID: 1584060787817551926, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Name
       value: NormalFoodAvocado Variant
@@ -23,6 +23,10 @@ PrefabInstance:
       propertyPath: team
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1818010819203474786, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: explodePrefab
+      value: 
+      objectReference: {fileID: 9217050902086663178, guid: f294d7ed909661e4e9c7425e59a47b32, type: 3}
     - target: {fileID: 2211379877717590668, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -65,6 +69,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2211379877717590668, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9063905735174576940, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

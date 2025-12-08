@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 216561514674231856, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -8156785155133570018, guid: 472120d0dd7924140b69f899573dc79a, type: 3}
+      objectReference: {fileID: 2100000, guid: 19b74285e9fb7da4d8ec2b48d5e16e19, type: 2}
     - target: {fileID: 1584060787817551926, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Name
       value: NormalFoodMushroom Variant
@@ -23,6 +23,10 @@ PrefabInstance:
       propertyPath: team
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1818010819203474786, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: explodePrefab
+      value: 
+      objectReference: {fileID: 9217050902086663178, guid: f294d7ed909661e4e9c7425e59a47b32, type: 3}
     - target: {fileID: 2211379877717590668, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_RootOrder
       value: 0

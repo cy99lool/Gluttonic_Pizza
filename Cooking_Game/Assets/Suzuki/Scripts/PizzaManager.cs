@@ -22,6 +22,32 @@ public class PizzaManager : MonoBehaviour
         if (canSpin) Spin(rotateSpeed);
     }
 
+    public IEnumerator PrepareTakePizza(float waitTime)
+    {
+        // ピザの上にあるすべての食べ物を取得
+        List<FoodMove> foodList = GetAllFoodOnPizza();
+
+        foreach(FoodMove food in foodList)
+        {
+            food.SetAnimatorBool("PickPhase", true);// ピザを取る前の表情に変化
+        }
+        yield return new WaitForSeconds(waitTime);
+    }
+
+    List<FoodMove> GetAllFoodOnPizza()
+    {
+        List<FoodMove> foodList = new List<FoodMove>();
+        for (int i = 0; i < pizzaSlices.Count; i++)
+        {
+            for (int j = 0; j < pizzaSlices[i].FoodList.Count; j++)
+            {
+                foodList.Add(pizzaSlices[i].FoodList[j]);
+            }
+        }
+
+        return foodList;
+    }
+
     /// <summary>
     /// ピザのスライスを取り上げ、上に乗っている具材に応じてポイントを獲得させる
     /// </summary>
@@ -36,24 +62,30 @@ public class PizzaManager : MonoBehaviour
         {
             if (pizzaIndexes[i] > pizzaSlices.Count) return;
 
-            List<FoodMove> foodList = pizzaSlices[pizzaIndexes[i]].FoodList;// リストをコピー
-            if (foodList.Count > 0)
-            {
-                for (int j = foodList.Count - 1; j >= 0; j--)
-                {
-                    // 消去処理、ポイント獲得処理等を書く
-                    Debug.Log(foodList[j].Team);
-                    // ポイント増加処理
-                    AddScore(foodList[j]);
-
-                    foodList[j].gameObject.SetActive(false);
-                }
-                foodList.Clear();
-            }
+            // 取得、スコア計上
+            Take(pizzaSlices[pizzaIndexes[i]]);
 
             pizzaSlices[pizzaIndexes[i]].gameObject.SetActive(false);// 仮の除去処理
             pizzaSlices.RemoveAt(pizzaIndexes[i]);// ピザのリストから除外
             pizzaIndexes.RemoveAt(i);
+        }
+    }
+
+    void Take(PizzaSlice slice)
+    {
+        List<FoodMove> foodList = slice.FoodList;// リストをコピー
+        if (foodList.Count > 0)
+        {
+            for (int j = foodList.Count - 1; j >= 0; j--)
+            {
+                // 消去処理、ポイント獲得処理等を書く
+                Debug.Log(foodList[j].Team);
+                // ポイント増加処理
+                AddScore(foodList[j]);
+
+                foodList[j].gameObject.SetActive(false);
+            }
+            foodList.Clear();
         }
     }
 
@@ -68,6 +100,18 @@ public class PizzaManager : MonoBehaviour
                 return;// 与えたらそれ以降の処理は行わない
             }
         }
+    }
+    /// <summary>
+    /// すべてのピザを取得、ポイントを計算
+    /// </summary>
+    public void TakeAllPizza()
+    {
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            // 取得、ポイント計上
+            Take(slice);
+        }
+        pizzaSlices.Clear();
     }
 
     public void StartSpin()
