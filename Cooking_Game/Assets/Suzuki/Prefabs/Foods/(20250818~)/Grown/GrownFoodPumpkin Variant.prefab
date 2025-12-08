@@ -27,6 +27,10 @@ PrefabInstance:
       propertyPath: fangAnimator
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1867221532973430475, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
+      propertyPath: explodePrefab
+      value: 
+      objectReference: {fileID: 7321604779301039974, guid: d5bb4e0c95678944083e35f608ee0fba, type: 3}
     - target: {fileID: 2189608593344041253, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
       propertyPath: m_RootOrder
       value: 0

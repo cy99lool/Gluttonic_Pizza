@@ -23,6 +23,10 @@ PrefabInstance:
       propertyPath: team
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1867221532973430475, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
+      propertyPath: explodePrefab
+      value: 
+      objectReference: {fileID: 7186549496499288488, guid: 352601dce822e1a4ab4497cbf8f54354, type: 3}
     - target: {fileID: 2189608593344041253, guid: 8429ba74fdbdc2a489f1a30be567deeb, type: 3}
       propertyPath: m_RootOrder
       value: 0
