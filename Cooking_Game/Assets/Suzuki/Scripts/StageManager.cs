@@ -156,8 +156,11 @@ public class StageManager : MonoBehaviour
                 // 一定時間を超えたら捕食を有効化する
                 if(pullTimer >= eatModeChargeSeconds)
                 {
+                    // チャージ完了した瞬間だけのフラグを設定
+                    if(!onEatModeChanged && eatMode) onEatModeChanged = true;
+                    else onEatModeChanged = false;
+
                     eatMode = true;
-                    onEatModeChanged = true;
                 }
 
                 Vector3 pivotPosition = pivot.position;
@@ -246,6 +249,9 @@ public class StageManager : MonoBehaviour
             // 捕食可能になったときの処理
             if (trackObjects[i].OnEatModeChanged) OnEatableChanged(trackObjects[i]);
 
+            // 捕食モードの処理
+            if (trackObjects[i].EatMode) OnEatMode(trackObjects[i]);
+
             // ドラッグ位置の履歴を更新
             trackObjects[i].UpdateLastPosition();
         }
@@ -290,14 +296,19 @@ public class StageManager : MonoBehaviour
     /// </summary>
     void OnEatableChanged(TrackObject trackObject)
     {
+        // エフェクト表示
+
+        //// 捕食可能状態の切り替わりフラグの無効化
+        //trackObject.SetOnEatModeFalse();
+    }
+
+    void OnEatMode(TrackObject trackObject)
+    {
         // 振動
         vibrateManager.Vibrate(VibrationSituations.FullyCharged);
 
         // 弓についている食べ物にも牙を出す
         trackObject.BowStringController.CurrentArrow.EnableEatMode();
-
-        // 捕食可能状態の切り替わりフラグの無効化
-        trackObject.SetOnEatModeFalse();
     }
 
     public void SummonAndShotFood(FoodMove foodPrefab,bool eatMode, Vector3 summonPosition, Vector3 shotDirection, Vector3 pivotPos, float power)

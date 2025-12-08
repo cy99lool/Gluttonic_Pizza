@@ -662,6 +662,7 @@ public class UDPMulti : MonoBehaviour
                     // 接続しているかの確認のみなので何もしない
                     break;
                 }
+                // 各プレイヤーのタブレットにだけ到達するメッセージタイプ
             case UDPMessageType.HostMessage:
                 {
                     string dtoJson = System.Text.Encoding.UTF8.GetString(unit.Message, sizeof(Int32), unit.Message.Length - sizeof(Int32));// UDPMessage型のメッセージの先
