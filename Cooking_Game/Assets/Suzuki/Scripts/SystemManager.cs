@@ -14,6 +14,8 @@ public class SystemManager : MonoBehaviour
         [SerializeField] int score;
         public int Score => score;
 
+        [Header("発射後のクールタイム"), SerializeField] float shootCT;
+
         [Header("チームの情報UIテキスト"), SerializeField] TMPro.TextMeshProUGUI scoreText;
         public TMPro.TextMeshProUGUI ScoreText => scoreText;
 
@@ -21,7 +23,9 @@ public class SystemManager : MonoBehaviour
         public TMPro.TextMeshProUGUI PickTimeText => pickTimeText;
 
         // ----- リザルト表示 -----
-        [Header("リザルト表示\nメイン画面のリザルトのスクリプト"), SerializeField] Result result;
+        [Header("--- リザルト表示 ---")]
+        [Header("メイン画面")]
+        [Header("メイン画面のリザルトのスクリプト"), SerializeField] Result result;
         public Result Result => result;
 
         [Header("メイン画面のスコア表示オブジェクト"), SerializeField] GameObject mainResultUI;
@@ -30,7 +34,8 @@ public class SystemManager : MonoBehaviour
         [Header("〃のスコアバー"), SerializeField] RectTransform mainScoreBar;
         public RectTransform MainScoreBar => mainScoreBar;
 
-        [Header("\nタブレット画面のスコア表示オブジェクト"), SerializeField] GameObject tabletResuiltUI;
+        [Header("タブレット画面")]
+        [Header("タブレット画面のスコア表示オブジェクト"), SerializeField] GameObject tabletResuiltUI;
         public GameObject TabletResuiltUI => tabletResuiltUI;
 
         [Header("〃のスコアバー"), SerializeField] RectTransform tabletScoreBar;
@@ -41,24 +46,48 @@ public class SystemManager : MonoBehaviour
         const int DefaultBulletCountValue = 0;// 初期化するときの弾数
         const int DefaultBulletSubValue = 1;
 
-        [SerializeField]int bulletCount;// 発射可能弾数
-        public int BulletCount => bulletCount;
-        public bool Shootable => bulletCount > 0;// 発射できるかどうか、後々演出で一時停止を実装するなら条件を増やす
+        //[SerializeField]int bulletCount;// 発射可能弾数
+        //public int BulletCount => bulletCount;
 
-        public void SetBulletCount(int count)// 発射可能弾数の設定
+        float shootableTimer = GameConstants.FirstTimerValue;
+        public float ShootableTimer => shootableTimer;
+
+        /// <summary>
+        /// 発射CTを設定
+        /// </summary>
+        public void SetShootCT()
         {
-            bulletCount = count;
+            shootableTimer = shootCT;
         }
-        public void ResetBulletCount()
+
+        public void ResetShootCT()
         {
-            bulletCount = DefaultBulletCountValue;
+            shootableTimer = GameConstants.Zero;
         }
-        public void SubtractBullet(int value = DefaultBulletSubValue)
+
+        public void SubstractCT(float daltaTime)
         {
-            // 弾数を減らす
-            bulletCount -= value;
-            if(bulletCount < 0) bulletCount = DefaultBulletCountValue;
+            shootableTimer -= daltaTime;
+
+            if (Shootable) ResetShootCT();
         }
+
+        public bool Shootable => shootableTimer <= GameConstants.Zero;// 発射できるかどうか、後々演出で一時停止を実装するなら条件を増やす
+
+        //public void SetBulletCount(int count)// 発射可能弾数の設定
+        //{
+        //    bulletCount = count;
+        //}
+        //public void ResetBulletCount()
+        //{
+        //    bulletCount = DefaultBulletCountValue;
+        //}
+        //public void SubtractBullet(int value = DefaultBulletSubValue)
+        //{
+        //    // 弾数を減らす
+        //    bulletCount -= value;
+        //    if(bulletCount < 0) bulletCount = DefaultBulletCountValue;
+        //}
 
         public void AddScore(int score)
         {
@@ -66,11 +95,10 @@ public class SystemManager : MonoBehaviour
         }
     }
     [Header("メイン画面のリザルトのスクリプト"), SerializeField] Result mainResult;
+    [Header("サウンドマネージャー"), SerializeField] SoundManager soundManager;
 
     [SerializeField] List<Team> teams;
     public List<Team> Teams => teams;
-
-    [Header("食材の発射可能弾数"), SerializeField] int reloadBulletValue = 5;
 
     bool isStarted;
     public bool IsStarted => isStarted;
@@ -83,6 +111,11 @@ public class SystemManager : MonoBehaviour
 
         isStarted = false;
 
+        SetAllPlayerShootable(teams);
+
+        // 接続画面のBGMを再生
+        if (soundManager != null) soundManager.PlayBGM(BGMType.ConnectLobby);
+
         //StartCoroutine(Main());
     }
 
@@ -90,6 +123,11 @@ public class SystemManager : MonoBehaviour
     {
         // UIを更新
         UpdateScoreUI();
+    }
+
+    void FixedUpdate()
+    {
+        UpdateShootCT();
     }
 
     /// <summary>
@@ -115,6 +153,14 @@ public class SystemManager : MonoBehaviour
         }
     }
 
+    void UpdateShootCT()
+    {
+        foreach(Team team in teams)
+        {
+            if(!team.Shootable) team.SubstractCT(Time.deltaTime);
+        }
+    }
+
     // スライスを取るまでの時間を表示する
     void UpdatePickTimeUI(float time)
     {
@@ -136,12 +182,17 @@ public class SystemManager : MonoBehaviour
     const int pickNum = 1;
     const float ShootableTime = 45f;
     const float PreparePizzaTime = 2f;// ピザ取得準備の時間
-    const int PhaseCount = 3;// フェーズの数
+    const int PhaseCount = 10000;// フェーズの数
     const int PinePhase = 2;
     const int LastPhase = 3;
     IEnumerator Main()
     {
-        if (!isStarted) isStarted = true;
+        if (!isStarted)
+        {
+            isStarted = true;
+            // インゲームBGMを再生
+            if(soundManager != null) soundManager.PlayBGM(BGMType.InGame);
+        }
         int counter = GameConstants.One;
 
         //while (pizzaManager.PizzaSlices.Count > 0)
@@ -150,17 +201,18 @@ public class SystemManager : MonoBehaviour
             // 発射準備フェーズ
             //yield return StartCoroutine(PizzaSelectPhase(RouletteTime, pickNum));
 
-            // 食材発射フェーズ（デバッグ、後で名前変える）
-            yield return StartCoroutine(DebugPick(ShootableTime));
+            // 食材発射フェーズ
+            yield return StartCoroutine(ShootFoodPhase(ShootableTime));
 
             // ピザ取得待機フェーズ
-            yield return StartCoroutine(PreparePickPizzaPhase(PreparePizzaTime));
+            //yield return StartCoroutine(PreparePickPizzaPhase(PreparePizzaTime));
 
             // ピザ取得フェーズ
             //yield return StartCoroutine(PickPizzaPhase());
+            //yield return StartCoroutine(PickAllPizzaPhase());
 
             // フェーズ終了時処理
-            yield return StartCoroutine(EndPhase(counter));
+            //yield return StartCoroutine(EndPhase(counter));
 
             counter++;
         }
@@ -172,10 +224,7 @@ public class SystemManager : MonoBehaviour
     IEnumerator PizzaSelectPhase(float rouletteTime, uint pickCount = 1)
     {
         // 確実に誰も発射できないように
-        foreach (Team team in teams)
-        {
-            team.ResetBulletCount();
-        }
+        SetAllPlayerUnshootable(teams);
 
         // 取得するピザの番号を取得
         pickIndexes = SelectPizzaSlices(pickCount);
@@ -196,6 +245,16 @@ public class SystemManager : MonoBehaviour
 
             
             yield return null;
+        }
+    }
+
+    // すべてのプレイヤーを発射不可にする
+    void SetAllPlayerUnshootable(List<Team> teams)
+    {
+        foreach (Team team in teams)
+        {
+            //team.ResetBulletCount();
+            team.SetShootCT();
         }
     }
 
@@ -241,8 +300,20 @@ public class SystemManager : MonoBehaviour
     /// </summary>
     /// <param name="shootTime">発射可能時間</param>
     /// <returns></returns>
-    IEnumerator DebugPick(float shootTime)
+    IEnumerator ShootFoodPhase(float shootTime)
     {
+        // 完全に焼けるテクスチャになるまでの時間
+        float cookRate = GameConstants.One / shootTime;
+
+        // ピザの焼けるマテリアル
+        List<Material> cookedMaterials = new List<Material>();
+
+        // マテリアルを登録
+        foreach(PizzaSlice slice in pizzaManager.PizzaSlices)
+        {
+            cookedMaterials.Add(slice.CookedMaterial);
+        }
+
         if (pickIndexes.Count > 0)
         {
             // 念の為再度ハイライト
@@ -254,28 +325,44 @@ public class SystemManager : MonoBehaviour
 
         pizzaManager.StartSpin();// 回転開始
 
-        // プレイヤーは発射できるように（残弾数の補充）
-        foreach(Team team in teams)
-        {
-            team.SetBulletCount(reloadBulletValue);
-        }
-
+        // プレイヤーは発射できるように
+        SetAllPlayerShootable(teams);
+        
         float timer = GameConstants.FirstTimerValue;
         while (timer < shootTime)
         {
-            timer += Time.deltaTime;
+            // UI更新
             UpdatePickTimeUI(shootTime - timer);
+
+            // ピザの焼けるマテリアルへと変えていく
+            //foreach(Material cookedMaterial in cookedMaterials)
+            //{
+            //    cookedMaterial.SetColor()
+            //}
 
             // パインの召喚処理
 
             // ピザを取られるフェーズの処理
 
-
+            // 時間経過
+            timer += Time.deltaTime;
             // 全員が食材を発射し終えたら途中でも次のフェーズへ
-            if(IsAllPlayerUnShootable()) yield break;
+            if (IsAllPlayerUnShootable()) yield break;
 
             yield return null;
         }
+    }
+
+    /// <summary>
+    /// 全プレイヤーを発射可能な状態にする
+    /// </summary>
+    void SetAllPlayerShootable(List<Team> teams)
+    {
+        foreach (Team team in teams)
+        {
+            team.ResetShootCT();
+        }
+
     }
 
     /// <summary>
@@ -297,6 +384,9 @@ public class SystemManager : MonoBehaviour
     {
         pizzaManager.StopSpin();// 回転停止
 
+        // プレイヤーは発射不可
+        SetAllPlayerUnshootable(teams);
+
         // 取得待機演出
         yield return StartCoroutine(pizzaManager.PrepareTakePizza(preparePizzaTime));
     }
@@ -309,6 +399,14 @@ public class SystemManager : MonoBehaviour
         Debug.Log("取得");
         pizzaManager.TakePizzaSlice(pickIndexes);
         
+        yield return null;
+    }
+
+    IEnumerator PickAllPizzaPhase()
+    {
+        // 取得
+        pizzaManager.TakeAllPizza();
+
         yield return null;
     }
 
@@ -327,6 +425,8 @@ public class SystemManager : MonoBehaviour
 
     IEnumerator ResultPhase()
     {
+        mainResult.gameObject.SetActive(true);
+
         for(int i = 0; i < teams.Count; i++)
         {
             //break;// デバッグ用

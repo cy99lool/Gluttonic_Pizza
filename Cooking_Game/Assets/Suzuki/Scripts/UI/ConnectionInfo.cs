@@ -80,6 +80,7 @@ public class ConnectionInfo : MonoBehaviour
 
         // 接続済みテキストへ変更
         baseText = "接続済み";
+        statusText.text = baseText;
 
         // 接続済みアイコンへ変化
         connectWaitIcon.gameObject.SetActive(false);
