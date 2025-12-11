@@ -123,6 +123,27 @@ public class BowControler : MonoBehaviour
         if (arrowEffect != null) arrowEffect.SetActive(true); // 表示開始
     }
     /// <summary>
+    /// エイム開始（ドラッグの最初）
+    /// </summary>
+    public void StartAim(FoodBeforeShoot currentArrow)
+    {
+        startMousePos = shootPoint.position;// 最初の位置を記録している
+
+        // 矢の更新
+        if(CurrentArrow != currentArrow) this.currentArrow = currentArrow;
+
+        // 矢（食べ物）の表示
+        if(!currentArrow.gameObject.activeSelf) currentArrow.gameObject.SetActive(true);
+
+        
+
+        // 矢の向きを設定
+        SetArrowDirection(currentArrow);
+
+        arrowEffect = currentArrow.transform.Find("ArrowEffect")?.gameObject;
+        if (arrowEffect != null) arrowEffect.SetActive(true); // 表示開始
+    }
+    /// <summary>
     /// エイム中の弦と矢を動かす
     /// </summary>
     public void Aim(Vector3 mousePos)
@@ -151,7 +172,7 @@ public class BowControler : MonoBehaviour
         currentArrow.transform.position = arrowPos;
 
         // 矢の向きを設定
-        SetArrowDirection();
+        SetArrowDirection(currentArrow);
 
         // 弦の中央点を矢の位置に
         UpdateStringRenderer(arrowPos);
@@ -180,7 +201,7 @@ public class BowControler : MonoBehaviour
         //rb.AddForce(direction * force, ForceMode.Impulse);
 
         // 矢の消去
-        GameObject.Destroy(currentArrow.gameObject);
+        //GameObject.Destroy(currentArrow.gameObject);
 
         isAiming = false;
         ResetStringRendererPos(); // 弦を戻す
@@ -206,6 +227,15 @@ public class BowControler : MonoBehaviour
         //Vector3 eulerAngles = currentArrow.transform.eulerAngles;
         //eulerAngles.y += 180f;
         //currentArrow.transform.eulerAngles = eulerAngles;// 角度の適用
+    }
+
+    /// <summary>
+    /// 矢の向いている方向を設定する
+    /// </summary>
+    void SetArrowDirection(FoodBeforeShoot currentArrow)
+    {
+        // 飛ばす先を向かせる
+        currentArrow.transform.LookAt(pivot);
     }
 
     Vector3 GetMouseWorldPosition()
