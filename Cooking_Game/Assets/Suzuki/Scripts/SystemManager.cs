@@ -295,6 +295,8 @@ public class SystemManager : MonoBehaviour
         return pickIndexes;// 取得するピザの番号を返す
     }
 
+    const string OpacityPropertyName = "_OPACITY";
+
     /// <summary>
     /// 食材発射フェーズ
     /// </summary>
@@ -303,15 +305,23 @@ public class SystemManager : MonoBehaviour
     IEnumerator ShootFoodPhase(float shootTime)
     {
         // 完全に焼けるテクスチャになるまでの時間
-        float cookRate = GameConstants.One / shootTime;
+        float cookTime = shootTime;
 
-        // ピザの焼けるマテリアル
+        // ピザの焼けるマテリアルたちを登録
         List<Material> cookedMaterials = new List<Material>();
+
+        // ピザの焼けるマテリアルの設定
+        float startOpacity = GameConstants.Zero;
+        float endOpacity = GameConstants.One;
 
         // マテリアルを登録
         foreach(PizzaSlice slice in pizzaManager.PizzaSlices)
         {
-            cookedMaterials.Add(slice.CookedMaterial);
+            // 無効化されていたら有効化
+            if (!slice.CookedRenderer.gameObject.activeSelf) slice.CookedRenderer.gameObject.SetActive(true);
+
+            // リストに追加
+            cookedMaterials.Add(slice.CookedRenderer.material);
         }
 
         if (pickIndexes.Count > 0)
@@ -334,11 +344,18 @@ public class SystemManager : MonoBehaviour
             // UI更新
             UpdatePickTimeUI(shootTime - timer);
 
-            // ピザの焼けるマテリアルへと変えていく
-            //foreach(Material cookedMaterial in cookedMaterials)
-            //{
-            //    cookedMaterial.SetColor()
-            //}
+            //ピザの焼けるマテリアルへと変えていく
+            if (timer <= cookTime)
+            {
+                foreach (Material cookedMaterial in cookedMaterials)
+                {
+                    // 割合から透明度を計算
+                    float currentOpacity = Mathf.Lerp(startOpacity, endOpacity, timer / cookTime);
+
+                    // 透明度を適用
+                    cookedMaterial.SetFloat(OpacityPropertyName, currentOpacity);
+                }
+            }
 
             // パインの召喚処理
 
