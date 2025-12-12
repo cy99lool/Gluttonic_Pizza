@@ -29,7 +29,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3713691707835919636, guid: 15e6c8e1af9579c469fa8a5ab79afa2b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.52
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3713691707835919636, guid: 15e6c8e1af9579c469fa8a5ab79afa2b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -82,7 +82,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7733804981565967745, guid: b782541814c801d4d81ee5a7353fa44b, type: 3}
       propertyPath: m_Name
-      value: Explosion_Red
+      value: Explosion_Red Variant
       objectReference: {fileID: 0}
     - target: {fileID: 7733804981565967772, guid: b782541814c801d4d81ee5a7353fa44b, type: 3}
       propertyPath: m_RootOrder

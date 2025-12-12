@@ -113,10 +113,20 @@ public class SystemManager : MonoBehaviour
 
         SetAllPlayerShootable(teams);
 
-        // 接続画面のBGMを再生
-        if (soundManager != null) soundManager.PlayBGM(BGMType.ConnectLobby);
+        // 接続画面のBGMを再生（Windowsのみ）
+        PlayBGM_Windows(BGMType.ConnectLobby);
 
         //StartCoroutine(Main());
+    }
+
+    /// <summary>
+    /// Windows環境のみBGMを再生
+    /// </summary>
+    /// <param name="bgmType">再生する種類</param>
+    void PlayBGM_Windows(BGMType bgmType)
+    {
+        // BGMを再生
+        if (soundManager != null && (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) soundManager.PlayBGM(bgmType);
     }
 
     void Update()
@@ -190,8 +200,8 @@ public class SystemManager : MonoBehaviour
         if (!isStarted)
         {
             isStarted = true;
-            // インゲームBGMを再生
-            if(soundManager != null) soundManager.PlayBGM(BGMType.InGame);
+            // インゲームBGMを再生(Windowsのみ)
+            PlayBGM_Windows(BGMType.InGame);
         }
         int counter = GameConstants.One;
 
