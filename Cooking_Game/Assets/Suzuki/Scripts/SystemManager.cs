@@ -474,6 +474,7 @@ public class SystemManager : MonoBehaviour
     {
         foreach (Team team in teams)
         {
+            team.SetShootable();
             team.ResetShootCT();
         }
 
