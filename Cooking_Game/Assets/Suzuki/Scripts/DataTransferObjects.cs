@@ -13,6 +13,16 @@ public class HostMessageDto
     [SerializeField] List<CursorInfo.Mode> canModes;
     public List<CursorInfo.Mode> CanModes => canModes;
 
+    /// <summary>
+    /// デフォルトコンストラクタ
+    /// </summary>
+    HostMessageDto() { }
+
+    /// <summary>
+    /// コンストラクタ（引数あり）
+    /// </summary>
+    /// <param name="systemManager">システムマネージャー</param>
+    /// <param name="canModes">移行できるモード</param>
     public HostMessageDto(SystemManager systemManager, List<CursorInfo.Mode> canModes)
     {
         this.systemManager = systemManager;
