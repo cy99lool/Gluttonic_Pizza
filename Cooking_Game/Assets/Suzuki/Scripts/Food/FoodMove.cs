@@ -230,7 +230,7 @@ public class FoodMove : MonoBehaviour
         Rigidbody.isKinematic = false;
 
         // 起爆時のプレハブ生成
-        if (this == Root && explodePrefab != null) Instantiate(explodePrefab, transform.position, Quaternion.identity);
+        if (this == Root && explodePrefab != null) Instantiate(explodePrefab, transform.position, Quaternion.identity, null);
 
         // 起爆カウントエフェクトの非表示化
         if (bombCountEffectObject != null && bombCountEffectObject.activeSelf) bombCountEffectObject.SetActive(false);
@@ -494,7 +494,7 @@ public class FoodMove : MonoBehaviour
     }
 
     //  爆発カウントダウンの有効化フラグ
-    bool bomb = false;
+    bool bomb = true;
     GameObject bombCountEffectObject = null;
 
     void Merge(ref List<FoodMove> mergedFoods, FoodMove target)

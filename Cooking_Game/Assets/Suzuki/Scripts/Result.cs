@@ -57,35 +57,35 @@ public class Result : MonoBehaviour
         }
     }
 
-    IEnumerator ExtendScoreBar(List<SystemManager.Team> teams)
-    {
-        int maxScore = teams[GameConstants.HeadIndex].Score;// 最大スコアを記録
+    //IEnumerator ExtendScoreBar(List<SystemManager.Team> teams)
+    //{
+    //    int maxScore = teams[GameConstants.HeadIndex].Score;// 最大スコアを記録
 
-        // 順位の位置設定
-        for (int i = 0; i < teams.Count; i++)
-        {
-            if (teams[i].MainScoreBar != null && mainUIBarPositions[i] != null) teams[i].MainScoreBar.anchoredPosition = mainUIBarPositions[i].anchoredPosition;
-        }
+    //    // 順位の位置設定
+    //    for (int i = 0; i < teams.Count; i++)
+    //    {
+    //        if (teams[i].MainScoreBar != null && mainUIBarPositions[i] != null) teams[i].MainScoreBar.anchoredPosition = mainUIBarPositions[i].anchoredPosition;
+    //    }
 
-        // 伸ばす
-        int nowScore = 0;
-        while(nowScore < maxScore)
-        {
-            foreach(SystemManager.Team team in teams)
-            {
-                // スコアを更新する対象はゲージを伸ばす
-                if (nowScore <= team.Score && team.MainScoreBar != null)
-                {
-                    // スコアをカウントアップするならここに追加
-                    team.MainScoreBar.offsetMax = new Vector2(team.MainScoreBar.offsetMax.x + nowScore * extendPerScore, team.MainScoreBar.offsetMax.y);
-                }
-            }
+    //    // 伸ばす
+    //    int nowScore = 0;
+    //    while(nowScore < maxScore)
+    //    {
+    //        foreach(SystemManager.Team team in teams)
+    //        {
+    //            // スコアを更新する対象はゲージを伸ばす
+    //            if (nowScore <= team.Score && team.MainScoreBar != null)
+    //            {
+    //                // スコアをカウントアップするならここに追加
+    //                team.MainScoreBar.offsetMax = new Vector2(team.MainScoreBar.offsetMax.x + nowScore * extendPerScore, team.MainScoreBar.offsetMax.y);
+    //            }
+    //        }
 
-            // スコア加算
-            nowScore += (int)(countSpeed * Time.deltaTime);
-            if(nowScore > maxScore) nowScore = maxScore;// 最大スコアを超えないように
+    //        // スコア加算
+    //        nowScore += (int)(countSpeed * Time.deltaTime);
+    //        if(nowScore > maxScore) nowScore = maxScore;// 最大スコアを超えないように
 
-            yield return null;
-        }
-    }
+    //        yield return null;
+    //    }
+    //}
 }

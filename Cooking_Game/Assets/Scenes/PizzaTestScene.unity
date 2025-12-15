@@ -20736,7 +20736,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &819822400
 GameObject:
@@ -21978,9 +21978,7 @@ MonoBehaviour:
     shootCT: 1
     scoreText: {fileID: 682609552}
     pickTimeText: {fileID: 1146503673}
-    result: {fileID: 862567330}
-    mainResultUI: {fileID: 0}
-    mainScoreBar: {fileID: 0}
+    tabletResult: {fileID: 862567330}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
   - color: 1
@@ -21988,9 +21986,7 @@ MonoBehaviour:
     shootCT: 1
     scoreText: {fileID: 801704762}
     pickTimeText: {fileID: 1611782053}
-    result: {fileID: 1824460197}
-    mainResultUI: {fileID: 0}
-    mainScoreBar: {fileID: 0}
+    tabletResult: {fileID: 1824460197}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
   - color: 2
@@ -21998,9 +21994,7 @@ MonoBehaviour:
     shootCT: 1
     scoreText: {fileID: 1293919561}
     pickTimeText: {fileID: 703397921}
-    result: {fileID: 314942894}
-    mainResultUI: {fileID: 0}
-    mainScoreBar: {fileID: 0}
+    tabletResult: {fileID: 314942894}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
   - color: 3
@@ -22008,9 +22002,7 @@ MonoBehaviour:
     shootCT: 1
     scoreText: {fileID: 1584859132}
     pickTimeText: {fileID: 258409422}
-    result: {fileID: 879510505}
-    mainResultUI: {fileID: 0}
-    mainScoreBar: {fileID: 0}
+    tabletResult: {fileID: 879510505}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
 --- !u!4 &901040593
@@ -49642,7 +49634,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 9181932fe076aa84a960ed83d55bc845, type: 3}
       propertyPath: m_RootOrder
-      value: 13
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 9181932fe076aa84a960ed83d55bc845, type: 3}
       propertyPath: m_LocalScale.x

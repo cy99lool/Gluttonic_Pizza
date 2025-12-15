@@ -676,6 +676,9 @@ public class UDPMulti : MonoBehaviour
                         {
                             //myInfo.Cursor.Team.SetBulletCount(team.BulletCount);// 残弾数を同期
                             myInfo.Cursor.SetModeFlag(receiveDto.CanModes);// 強化の使用可能状況を同期
+
+                            // フェーズを同期
+                            systemManager.SyncGamePhase(team, receiveDto.HostSystemManager.MainPhase);
                             break;
                         }
                     }
