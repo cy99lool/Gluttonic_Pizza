@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
 public class SystemManager : MonoBehaviour
 {
     [System.Serializable]
@@ -155,8 +154,8 @@ public class SystemManager : MonoBehaviour
     public bool IsStarted => isStarted;
 
     PizzaManager pizzaManager;
-    GamePhase mainPhase;
-    public GamePhase MainPhase => mainPhase;
+    GamePhase currentPhase;
+    public GamePhase CurrentPhase => currentPhase;
 
     void Start()
     {
@@ -165,7 +164,7 @@ public class SystemManager : MonoBehaviour
         isStarted = false;
 
         // フェーズの初期化
-        mainPhase = GamePhase.InGame;
+        currentPhase = GamePhase.InGame;
 
         SetAllPlayerShootable(teams);
 
@@ -316,7 +315,7 @@ public class SystemManager : MonoBehaviour
     IEnumerator PizzaSelectPhase(float rouletteTime, uint pickCount = 1)
     {
         // フェーズ設定
-        mainPhase = GamePhase.GameStart;
+        currentPhase = GamePhase.GameStart;
 
         // 確実に誰も発射できないように
         SetAllPlayerUnshootable(teams);
@@ -400,7 +399,7 @@ public class SystemManager : MonoBehaviour
     IEnumerator ShootFoodPhase(float shootTime)
     {
         // フェーズを設定
-        mainPhase = GamePhase.InGame;
+        currentPhase = GamePhase.InGame;
 
         // 完全に焼けるテクスチャになるまでの時間
         float cookTime = shootTime;
@@ -498,7 +497,7 @@ public class SystemManager : MonoBehaviour
     IEnumerator PreparePickPizzaPhase(float preparePizzaTime)
     {
         // フェーズ設定
-        mainPhase = GamePhase.PickPizza;
+        currentPhase = GamePhase.PickPizza;
 
         pizzaManager.StopSpin();// 回転停止
 
@@ -512,7 +511,7 @@ public class SystemManager : MonoBehaviour
     IEnumerator PickPizzaPhase()
     {
         // フェーズ設定（仮でリザルトにしている）
-        mainPhase = GamePhase.PickPizza;
+        currentPhase = GamePhase.PickPizza;
 
         if (pickIndexes.Count < 1) yield return null;
 
@@ -526,7 +525,7 @@ public class SystemManager : MonoBehaviour
     IEnumerator PickAllPizzaPhase()
     {
         // フェーズ設定（仮でリザルトにしている）
-        mainPhase = GamePhase.Result;
+        currentPhase = GamePhase.Result;
         // 取得
         pizzaManager.TakeAllPizza();
 
@@ -549,7 +548,7 @@ public class SystemManager : MonoBehaviour
     IEnumerator ResultPhase()
     {
         // フェーズ設定
-        mainPhase = GamePhase.Result;
+        currentPhase = GamePhase.Result;
 
         mainResult.gameObject.SetActive(true);
 

@@ -669,7 +669,7 @@ public class UDPMulti : MonoBehaviour
                     HostMessageDto receiveDto = JsonUtility.FromJson<HostMessageDto>(dtoJson);// Json形式からSystemManagerに変換
 
                     // 残弾数や強化状態を反映
-                    foreach(SystemManager.Team team in receiveDto.HostSystemManager.Teams)
+                    foreach(TeamDetaDto team in receiveDto.Teams)
                     {
                         // 自身の色についての情報だった場合
                         if(myInfo.Cursor.Team.Color == team.Color)
@@ -678,7 +678,7 @@ public class UDPMulti : MonoBehaviour
                             myInfo.Cursor.SetModeFlag(receiveDto.CanModes);// 強化の使用可能状況を同期
 
                             // フェーズを同期
-                            systemManager.SyncGamePhase(team, receiveDto.HostSystemManager.MainPhase);
+                            systemManager.SyncGamePhase(myInfo.Cursor.Team, team.Phase);
                             break;
                         }
                     }
