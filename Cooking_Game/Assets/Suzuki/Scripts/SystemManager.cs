@@ -163,8 +163,8 @@ public class SystemManager : MonoBehaviour
 
         isStarted = false;
 
-        // フェーズの初期化
-        currentPhase = GamePhase.InGame;
+        // フェーズの初期化（接続待ちフェーズに）
+        currentPhase = GamePhase.ConnectPhase;
 
         SetAllPlayerShootable(teams);
 
@@ -287,7 +287,7 @@ public class SystemManager : MonoBehaviour
         int counter = GameConstants.Zero;
 
         //while (pizzaManager.PizzaSlices.Count > 0)
-        while (counter <= PhaseCount)
+        while (counter < PhaseCount)
         {
             // 発射準備フェーズ
             //yield return StartCoroutine(PizzaSelectPhase(RouletteTime, pickNum));
@@ -300,7 +300,7 @@ public class SystemManager : MonoBehaviour
 
             // ピザ取得フェーズ
             //yield return StartCoroutine(PickPizzaPhase());
-            //yield return StartCoroutine(PickAllPizzaPhase());
+            yield return StartCoroutine(PickAllPizzaPhase());
 
             // フェーズ終了時処理
             //yield return StartCoroutine(EndPhase(counter));
@@ -511,7 +511,7 @@ public class SystemManager : MonoBehaviour
 
     IEnumerator PickPizzaPhase()
     {
-        // フェーズ設定（仮でリザルトにしている）
+        // フェーズ設定
         currentPhase = GamePhase.PickPizza;
 
         if (pickIndexes.Count < 1) yield return null;
@@ -525,8 +525,8 @@ public class SystemManager : MonoBehaviour
 
     IEnumerator PickAllPizzaPhase()
     {
-        // フェーズ設定（仮でリザルトにしている）
-        currentPhase = GamePhase.Result;
+        // フェーズ設定
+        currentPhase = GamePhase.PickPizza;
         // 取得
         pizzaManager.TakeAllPizza();
 

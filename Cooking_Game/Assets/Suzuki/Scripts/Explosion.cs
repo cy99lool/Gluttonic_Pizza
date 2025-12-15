@@ -12,12 +12,18 @@ public class Explosion : MonoBehaviour
     [Header("爆発判定の持続時間"), SerializeField] float explodeTime = 0.01f;
     [Header("消去するまでの時間"), SerializeField] float destroyTime = 3f;
 
+    [Header("--- ゲームルール関連 ---")]
+    [Header("得点を加えるチーム"), SerializeField] TeamColor team;
+    [Header("爆発で得る得点"), SerializeField] int score = 30;
+
     Collider explodeCollider;
     List<FoodMove> blewAwayFoodList = new List<FoodMove>();
     RaycastHit[] hits;
+    PizzaManager pizzaManager;
     void Start()
     {
         explodeCollider = GetComponent<Collider>();
+        pizzaManager = FindObjectOfType<PizzaManager>();
         StartCoroutine(ExplodeBehavior());
     }
 
@@ -43,6 +49,9 @@ public class Explosion : MonoBehaviour
 
     IEnumerator ExplodeBehavior()
     {
+        // 得点を加算
+        if(pizzaManager != null) pizzaManager.AddScore(team, score);
+
         float timer = GameConstants.FirstTimerValue;
         while (timer <= destroyTime)
         {

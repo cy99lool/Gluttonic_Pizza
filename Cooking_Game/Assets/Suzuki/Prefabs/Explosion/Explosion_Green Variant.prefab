@@ -7,6 +7,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 7733804981565967744, guid: b782541814c801d4d81ee5a7353fa44b, type: 3}
+      propertyPath: team
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 7733804981565967745, guid: b782541814c801d4d81ee5a7353fa44b, type: 3}
       propertyPath: m_Name
       value: Explosion_Green Variant

@@ -113,3 +113,5 @@ MonoBehaviour:
   power: 50
   explodeTime: 0.01
   destroyTime: 1
+  team: 4
+  score: 30
