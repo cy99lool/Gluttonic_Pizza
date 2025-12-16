@@ -494,7 +494,7 @@ public class FoodMove : MonoBehaviour
     }
 
     //  爆発カウントダウンの有効化フラグ
-    bool bomb = true;
+    bool bomb = false;
     GameObject bombCountEffectObject = null;
 
     void Merge(ref List<FoodMove> mergedFoods, FoodMove target)

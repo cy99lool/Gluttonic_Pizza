@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static SystemManager;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Result : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class Result : MonoBehaviour
     float greenTeamScore;
 
     // リザルト画面表示
-    public IEnumerator ShowResult()
+    public IEnumerator ShowResult(float debugReloadTime = 5f)
     {
         if (resultGroup != null) resultGroup.SetActive(true);// リザルトUIを有効化
 
@@ -33,7 +34,10 @@ public class Result : MonoBehaviour
         if(redText != null) redText.text = "赤チーム：" + redTeamScore;
         if(greenText != null) greenText.text = "緑チーム：" + greenTeamScore;
 
-        yield return null;
+        yield return new WaitForSeconds(debugReloadTime);
+
+        // テストプレイ用、シーンを再読み込み（接続待機画面に戻る）
+        SceneManager.LoadScene("PizzaTestScene");
 
         // 個人戦のときの処理
         //systemManager.Teams.Sort((a, b) => (a.Score - b.Score));// スコアの大きい順にソート

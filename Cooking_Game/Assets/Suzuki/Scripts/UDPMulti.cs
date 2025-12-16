@@ -201,6 +201,19 @@ public class UDPMulti : MonoBehaviour
         // ipアドレスをJSONファイルから設定
         myInfo.SetIPFromJson();
         foreach (ClientInfo client in clients) client.SetIPFromJson();
+
+        // 接続
+        OnRegister();
+    }
+
+    /// <summary>
+    /// シーンの再ロード時やオブジェクトの破棄時に呼び出される
+    /// </summary>
+    void OnDestroy()
+    {
+        // ソケットを閉じる
+        client.Close();
+        client = null;
     }
 
     float debugTimer = 0f;

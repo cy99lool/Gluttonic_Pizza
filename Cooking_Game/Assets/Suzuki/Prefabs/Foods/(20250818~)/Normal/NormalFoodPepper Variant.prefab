@@ -11,6 +11,22 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 5dd300fcca71ec5498b7d13686781269, type: 2}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.b
+      value: 0.08896402
+      objectReference: {fileID: 0}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.g
+      value: 0.23319833
+      objectReference: {fileID: 0}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.r
+      value: 0.9245283
+      objectReference: {fileID: 0}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key1.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1584060787817551926, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Name
       value: NormalFoodPepper Variant
