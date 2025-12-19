@@ -13,7 +13,7 @@ public class FoodMove : MonoBehaviour
     [SerializeField] Collider myCollider;
     public Collider Collider => myCollider;
 
-    [Header("モデルのアニメーター"), SerializeField] Animator animator;
+    [Header("モデルのアニメーター"), SerializeField]protected Animator animator;
 
     [Header("--- 移動関係の設定 ---")]
     [Header("重力"), SerializeField] float gravity = 9.8f;
@@ -142,6 +142,14 @@ public class FoodMove : MonoBehaviour
         if (fangAnimator != null) fangAnimator.gameObject.SetActive(true);
     }
 
+    public void DisableEatMode()
+    {
+        eatMode = false;
+
+        // 牙を非表示
+        if (fangAnimator != null) fangAnimator.gameObject.SetActive(false);
+    }
+
     protected void FixedUpdate()
     {
         FallUpdate();       // 落下の更新処理
@@ -222,7 +230,7 @@ public class FoodMove : MonoBehaviour
         Rigidbody.isKinematic = false;
 
         // 起爆時のプレハブ生成
-        if (this == Root && explodePrefab != null) Instantiate(explodePrefab, transform.position, Quaternion.identity);
+        if (this == Root && explodePrefab != null) Instantiate(explodePrefab, transform.position, Quaternion.identity, null);
 
         // 起爆カウントエフェクトの非表示化
         if (bombCountEffectObject != null && bombCountEffectObject.activeSelf) bombCountEffectObject.SetActive(false);

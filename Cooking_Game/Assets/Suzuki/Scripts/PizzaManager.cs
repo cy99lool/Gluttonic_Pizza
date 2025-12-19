@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class PizzaManager : MonoBehaviour
 {
@@ -8,13 +10,13 @@ public class PizzaManager : MonoBehaviour
     [Header("回転速度"), SerializeField] float rotateSpeed = 20f;
 
     bool canSpin = false;
-    SystemManager systemManager;
+    [SerializeField] SystemManager systemManager;
 
     public List<PizzaSlice> PizzaSlices => pizzaSlices;
 
     void Start()
     {
-        systemManager = FindObjectOfType<SystemManager>();
+        if(systemManager != null) systemManager = FindObjectOfType<SystemManager>();
     }
 
     void Update()
@@ -89,14 +91,38 @@ public class PizzaManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 食材ごとのポイントの加算
+    /// </summary>
+    /// <param name="food">調べる食材</param>
     void AddScore(FoodMove food)
     {
-        for(int i = 0; i < systemManager.Teams.Count; i++)
+        foreach (SystemManager.Team team in systemManager.Teams)
         {
             // 同じ色のチームにポイントを与える
-            if(food.Team == systemManager.Teams[i].Color)
+            if (food.Team == team.Color)
             {
-                systemManager.Teams[i].AddScore(food.ScorePoint);
+                team.AddScore(food.ScorePoint);
+                Debug.Log(team.Color + ":" + team.Score);
+                return;// 与えたらそれ以降の処理は行わない
+            }
+        }
+    }
+
+    /// <summary>
+    /// 指定したチームに得点を加算
+    /// </summary>
+    /// <param name="color">チーム</param>
+    /// <param name="score">加算する得点</param>
+    public void AddScore(TeamColor color, int score)
+    {
+        foreach(SystemManager.Team team in systemManager.Teams)
+        {
+            // 同じ色のチームにポイントを与える
+            if (color == team.Color)
+            {
+                team.AddScore(score);
+                Debug.Log(team.Color + ":" + team.Score);
                 return;// 与えたらそれ以降の処理は行わない
             }
         }

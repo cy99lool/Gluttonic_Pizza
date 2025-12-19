@@ -11,6 +11,7 @@ public class FoodBeforeShoot : FoodMove
 
     new void FixedUpdate()
     {
-
+        // 常に発射前の表情
+        if (animator != null) animator.SetBool("Ready", true);
     }
 }

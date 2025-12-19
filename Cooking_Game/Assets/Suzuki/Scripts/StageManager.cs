@@ -62,8 +62,13 @@ public class StageManager : MonoBehaviour
         static readonly Vector3 DefaultDirectionArrowScales = new Vector3(1f, 1f, 1f);
 
         [Header("移動させるオブジェクト"), SerializeField] Transform trackObject;
+        [Header("弓に表示する演出用の食べ物"), SerializeField] FoodBeforeShoot foodBeforeShoot;
+        public FoodBeforeShoot FoodBeforeShoot => foodBeforeShoot;
+
         [Header("基準点"), SerializeField] Transform pivot;
         public Vector3 PivotPos => pivot.position;
+
+        [Header("演出用食べ物の出現位置"), SerializeField] Transform foodSpawnPoint;
 
         [Header("弓"), SerializeField] Transform bow;
         [Header("弦と矢のコントローラー"), SerializeField] BowControler bowStringController;
@@ -126,6 +131,33 @@ public class StageManager : MonoBehaviour
         {
             lastPos = trackObject.position;
         }
+        /// <summary>
+        /// 食べ物の出現時
+        /// </summary>
+        public void OnFoodSpawn()
+        {
+            // 演出用食べ物の位置設定
+            foodBeforeShoot.transform.position = foodSpawnPoint.transform.position;
+
+            // 有効化
+            foodBeforeShoot.gameObject.SetActive(true);
+
+            // タイマーをリセット
+            pullTimer = GameConstants.FirstTimerValue;
+
+            // 捕食モード解除
+            eatMode = false;
+
+            // 食べ物の牙を消す
+            BowStringController.CurrentArrow.DisableEatMode();
+
+            // エフェクト発生処理を以下に追加
+
+        }
+
+        /// <summary>
+        /// 矢の更新
+        /// </summary>
         public void UpdateArrow()
         {
             // nullチェック
@@ -137,6 +169,8 @@ public class StageManager : MonoBehaviour
                 directionArrow.gameObject.SetActive(false);// 方向を示す矢を無効化
                 return;
             }
+            // 発射可能でないときは反応させない
+            if (!cursorInfo.Team.Shootable) return;
 
             // ドラッグしているときの処理
             if (IsDragging)
@@ -145,7 +179,7 @@ public class StageManager : MonoBehaviour
                 if (!directionArrow.gameObject.activeSelf)
                 {
                     directionArrow.gameObject.SetActive(true);// 方向を示す矢を有効化
-                    bowStringController.StartAim();// 弦を引っ張り始める
+                    bowStringController.StartAim(foodBeforeShoot);// 弦を引っ張り始める
                     pullTimer = GameConstants.FirstTimerValue;// タイマーをリセット
                     eatMode = false;
                     onEatModeChanged = false;
@@ -235,9 +269,15 @@ public class StageManager : MonoBehaviour
                 // 弦の引き絞りを終了
                 trackObjects[i].BowStringController.EndAim(trackObjects[i].TrackPosition);
 
+                // 弓の演出用食べ物を非表示
+                if (trackObjects[i].FoodBeforeShoot.gameObject.activeSelf) trackObjects[i].FoodBeforeShoot.gameObject.SetActive(false);
+
                 // 発射可能状況の制御
                 trackObjects[i].Cursor.OnShoot();
             }
+            // 発射クールタイム終了時
+            if (trackObjects[i].Cursor.Team.Shootable && !trackObjects[i].FoodBeforeShoot.gameObject.activeSelf) trackObjects[i].OnFoodSpawn();
+            // ドラッグ中
             if (trackObjects[i].IsMoving)
             {
                 // 動かしているときのエフェクトを入れる予定

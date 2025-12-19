@@ -201,6 +201,19 @@ public class UDPMulti : MonoBehaviour
         // ipアドレスをJSONファイルから設定
         myInfo.SetIPFromJson();
         foreach (ClientInfo client in clients) client.SetIPFromJson();
+
+        // 接続
+        OnRegister();
+    }
+
+    /// <summary>
+    /// シーンの再ロード時やオブジェクトの破棄時に呼び出される
+    /// </summary>
+    void OnDestroy()
+    {
+        // ソケットを閉じる
+        client.Close();
+        client = null;
     }
 
     float debugTimer = 0f;
@@ -669,13 +682,16 @@ public class UDPMulti : MonoBehaviour
                     HostMessageDto receiveDto = JsonUtility.FromJson<HostMessageDto>(dtoJson);// Json形式からSystemManagerに変換
 
                     // 残弾数や強化状態を反映
-                    foreach(SystemManager.Team team in receiveDto.HostSystemManager.Teams)
+                    foreach(TeamDetaDto team in receiveDto.Teams)
                     {
                         // 自身の色についての情報だった場合
                         if(myInfo.Cursor.Team.Color == team.Color)
                         {
                             //myInfo.Cursor.Team.SetBulletCount(team.BulletCount);// 残弾数を同期
                             myInfo.Cursor.SetModeFlag(receiveDto.CanModes);// 強化の使用可能状況を同期
+
+                            // フェーズを同期
+                            systemManager.SyncGamePhase(myInfo.Cursor.Team, team.Phase);
                             break;
                         }
                     }

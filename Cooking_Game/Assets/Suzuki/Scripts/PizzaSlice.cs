@@ -8,7 +8,7 @@ public class PizzaSlice : MonoBehaviour
     [Header("ピザが選択されているときのハイライト"), SerializeField] GameObject highlightObject;
     [Header("焼けた後の見た目"), SerializeField] Renderer cookedRenderer;
 
-    public Material CookedMaterial => cookedRenderer.material;
+    public Renderer CookedRenderer => cookedRenderer;
 
     List<FoodMove> foodList;// 食べ物のステータスを設定するスクリプトを別に作ったなら型をそちらに変更すること
     public List<FoodMove> FoodList
