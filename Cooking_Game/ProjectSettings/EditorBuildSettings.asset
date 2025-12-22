@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Title(Player).unity
+    guid: 520072085190cf4429a06c27f1cfda05
+  - enabled: 1
     path: Assets/Scenes/PizzaTestScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 0

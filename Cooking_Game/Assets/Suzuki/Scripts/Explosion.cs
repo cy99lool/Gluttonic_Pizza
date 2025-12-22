@@ -20,10 +20,12 @@ public class Explosion : MonoBehaviour
     List<FoodMove> blewAwayFoodList = new List<FoodMove>();
     RaycastHit[] hits;
     PizzaManager pizzaManager;
+    StageManager stageManager;
     void Start()
     {
         explodeCollider = GetComponent<Collider>();
         pizzaManager = FindObjectOfType<PizzaManager>();
+        stageManager = FindObjectOfType<StageManager>();
         StartCoroutine(ExplodeBehavior());
     }
 
@@ -49,6 +51,9 @@ public class Explosion : MonoBehaviour
 
     IEnumerator ExplodeBehavior()
     {
+        // 爆発音を再生
+        if (stageManager != null) stageManager.SystemManager.PlaySE_Windows(PlayerSoundType.Bomb, transform);
+
         // 得点を加算
         if(pizzaManager != null) pizzaManager.AddScore(team, score);
 

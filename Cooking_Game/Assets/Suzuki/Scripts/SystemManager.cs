@@ -184,6 +184,17 @@ public class SystemManager : MonoBehaviour
         if (soundManager != null && (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) soundManager.PlayBGM(bgmType);
     }
 
+    /// <summary>
+    /// Windows環境のみSEを再生
+    /// </summary>
+    /// <param name="soundType">再生する種類</param>
+    /// <param name="playTransform">再生位置</param>
+    public void PlaySE_Windows(PlayerSoundType soundType, Transform playTransform)
+    {
+        // BGMを再生
+        if (soundManager != null && (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) soundManager.PlaySE(soundType, playTransform);
+    }
+
     void Update()
     {
         // UIを更新
