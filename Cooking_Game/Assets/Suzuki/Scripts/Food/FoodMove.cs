@@ -13,7 +13,7 @@ public class FoodMove : MonoBehaviour
     [SerializeField] Collider myCollider;
     public Collider Collider => myCollider;
 
-    [Header("モデルのアニメーター"), SerializeField]protected Animator animator;
+    [Header("モデルのアニメーター"), SerializeField] protected Animator animator;
 
     [Header("--- 移動関係の設定 ---")]
     [Header("重力"), SerializeField] float gravity = 9.8f;
@@ -50,6 +50,8 @@ public class FoodMove : MonoBehaviour
     [Header("捕食後のサイズ倍率"), SerializeField] float eatenFactor = 1.1f;
 
     StageManager stageManager;
+    public StageManager StageManager => stageManager;
+
     float eraseTimer = GameConstants.FirstTimerValue;
 
     float BrakePower => (GameConstants.MaxPercentage - brakeRate) / GameConstants.MaxPercentage;
@@ -60,6 +62,8 @@ public class FoodMove : MonoBehaviour
 
     bool isFalling = false;
     bool eatMode = false;// 捕食モードかどうか
+    public bool EatMode => eatMode; 
+
     bool fangDisappered = false;
 
     List<FoodMove> mergedFoods = new List<FoodMove>();
@@ -175,10 +179,10 @@ public class FoodMove : MonoBehaviour
 
         Vector3 localScale = fangAnimator.gameObject.transform.localScale;
 
-        while(timer < shrinkTime)
+        while (timer < shrinkTime)
         {
             // 大きさを縮小
-            if(localScale.x > GameConstants.Zero) localScale.x -= shrinkRate * Time.deltaTime;
+            if (localScale.x > GameConstants.Zero) localScale.x -= shrinkRate * Time.deltaTime;
             if (localScale.y > GameConstants.Zero) localScale.y -= shrinkRate * Time.deltaTime;
             if (localScale.z > GameConstants.Zero) localScale.z -= shrinkRate * Time.deltaTime;
 
@@ -654,9 +658,9 @@ public class FoodMove : MonoBehaviour
 
         // 速度を戻す（コライダーでぶつかって勢いがなくなったことの対策）
         myRb.velocity = velocity;
-        
+
         // 捕食モードの再有効化
-        if(!eatMode) EnableEatMode();
+        if (!eatMode) EnableEatMode();
 
         //animator.SetBool()
     }
@@ -737,7 +741,7 @@ public class FoodMove : MonoBehaviour
         // 自身のFixedJointを全て取得
         FixedJoint[] joints = GetComponents<FixedJoint>();
 
-        for(int i = joints.Length - 1; i >= 0; i--)
+        for (int i = joints.Length - 1; i >= 0; i--)
         {
             // 目標とつながっているFixedJointを削除
             if (joints[i] != null && joints[i].connectedBody.gameObject == target) Destroy(joints[i]);
@@ -771,7 +775,7 @@ public class FoodMove : MonoBehaviour
                 if (stageManager == null) return;
 
                 // 衝突時の相性を取得
-                InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team, eatMode);
+                InteractionType type = FoodInteractionRules.GetInteractionType(team, opponentFood.team);
 
                 switch (type)
                 {
@@ -990,6 +994,21 @@ public static class FoodInteractionRules
 
     /// <summary>
     /// ぶつかったときの反応
+    /// </summary>
+    /// <param name="self">自身</param>
+    /// <param name="other">相手</param>
+    /// <returns></returns>
+    public static InteractionType GetInteractionType(this TeamColor self, TeamColor other)
+    {
+        // ルールに当てはまるものは対応したタイプを返す
+        if (mergeRule.TryGetValue((self, other), out InteractionType result)) return result;
+
+        // 当てはまらなければ何もしない
+        return InteractionType.None;
+    }
+
+    /// <summary>
+    /// ぶつかったときの反応（捕食モードかどうかで分ける場合）
     /// </summary>
     /// <param name="self">自身</param>
     /// <param name="other">相手</param>

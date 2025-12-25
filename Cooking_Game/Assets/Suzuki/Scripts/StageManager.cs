@@ -241,6 +241,8 @@ public class StageManager : MonoBehaviour
     [Header("振動のマネージャー"), SerializeField] VibrateManager vibrateManager;
     [Header("サウンドのマネージャー"), SerializeField] SoundManager soundManager;
 
+    SystemManager systemManager;
+    public SystemManager SystemManager => systemManager;
     void Start()
     {
         for (int i = 0; i < trackObjects.Count; i++)

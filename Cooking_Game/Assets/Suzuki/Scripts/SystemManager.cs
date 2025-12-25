@@ -184,6 +184,17 @@ public class SystemManager : MonoBehaviour
         if (soundManager != null && (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) soundManager.PlayBGM(bgmType);
     }
 
+    /// <summary>
+    /// Windows環境のみSEを再生
+    /// </summary>
+    /// <param name="soundType">再生する種類</param>
+    /// <param name="playTransform">再生位置</param>
+    public void PlaySE_Windows(PlayerSoundType soundType, Transform playTransform)
+    {
+        // BGMを再生
+        if (soundManager != null && (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) soundManager.PlaySE(soundType, playTransform);
+    }
+
     void Update()
     {
         // UIを更新
@@ -273,7 +284,7 @@ public class SystemManager : MonoBehaviour
     const int pickNum = 1;
     const float ShootableTime = 45f;
     const float PreparePizzaTime = 2f;// ピザ取得準備の時間
-    const int PhaseCount = 1;// フェーズの数
+    const int PhaseCount = 2;// フェーズの総数
     const int PinePhase = 2;
     const int LastPhase = 3;
     IEnumerator Main()
@@ -302,10 +313,11 @@ public class SystemManager : MonoBehaviour
             //yield return StartCoroutine(PickPizzaPhase());
             yield return StartCoroutine(PickAllPizzaPhase());
 
-            // フェーズ終了時処理
-            //yield return StartCoroutine(EndPhase(counter));
-
+            // フェーズ経過数を加算
             counter++;
+
+            // フェーズ終了時処理
+            yield return StartCoroutine(EndPhase(counter));
         }
 
         // リザルトフェーズ
@@ -456,7 +468,9 @@ public class SystemManager : MonoBehaviour
 
             // パインの召喚処理
 
-            // ピザを取られるフェーズの処理
+            // 途中でピザを取られるフェーズの処理
+            // 1.ピックするフェーズだったら、取得するピザを選ぶ（演出入り？） その後取得までの時間を現在タイマー+◯◯秒で設定、ピック中のフラグを立てる
+            // 2.取得する時間になったらそのピザの取得演出を入れる、その後ピック中のフラグをオフに
 
             // 時間経過
             timer += Time.deltaTime;
@@ -535,7 +549,9 @@ public class SystemManager : MonoBehaviour
 
     IEnumerator EndPhase(int phaseCounter)
     {
-        int nextPhase = phaseCounter++;// 次のフェーズを取得
+        int nextPhase = phaseCounter;// 次のフェーズを取得
+
+        // ピザの復活処理（アニメーションの再生）
 
         // パイン開始フラグを設定予定
         //if (nextPhase == PinePhase) 

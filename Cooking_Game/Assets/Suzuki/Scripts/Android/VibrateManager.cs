@@ -40,6 +40,7 @@ public class VibrateManager : MonoBehaviour
     AndroidJavaClass unityPlayer;
     AndroidJavaObject currentActivity;
     AndroidJavaObject vibrator = null;
+    int sdkInt = GameConstants.Zero;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
     // 初期化を行う
@@ -49,7 +50,19 @@ public class VibrateManager : MonoBehaviour
         {
             unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-            vibrator = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator");
+
+            // SDKバージョンを取得
+            sdkInt = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<int>("SDK INT");
+            // Android12以降
+            if(sdkInt >= 31)
+            {
+                using (var vibrateManager = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrate manager"))
+                {
+                    vibrator = vibrateManager.Call<AndroidJavaObject>("getDefaultVibrator");
+                }
+            }
+            // それ以前のバージョン
+            else vibrator = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator");
         }
         // 失敗時
         catch(System.Exception ex)
@@ -60,6 +73,8 @@ public class VibrateManager : MonoBehaviour
 
 #endif
 
+    const int DefaultAmplitude = -1;
+
     /// <summary>
     /// 実際に振動を命令する
     /// </summary>
@@ -69,11 +84,28 @@ public class VibrateManager : MonoBehaviour
         // Androidの振動
         if (IsAndroid)
         {
+#if UNITY_ANDROID
             // きちんと取得できている場合
-            if (vibrator != null) vibrator.Call("vibrate", milliseconds);
+            if (vibrator != null)
+            {
+                // Android8.0以上
+                if(sdkInt >= 26)
+                {
+                    using (AndroidJavaClass vibrationEffectClass = new AndroidJavaClass("android.os.VibrationEffect"))
+                    {
+                        // 振動エフェクトを作成
+                        AndroidJavaObject effect = vibrationEffectClass.CallStatic<AndroidJavaObject>("createOneShot", milliseconds, DefaultAmplitude);
+                        
+                        // 振動
+                        vibrator.Call("vibrate", effect);
+                    }
+                }
+                else vibrator.Call("vibrate", milliseconds);
+            }
 
             // 初期化に失敗したフォールバック
             else Handheld.Vibrate();
+#endif
         }
     }
 
