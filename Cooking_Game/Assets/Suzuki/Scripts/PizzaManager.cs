@@ -67,8 +67,8 @@ public class PizzaManager : MonoBehaviour
             // 取得、スコア計上
             Take(pizzaSlices[pizzaIndexes[i]]);
 
-            pizzaSlices[pizzaIndexes[i]].gameObject.SetActive(false);// 仮の除去処理
-            pizzaSlices.RemoveAt(pizzaIndexes[i]);// ピザのリストから除外
+            //pizzaSlices[pizzaIndexes[i]].gameObject.SetActive(false);// 仮の除去処理
+            //pizzaSlices.RemoveAt(pizzaIndexes[i]);// ピザのリストから除外
             pizzaIndexes.RemoveAt(i);
         }
     }
@@ -128,7 +128,7 @@ public class PizzaManager : MonoBehaviour
         }
     }
     /// <summary>
-    /// すべてのピザを取得、ポイントを計算
+    /// すべてのピザを取得、ポイントを計算（アニメーションのイベントから呼ぶことでアニメーションの回収タイミングと同期できる）
     /// </summary>
     public void TakeAllPizza()
     {
