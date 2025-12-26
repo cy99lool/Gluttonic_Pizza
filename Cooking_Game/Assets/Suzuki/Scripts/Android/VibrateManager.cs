@@ -6,7 +6,8 @@ public class VibrateManager : MonoBehaviour
 {
     [Header("チャージ完了時の振動時間(ミリ秒)"), SerializeField] int chargedVibrateTime = 20;
 
-    bool vibratable; // 振動可能かどうか
+    bool vibratable;// 振動可能かどうか
+    bool isVibrating = false;// 振動している最中かどうか
 
     /// <summary>
     /// 振動可能にする
@@ -19,8 +20,8 @@ public class VibrateManager : MonoBehaviour
 
     public void Vibrate(VibrationSituations situation)
     {
-        // 振動が無効化されていたら振動させない
-        if (!vibratable) return;
+        // 振動が無効化されていたり、振動中は振動させない
+        if (!vibratable || isVibrating) return;
 
         // 振動をサポートしていない機器は振動させない
         if (!SystemInfo.supportsVibration) return;
@@ -29,7 +30,7 @@ public class VibrateManager : MonoBehaviour
         switch (situation)
         {
             case VibrationSituations.FullyCharged:
-                Vibrate(chargedVibrateTime);
+                StartCoroutine(VibrateCorutine(chargedVibrateTime));
                 break;
             default:
                 break;
@@ -52,11 +53,11 @@ public class VibrateManager : MonoBehaviour
             currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 
             // SDKバージョンを取得
-            sdkInt = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<int>("SDK INT");
+            sdkInt = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<int>("SDK_INT");
             // Android12以降
             if(sdkInt >= 31)
             {
-                using (var vibrateManager = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrate manager"))
+                using (var vibrateManager = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrate_manager"))
                 {
                     vibrator = vibrateManager.Call<AndroidJavaObject>("getDefaultVibrator");
                 }
@@ -69,11 +70,16 @@ public class VibrateManager : MonoBehaviour
         {
             vibrator = null;
         }
+
+        // デバッグログ
+        Debug.Log($"[Vibrate Debug] SDK Version: {sdkInt}");
+        if (vibrator == null) Debug.LogError("[Vibrate Debug] Vibratorの取得に失敗しました。サービス名が間違っている可能性があります。");
+        else Debug.Log("[Vibrate Debug] Vibratorの取得に成功しました！");
     }
 
 #endif
 
-    const int DefaultAmplitude = -1;
+    const int DefaultAmplitude = 255;
 
     /// <summary>
     /// 実際に振動を命令する
@@ -104,9 +110,23 @@ public class VibrateManager : MonoBehaviour
             }
 
             // 初期化に失敗したフォールバック
-            else Handheld.Vibrate();
+            //else Handheld.Vibrate();
 #endif
         }
+    }
+
+    IEnumerator VibrateCorutine(long milliseconds)
+    {
+        // 振動中にする
+        isVibrating = true;
+
+        Vibrate(milliseconds);
+
+        // 振動時間中は待機
+        yield return new WaitForSeconds(milliseconds / GameConstants.MillisecondPerSecond);
+
+        // 振動中でなくする
+        isVibrating = false;
     }
 
     // Androidかどうか

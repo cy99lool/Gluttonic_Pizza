@@ -1220,7 +1220,7 @@ MonoBehaviour:
     ip: 192.168.100.45
     port: 3000
     trackObject: {fileID: 0}
-    connectionCheckObject: {fileID: 0}
+    connectionCheckObject: {fileID: 349274117}
     cursorInfo: {fileID: 0}
   disconnectThreshold: 10
   systemManager: {fileID: 901040592}
@@ -23195,7 +23195,7 @@ MonoBehaviour:
     ip: 192.168.100.45
     port: 3000
     trackObject: {fileID: 0}
-    connectionCheckObject: {fileID: 0}
+    connectionCheckObject: {fileID: 299295213}
     cursorInfo: {fileID: 0}
   disconnectThreshold: 10
   systemManager: {fileID: 901040592}
@@ -23637,7 +23637,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &952148038
 Transform:
   m_ObjectHideFlags: 0
@@ -27222,7 +27222,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1107214948
 Transform:
   m_ObjectHideFlags: 0
@@ -31999,7 +31999,7 @@ MonoBehaviour:
     ip: 192.168.100.45
     port: 3000
     trackObject: {fileID: 0}
-    connectionCheckObject: {fileID: 0}
+    connectionCheckObject: {fileID: 1642905780}
     cursorInfo: {fileID: 0}
   disconnectThreshold: 10
   systemManager: {fileID: 901040592}
@@ -55287,7 +55287,7 @@ MonoBehaviour:
     ip: 192.168.100.45
     port: 3000
     trackObject: {fileID: 0}
-    connectionCheckObject: {fileID: 0}
+    connectionCheckObject: {fileID: 18427409}
     cursorInfo: {fileID: 0}
   disconnectThreshold: 10
   systemManager: {fileID: 901040592}
