@@ -55,18 +55,16 @@ public class VibrateManager : MonoBehaviour
             // SDKバージョンを取得
             sdkInt = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<int>("SDK_INT");
             // Android12以降
-            if(sdkInt >= 31)
+            if (sdkInt >= 31)
             {
-                using (var vibrateManager = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrate_manager"))
-                {
-                    vibrator = vibrateManager.Call<AndroidJavaObject>("getDefaultVibrator");
-                }
+                var vibratorManager = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator_manager");
+                vibrator = vibratorManager.Call<AndroidJavaObject>("getDefaultVibrator");
             }
             // それ以前のバージョン
             else vibrator = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator");
         }
         // 失敗時
-        catch(System.Exception ex)
+        catch (System.Exception ex)
         {
             vibrator = null;
         }
