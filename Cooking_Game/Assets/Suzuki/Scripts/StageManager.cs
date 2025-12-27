@@ -86,10 +86,11 @@ public class StageManager : MonoBehaviour
         float pullTimer = GameConstants.FirstTimerValue;
         bool eatMode = false;// 捕食モードかどうか
         public bool EatMode => eatMode;
+        public void SetEatModeFalse() => eatMode = false;
 
         bool onEatModeChanged = false;// 捕食モードに切り替わった瞬間か
         public bool OnEatModeChanged => onEatModeChanged;
-        public bool SetOnEatModeFalse() => onEatModeChanged = false;
+        public void SetOnEatModeFalse() => onEatModeChanged = false;
 
         CursorInfo cursorInfo;
         public CursorInfo Cursor => cursorInfo;
@@ -276,6 +277,12 @@ public class StageManager : MonoBehaviour
 
                 // 発射可能状況の制御
                 trackObjects[i].Cursor.OnShoot();
+
+                // 振動を停止させる
+                vibrateManager.StopVibration();
+
+                // 捕食モードを切る
+                trackObjects[i].SetEatModeFalse();
             }
             // 発射クールタイム終了時
             if (trackObjects[i].Cursor.Team.Shootable && !trackObjects[i].FoodBeforeShoot.gameObject.activeSelf) trackObjects[i].OnFoodSpawn();

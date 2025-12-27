@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class VibrateManager : MonoBehaviour
 {
-    [Header("チャージ完了時の振動時間(ミリ秒)"), SerializeField] int chargedVibrateTime = 20;
+    [Header("チャージ完了状態の振動"), SerializeField] VibrationData chargedVibration;
 
     bool vibratable;// 振動可能かどうか
     bool isVibrating = false;// 振動している最中かどうか
@@ -30,7 +30,13 @@ public class VibrateManager : MonoBehaviour
         switch (situation)
         {
             case VibrationSituations.FullyCharged:
-                StartCoroutine(VibrateCorutine(chargedVibrateTime));
+                if (chargedVibration == null) break;
+
+                // 振動（単発）
+                if (chargedVibration.Type == VibrationData.VibrationType.OneShot) VibrateOneShot(chargedVibration.OneShotDurationMs);
+
+                // 振動（ループ）
+                else StartContinuousVibration(chargedVibration.SlientMs, chargedVibration.ActiveMs, chargedVibration.MinPower, chargedVibration.MaxPower);
                 break;
             default:
                 break;
@@ -80,10 +86,10 @@ public class VibrateManager : MonoBehaviour
     const int DefaultAmplitude = 255;
 
     /// <summary>
-    /// 実際に振動を命令する
+    /// 単発の振動を命令する
     /// </summary>
     /// <param name="milliseconds">振動させる時間（ミリ秒）</param>
-    void Vibrate(long milliseconds)
+    void VibrateOneShot(long milliseconds)
     {
         // Androidの振動
         if (IsAndroid)
@@ -113,18 +119,85 @@ public class VibrateManager : MonoBehaviour
         }
     }
 
-    IEnumerator VibrateCorutine(long milliseconds)
+    //IEnumerator VibrateCorutine(long milliseconds)
+    //{
+    //    // 振動中にする
+    //    isVibrating = true;
+
+    //    VibrateOneShot(milliseconds);
+
+    //    // 振動時間中は待機
+    //    yield return new WaitForSeconds(milliseconds / GameConstants.MillisecondPerSecond);
+
+    //    // 振動中でなくする
+    //    isVibrating = false;
+    //}
+
+    /// <summary>
+    /// ループする振動を再生開始
+    /// </summary>
+    /// <param name="waitTime">振動の待機時間(ms)</param>
+    /// <param name="vibrateTime">一回の振動の持続時間(ms)</param>
+    /// <param name="minPower">振動の最小の強さ</param>
+    /// <param name="maxPower">振動の最大の強さ</param>
+    void StartContinuousVibration(long waitTime, long vibrateTime, int minPower, int maxPower)
     {
-        // 振動中にする
-        isVibrating = true;
+        if (vibrator == null) return;
+        if (isVibrating) return;
 
-        Vibrate(milliseconds);
+#if UNITY_ANDROID
+        if(sdkInt >= 26)
+        {
+            // VibrationEffectクラスを取得
+            using(AndroidJavaClass vibrationEffectClass = new AndroidJavaClass("android.os.VibrationEffect"))
+            {
+                // タイミング（待機ms、振動ms）の設定
+                long[] timings = new long[] {waitTime, vibrateTime};
 
-        // 振動時間中は待機
-        yield return new WaitForSeconds(milliseconds / GameConstants.MillisecondPerSecond);
+                // 強さ(最小、最大)の設定
+                int[] amplitudes = new int[] {minPower, maxPower};
 
-        // 振動中でなくする
-        isVibrating = false;
+                // ループの開始位置を設定
+                int repeatIndex = GameConstants.Zero;
+
+                // 設定した振動エフェクトを作成（Waveform、ループ）
+                using(AndroidJavaObject effect = vibrationEffectClass.CallStatic<AndroidJavaObject>("createWaveform", timings, amplitudes, repeatIndex))
+                {
+                    // OSに振動を命令
+                    vibrator.Call("vibrate", effect);
+                    isVibrating = true;
+
+                    Debug.Log("振動開始");
+                }
+            }
+        }
+#endif
+    }
+
+    /// <summary>
+    /// 振動を停止させる
+    /// </summary>
+    public void StopVibration()
+    {
+        // アンドロイドだけ振動させる
+        if (!IsAndroid) return;
+
+#if UNITY_ANDROID
+        if (vibrator == null) return;
+
+        try
+        {
+            // 振動を停止
+            vibrator.Call("cancel");
+            isVibrating = false;
+
+            Debug.Log("振動を停止");
+        }
+        catch(System.Exception ex)
+        {
+            Debug.LogError($"[Vibrate Debug] Stop Error: {ex.Message}");
+        }
+#endif
     }
 
     // Androidかどうか
