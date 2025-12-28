@@ -5,10 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/PizzaTestScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 0
     path: Assets/Yamaguchi/Scenes/SampleScene.unity
     guid: 1099986b664cf864aa2dde49cf978643
+  - enabled: 1
+    path: Assets/Yamaguchi/Scenes/effect.unity
+    guid: f871b1c8981386841b8894ecf39f80dd
   m_configObjects: {}
