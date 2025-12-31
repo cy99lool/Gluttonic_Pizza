@@ -195,6 +195,19 @@ public class SystemManager : MonoBehaviour
         if (soundManager != null && (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) soundManager.PlaySE(soundType, playTransform);
     }
 
+    /// <summary>
+    /// Android環境のみSEを再生
+    /// </summary>
+    /// <param name="soundType">再生する種類</param>
+    /// <param name="playTransform">再生位置</param>
+    public void PlaySE_Android(PlayerSoundType soundType, Transform playTransform)
+    {
+#if UNITY_ANDROID
+        // BGMを再生
+        if (soundManager != null) soundManager.PlaySE(soundType, playTransform);
+#endif
+    }
+
     void Update()
     {
         // UIを更新

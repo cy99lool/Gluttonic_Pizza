@@ -240,10 +240,8 @@ public class StageManager : MonoBehaviour
     List<InfoForReflect> eatEventList = new List<InfoForReflect>();
 
     [Header("振動のマネージャー"), SerializeField] VibrateManager vibrateManager;
-    [Header("サウンドのマネージャー"), SerializeField] SoundManager soundManager;
 
     SystemManager systemManager;
-    public SystemManager SystemManager => systemManager;
     void Start()
     {
         for (int i = 0; i < trackObjects.Count; i++)
@@ -321,7 +319,7 @@ public class StageManager : MonoBehaviour
             {
                 mergeEventList[i].First.Food.OnMerge(mergeEventList[i].Second.Food);
                 // 結合SE再生
-                soundManager.PlaySE(PlayerSoundType.Merge, mergeEventList[i].First.Food.transform);
+                systemManager.PlaySE_Windows(PlayerSoundType.Merge, mergeEventList[i].First.Food.transform);
                 Debug.Log("[MERGE]");
             }
             mergeEventList.Clear();// リストをクリア
@@ -333,7 +331,7 @@ public class StageManager : MonoBehaviour
             {
                 eatEventList[i].First.Food.OnEat(eatEventList[i].Second.Food, eatEventList[i].First.Velocity);
                 // 捕食SE再生
-                soundManager.PlaySE(PlayerSoundType.Eat, mergeEventList[i].First.Food.transform);
+                systemManager.PlaySE_Windows(PlayerSoundType.Eat, mergeEventList[i].First.Food.transform);
                 Debug.Log("[EAT]");
             }
             eatEventList.Clear();// リストをクリア
@@ -347,6 +345,8 @@ public class StageManager : MonoBehaviour
     {
         // エフェクト表示
 
+        //  チャージ完了SE再生
+        if (systemManager != null) systemManager.PlaySE_Android(PlayerSoundType.Charge, trackObject.FoodBeforeShoot.transform);
         //// 捕食可能状態の切り替わりフラグの無効化
         //trackObject.SetOnEatModeFalse();
     }
