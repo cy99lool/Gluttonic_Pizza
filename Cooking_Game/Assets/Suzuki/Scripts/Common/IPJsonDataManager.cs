@@ -4,7 +4,7 @@ using UnityEngine;
 using System.IO;
 using System;
 
-public class JsonDataManager
+public class IPJsonDataManager
 {
     /// <summary>
     /// IPアドレスの設定を保存する

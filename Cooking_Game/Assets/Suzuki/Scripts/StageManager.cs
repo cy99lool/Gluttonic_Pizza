@@ -244,6 +244,8 @@ public class StageManager : MonoBehaviour
     SystemManager systemManager;
     void Start()
     {
+        systemManager = FindObjectOfType<SystemManager>();
+
         for (int i = 0; i < trackObjects.Count; i++)
         {
             trackObjects[i].SetStartPos();

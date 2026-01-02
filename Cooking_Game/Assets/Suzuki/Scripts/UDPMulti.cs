@@ -34,7 +34,7 @@ public class UDPMulti : MonoBehaviour
         /// </summary>
         public void SetIPFromJson()
         {
-            string ip = JsonDataManager.LoadIPSetting(relativeFilePath);
+            string ip = IPJsonDataManager.LoadIPSetting(relativeFilePath);
             if (ip == null) return;
 
             this.ip = ip;
@@ -59,6 +59,13 @@ public class UDPMulti : MonoBehaviour
 
         float disconnectTimer;
         public float DisconnectTimer => disconnectTimer;
+
+        ReadyState readyState;
+        public ReadyState ReadyState => readyState;
+        public void SetReadyState(ReadyState state) => readyState = state;// 準備状況の設定
+
+        public SystemManager.Team Team => cursorInfo.Team;
+        public TeamColor Color => cursorInfo.Team.Color;
 
         // コンストラクタ
         public ClientInfo() { }
@@ -136,7 +143,7 @@ public class UDPMulti : MonoBehaviour
         }
 
         // 送信時に行う処理
-        public void OnSend()
+        public void OnPosSend()
         {
             nowFoodMode = clientInfo.Cursor.FoodMode;// 現在のモードを設定
             //Debug.Log(nowFoodMode);
@@ -391,7 +398,7 @@ public class UDPMulti : MonoBehaviour
         myInfo.SetIP(ip);
 
         // JSONファイルを更新
-        JsonDataManager.SaveIPSetting(ip, myInfo.RelativeFilePath);
+        IPJsonDataManager.SaveIPSetting(ip, myInfo.RelativeFilePath);
     }
 
     /// <summary>
@@ -428,7 +435,7 @@ public class UDPMulti : MonoBehaviour
         clients[(int)playerIndex].SetIP(ip);
 
         // JSONファイルに書き出す
-        JsonDataManager.SaveIPSetting(ip, clients[(int)playerIndex].RelativeFilePath);
+        IPJsonDataManager.SaveIPSetting(ip, clients[(int)playerIndex].RelativeFilePath);
     }
 
     enum PlayerIndex
@@ -675,23 +682,46 @@ public class UDPMulti : MonoBehaviour
                     // 接続しているかの確認のみなので何もしない
                     break;
                 }
-                // 各プレイヤーのタブレットにだけ到達するメッセージタイプ
+            // 各プレイヤーのタブレットにだけ到達するメッセージタイプ
             case UDPMessageType.HostMessage:
                 {
-                    string dtoJson = System.Text.Encoding.UTF8.GetString(unit.Message, sizeof(Int32), unit.Message.Length - sizeof(Int32));// UDPMessage型のメッセージの先
-                    HostMessageDto receiveDto = JsonUtility.FromJson<HostMessageDto>(dtoJson);// Json形式からSystemManagerに変換
+                    string hostMessageDtoJson = System.Text.Encoding.UTF8.GetString(unit.Message, sizeof(Int32), unit.Message.Length - sizeof(Int32));// UDPMessage型のメッセージの先
+
+                    // Json形式からSystemManagerに変換
+                    HostMessageDto receiveDto = JsonUtility.FromJson<HostMessageDto>(hostMessageDtoJson);
 
                     // 残弾数や強化状態を反映
                     foreach(TeamDetaDto team in receiveDto.Teams)
                     {
                         // 自身の色についての情報だった場合
-                        if(myInfo.Cursor.Team.Color == team.Color)
+                        if(myInfo.Color == team.Color)
                         {
                             //myInfo.Cursor.Team.SetBulletCount(team.BulletCount);// 残弾数を同期
                             myInfo.Cursor.SetModeFlag(receiveDto.CanModes);// 強化の使用可能状況を同期
 
                             // フェーズを同期
                             systemManager.SyncGamePhase(myInfo.Cursor.Team, team.Phase);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            case UDPMessageType.PlayerReadyInfo:
+                {
+                    string readyStateDtoJson = System.Text.Encoding.UTF8.GetString(unit.Message, sizeof(Int32), unit.Message.Length - sizeof(Int32));// UDPMessage型のメッセージの先
+
+                    // JSON形式からSystemManagerに変換
+                    ReadyStateDto readyStateDto = JsonUtility.FromJson<ReadyStateDto>(readyStateDtoJson);
+
+                    // 準備状態を反映
+                    foreach(ClientInfo player in clients)
+                    {
+                        // 対応するプレイヤーの情報の場合
+                        if(player.Color == readyStateDto.Color)
+                        {
+                            // 準備状況を同期
+                            player.SetReadyState(readyStateDto.ReadyState);
+
                             break;
                         }
                     }
@@ -726,24 +756,55 @@ public class UDPMulti : MonoBehaviour
     void BroadcastStatus()
     {
         // 送信処理
-        // (これから自分の番かの判定を追加予定)
-        if (myInfo.TrackObject != null) SendInfo();  // 情報を送る
+        // プレイヤー：準備完了かの状態を送るモードと、発射する位置情報を送信するモード
+        if (myInfo.TrackObject != null)
+        {
+            // 接続画面のときは準備完了かの情報を送る
+            if (systemManager.CurrentPhase == SystemManager.GamePhase.ConnectPhase) SendReadyInfo();
+
+            else SendPosInfo();  // 情報を送る
+        }
         else if (systemManager.IsStarted) SendHostMessage();// ホストの情報を送る
         else SendOnlyConnection();                      // 接続しているかどうかの情報のみを送る
     }
 
     /// <summary>
-    /// 情報の送信を行う
+    /// 準備状況の送信を行う
     /// </summary>
-    void SendInfo()
+    void SendReadyInfo()
     {
-        byte[] udpMessage = UDPMessageType.PositionUpdate.ToByte();// 位置情報送信モード
+        // プレイヤーの準備状況送信モード
+        byte[] udpMessage = UDPMessageType.PlayerReadyInfo.ToByte();
 
-        // 位置情報のクラスからJson形式に変換し、メッセージにする
+        // 自身のチームと準備状況を取得し、DTO（データ転送用のクラス）を作成
+        ReadyStateDto readyStateDto = new ReadyStateDto(myInfo.Team, myInfo.ReadyState);
+
+        // JSONに変換
+        string readyStateDtoJson = JsonUtility.ToJson(readyStateDto);
+
+        // JSONをメッセージに変換
+        byte[] readyStateMessage = System.Text.Encoding.UTF8.GetBytes(readyStateDtoJson);
+
+        // メッセージをまとめる
+        byte[] ReadyInfoMessage = MergeBytes(udpMessage, readyStateMessage);
+
+        // メッセージの送信
+        SendAsyncToPlayers(ReadyInfoMessage);
+    }
+
+    /// <summary>
+    /// 位置情報の送信を行う
+    /// </summary>
+    void SendPosInfo()
+    {
+        // 位置情報送信モード
+        byte[] udpMessage = UDPMessageType.PositionUpdate.ToByte();
+
+        // 位置情報のクラスからJSON形式に変換し、メッセージにする
         ObjectInfo myObjectInfo = new ObjectInfo(myInfo, myInfo.TrackObject.transform.position, myInfo.TrackObject.transform.eulerAngles.y);
 
         // 送信前の処理
-        myObjectInfo.OnSend();
+        myObjectInfo.OnPosSend();
 
         string myObjectInfoJson = JsonUtility.ToJson(myObjectInfo);
 
@@ -769,7 +830,7 @@ public class UDPMulti : MonoBehaviour
 
             // DTOを作成
             HostMessageDto hostMessageDto = new HostMessageDto(systemManager, canModes);
-            // Jsonに変換
+            // JSONに変換
             string hostMessageDtoJson = JsonUtility.ToJson(hostMessageDto);
 
             // メッセージに変換
@@ -904,6 +965,7 @@ public class UDPMulti : MonoBehaviour
     }
 }
 
+// メッセージの種類
 enum UDPMessageType
 {
     AnswerWait = 100001,
@@ -911,6 +973,14 @@ enum UDPMessageType
     PositionUpdate,
     ConnectCheck,
     HostMessage,
+    PlayerReadyInfo,
+}
+
+// 準備状況
+public enum ReadyState
+{
+    NotReady,
+    Ready,
 }
 
 /// <summary>
@@ -919,10 +989,7 @@ enum UDPMessageType
 static class MultiPlayerMessenger
 {
     // バイト配列への変換
-    public static byte[] ToByte(this UDPMessageType udpMessage)
-    {
-        return BitConverter.GetBytes((int)udpMessage);
-    }
+    public static byte[] ToByte(this UDPMessageType udpMessage) => BitConverter.GetBytes((int)udpMessage);
     public static byte[] ToByte(this UDPMulti.ClientInfo clientInfo)
     {
         string infoJson = JsonUtility.ToJson(clientInfo);// Json形式に変更
@@ -935,10 +1002,7 @@ static class MultiPlayerMessenger
         byte[] z = BitConverter.GetBytes(vector3.z);
         return x.Concat(y).Concat(z).ToArray();// 連結
     }
-    public static byte[] ToByte(this TeamColor teamColor)
-    {
-        return BitConverter.GetBytes((int) teamColor);
-    }
+    public static byte[] ToByte(this TeamColor teamColor) => BitConverter.GetBytes((int)teamColor);
 
     // バイト配列からの変換
     public static UDPMessageType ToUDPMessageType(this byte[] bytes, int startIndex = 0)
