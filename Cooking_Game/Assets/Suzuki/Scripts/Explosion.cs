@@ -55,7 +55,7 @@ public class Explosion : MonoBehaviour
         if (systemManager != null) systemManager.PlaySE_Windows(PlayerSoundType.Bomb, transform);
 
         // 得点を加算
-        if(pizzaManager != null) pizzaManager.AddScore(team, score);
+        if(pizzaManager != null) pizzaManager.AddExplosionScore(team, score);
 
         float timer = GameConstants.FirstTimerValue;
         while (timer <= destroyTime)

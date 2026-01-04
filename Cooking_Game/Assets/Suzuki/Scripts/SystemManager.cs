@@ -13,6 +13,9 @@ public class SystemManager : MonoBehaviour
         [SerializeField] int score;
         public int Score => score;
 
+        [SerializeField] int explosionScore;
+        public int ExplosionScore => explosionScore;
+
         [Header("発射後のクールタイム"), SerializeField] float shootCT;
 
         [Header("チームの情報UIテキスト"), SerializeField] TMPro.TextMeshProUGUI scoreText;
@@ -79,6 +82,8 @@ public class SystemManager : MonoBehaviour
         {
             this.score += score;
         }
+
+        public void AddExplosionScore(int score) => this.explosionScore += score;
 
         /// <summary>
         /// フェーズ開始処理

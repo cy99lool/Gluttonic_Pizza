@@ -127,6 +127,21 @@ public class PizzaManager : MonoBehaviour
             }
         }
     }
+
+    public void AddExplosionScore(TeamColor color, int score)
+    {
+        foreach (SystemManager.Team team in systemManager.Teams)
+        {
+            // 同じ色のチームにポイントを与える
+            if (color == team.Color)
+            {
+                team.AddExplosionScore(score);
+                Debug.Log(team.Color + ":" + team.ExplosionScore);
+                return;// 与えたらそれ以降の処理は行わない
+            }
+        }
+    }
+
     /// <summary>
     /// すべてのピザを取得、ポイントを計算（アニメーションのイベントから呼ぶことでアニメーションの回収タイミングと同期できる）
     /// </summary>
