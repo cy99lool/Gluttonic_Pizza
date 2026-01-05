@@ -40,6 +40,7 @@ public class IPJsonDataManager
 
         // ラッパークラスを取得
         StringWrapper stringWrapper = JsonUtility.FromJson<StringWrapper>(json);
+        Debug.Log("stringWrapper:" + stringWrapper.String);
 
         // ipアドレスを取得
         string ip = stringWrapper.String;
@@ -54,36 +55,45 @@ public class IPJsonDataManager
     /// <param name="relativeFilePath">ファイルの相対パス（フォルダ名/ファイル.json）</param>
     static void WriteJsonToFile(string Json, string relativeFilePath)
     {
-        // persistentDataPathを含んだ完全なファイルパスを生成
-        string fullPath = Path.Combine(Application.persistentDataPath, relativeFilePath);
-
-        // ディレクトリパス（ファイル名を除く）を取得
-        string directoryPath = Path.GetDirectoryName(fullPath);
-
-        // ディレクトリが存在しなければ、新しく作成する
-        if(!Directory.Exists(directoryPath))
-        {
-            try
-            {
-                Directory.CreateDirectory(directoryPath);
-                Debug.Log($"[JSON Manager] Created directory: {directoryPath}");
-            }
-            catch(System.Exception ex)
-            {
-                Debug.LogWarning($"[JSON Manager] Failed to create directory: {ex.Message}");
-            }
-        }
-
-        // 書き込み
         try
         {
-            File.WriteAllText(fullPath, Json);
-            Debug.Log($"[Json Manager] Saved at: {fullPath}");
+            Debug.Log("書き込みを行います...");
+
+            // persistentDataPathを含んだ完全なファイルパスを生成
+            string fullPath = Path.Combine(Application.persistentDataPath, relativeFilePath);
+
+            // ディレクトリパス（ファイル名を除く）を取得
+            string directoryPath = Path.GetDirectoryName(fullPath);
+
+            // ディレクトリが存在しなければ、新しく作成する
+            if (!Directory.Exists(directoryPath) && !string.IsNullOrEmpty(directoryPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(directoryPath);
+                    Debug.Log($"[JSON Manager] Created directory: {directoryPath}");
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"[JSON Manager] Failed to create directory: {ex.Message}");
+                }
+            }
+
+            // 書き込み
+            try
+            {
+                File.WriteAllText(fullPath, Json);
+                Debug.Log($"[Json Manager] Saved at: {fullPath}");
+            }
+            // 失敗時
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[Json Manager] Save Error for: {fullPath} due to: {ex}");
+            }
         }
-        // 失敗時
         catch(System.Exception ex)
         {
-            Debug.LogError($"[Json Manager] Save Error for: {fullPath} due to: {ex}");
+            Debug.LogError($"[Json Manager] CRITICAL ERROR: {ex}");
         }
     }
 
@@ -97,6 +107,7 @@ public class IPJsonDataManager
     {
         // persistentDataPathを含んだ完全なファイルパスを生成
         string fullPath = Path.Combine(Application.persistentDataPath, relativeFilePath);
+        Debug.Log($"fullPath:{fullPath}");
 
         // ファイルが見つからない場合、null
         if (!File.Exists(fullPath))

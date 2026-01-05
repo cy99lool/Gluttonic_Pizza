@@ -168,6 +168,7 @@ public class UDPMulti : MonoBehaviour
     }
 
     [Header("自分の情報"), SerializeField] ClientInfo myInfo;
+    public string MyRelativeFilePath => myInfo.RelativeFilePath;
     [Header("接続する相手たち"), SerializeField] List<ClientInfo> clients = new List<ClientInfo>();
     [Header("接続が切れた判定をするまでの時間"), SerializeField] float disconnectThreshold = 3f;
     [SerializeField] SystemManager systemManager;

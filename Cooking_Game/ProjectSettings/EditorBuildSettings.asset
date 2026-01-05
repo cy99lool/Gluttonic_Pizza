@@ -14,7 +14,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Yamaguchi/Scenes/SampleScene.unity
     guid: 1099986b664cf864aa2dde49cf978643
-  - enabled: 1
+  - enabled: 0
     path: Assets/Yamaguchi/Scenes/effect.unity
     guid: f871b1c8981386841b8894ecf39f80dd
   m_configObjects: {}
