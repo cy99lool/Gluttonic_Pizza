@@ -86,7 +86,7 @@ public class CursorInfo : MonoBehaviour
     {
         UpdateButtonFillAmount(CanBig, bigButton);// 巨大化ボタンの更新
         UpdateButtonFillAmount(CanBomb, bombButton);// 爆弾化ボタンの更新
-        UpdateBulletCountUI();// 残弾数の更新
+        //UpdateBulletCountUI();// 残弾数の更新
     }
 
     void UpdateButtonFillAmount(bool flag, UnityEngine.UI.Button button)
@@ -98,11 +98,11 @@ public class CursorInfo : MonoBehaviour
         if (!flag && button.image.fillAmount != FillAmountMin) button.image.fillAmount = FillAmountMin;
     }
 
-    void UpdateBulletCountUI()
-    {
-        if (bulletCountText == null) return;
-        bulletCountText.text = $"残弾数:{team.BulletCount}";
-    }
+    //void UpdateBulletCountUI()
+    //{
+    //    if (bulletCountText == null) return;
+    //    bulletCountText.text = $"残弾数:{team.BulletCount}";
+    //}
 
     // 現在の食材のモードを設定
     public void SetMode(Mode mode)
@@ -167,10 +167,14 @@ public class CursorInfo : MonoBehaviour
                 return;
         }
 
-        // 残弾数を減らす
-        if(foodMode != Mode.None)
+        // 発射後の処理
+        if(foodMode != Mode.None && Shootable)
         {
-            team.SubtractBullet();
+            //// 残弾数を減らす
+            //team.SubtractBullet();
+
+            // CTを設定
+            team.SetShootCT();
         }
     }
 

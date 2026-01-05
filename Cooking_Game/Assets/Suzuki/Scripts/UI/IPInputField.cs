@@ -11,6 +11,12 @@ public class IPInputField : MonoBehaviour
     [Header("対象のプレイヤー番号（ホスト宛はプレイヤー1と同じく「1」）"), SerializeField] int playerNum = 1;
     [Header("適用するIPの入力文"), SerializeField] TMP_InputField ipInputField;
 
+    void Awake()
+    {
+        // 有効化されたときにJSONファイルからIPアドレスを設定し、入力画面にも反映
+        ipInputField.text = udpMulti.UpdateOtherIP(playerNum);
+    }
+
     /// <summary>
     /// 変更を実際の通信設定に適用（ボタンでは引数を2つ設定できないため）
     /// </summary>

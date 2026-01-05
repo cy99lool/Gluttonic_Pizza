@@ -10,7 +10,23 @@ PrefabInstance:
     - target: {fileID: 216561514674231856, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -8156785155133570018, guid: 472120d0dd7924140b69f899573dc79a, type: 3}
+      objectReference: {fileID: 2100000, guid: 19b74285e9fb7da4d8ec2b48d5e16e19, type: 2}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.b
+      value: 0.4486397
+      objectReference: {fileID: 0}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.g
+      value: 0.94716984
+      objectReference: {fileID: 0}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.r
+      value: 0.13403334
+      objectReference: {fileID: 0}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key1.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1584060787817551926, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Name
       value: NormalFoodMushroom Variant
@@ -26,7 +42,7 @@ PrefabInstance:
     - target: {fileID: 1818010819203474786, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: explodePrefab
       value: 
-      objectReference: {fileID: 6345383455451460789, guid: f42274bd7c8bdfc4bbdf8feafcd59815, type: 3}
+      objectReference: {fileID: 7186549496499288488, guid: 352601dce822e1a4ab4497cbf8f54354, type: 3}
     - target: {fileID: 2211379877717590668, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_RootOrder
       value: 0

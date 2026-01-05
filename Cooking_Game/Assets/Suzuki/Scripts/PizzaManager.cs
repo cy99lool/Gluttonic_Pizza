@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class PizzaManager : MonoBehaviour
 {
@@ -8,13 +10,13 @@ public class PizzaManager : MonoBehaviour
     [Header("回転速度"), SerializeField] float rotateSpeed = 20f;
 
     bool canSpin = false;
-    SystemManager systemManager;
+    [SerializeField] SystemManager systemManager;
 
     public List<PizzaSlice> PizzaSlices => pizzaSlices;
 
     void Start()
     {
-        systemManager = FindObjectOfType<SystemManager>();
+        if(systemManager != null) systemManager = FindObjectOfType<SystemManager>();
     }
 
     void Update()
@@ -62,38 +64,80 @@ public class PizzaManager : MonoBehaviour
         {
             if (pizzaIndexes[i] > pizzaSlices.Count) return;
 
-            List<FoodMove> foodList = pizzaSlices[pizzaIndexes[i]].FoodList;// リストをコピー
-            if (foodList.Count > 0)
-            {
-                for (int j = foodList.Count - 1; j >= 0; j--)
-                {
-                    // 消去処理、ポイント獲得処理等を書く
-                    Debug.Log(foodList[j].Team);
-                    // ポイント増加処理
-                    AddScore(foodList[j]);
+            // 取得、スコア計上
+            Take(pizzaSlices[pizzaIndexes[i]]);
 
-                    foodList[j].gameObject.SetActive(false);
-                }
-                foodList.Clear();
-            }
-
-            pizzaSlices[pizzaIndexes[i]].gameObject.SetActive(false);// 仮の除去処理
-            pizzaSlices.RemoveAt(pizzaIndexes[i]);// ピザのリストから除外
+            //pizzaSlices[pizzaIndexes[i]].gameObject.SetActive(false);// 仮の除去処理
+            //pizzaSlices.RemoveAt(pizzaIndexes[i]);// ピザのリストから除外
             pizzaIndexes.RemoveAt(i);
         }
     }
 
+    void Take(PizzaSlice slice)
+    {
+        List<FoodMove> foodList = slice.FoodList;// リストをコピー
+        if (foodList.Count > 0)
+        {
+            for (int j = foodList.Count - 1; j >= 0; j--)
+            {
+                // 消去処理、ポイント獲得処理等を書く
+                Debug.Log(foodList[j].Team);
+                // ポイント増加処理
+                AddScore(foodList[j]);
+
+                foodList[j].gameObject.SetActive(false);
+            }
+            foodList.Clear();
+        }
+    }
+
+    /// <summary>
+    /// 食材ごとのポイントの加算
+    /// </summary>
+    /// <param name="food">調べる食材</param>
     void AddScore(FoodMove food)
     {
-        for(int i = 0; i < systemManager.Teams.Count; i++)
+        foreach (SystemManager.Team team in systemManager.Teams)
         {
             // 同じ色のチームにポイントを与える
-            if(food.Team == systemManager.Teams[i].Color)
+            if (food.Team == team.Color)
             {
-                systemManager.Teams[i].AddScore(food.ScorePoint);
+                team.AddScore(food.ScorePoint);
+                Debug.Log(team.Color + ":" + team.Score);
                 return;// 与えたらそれ以降の処理は行わない
             }
         }
+    }
+
+    /// <summary>
+    /// 指定したチームに得点を加算
+    /// </summary>
+    /// <param name="color">チーム</param>
+    /// <param name="score">加算する得点</param>
+    public void AddScore(TeamColor color, int score)
+    {
+        foreach(SystemManager.Team team in systemManager.Teams)
+        {
+            // 同じ色のチームにポイントを与える
+            if (color == team.Color)
+            {
+                team.AddScore(score);
+                Debug.Log(team.Color + ":" + team.Score);
+                return;// 与えたらそれ以降の処理は行わない
+            }
+        }
+    }
+    /// <summary>
+    /// すべてのピザを取得、ポイントを計算（アニメーションのイベントから呼ぶことでアニメーションの回収タイミングと同期できる）
+    /// </summary>
+    public void TakeAllPizza()
+    {
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            // 取得、ポイント計上
+            Take(slice);
+        }
+        pizzaSlices.Clear();
     }
 
     public void StartSpin()
