@@ -10,7 +10,23 @@ PrefabInstance:
     - target: {fileID: 216561514674231856, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -8421535984043420365, guid: 409d78f12e22e5045b11a881344e28bb, type: 3}
+      objectReference: {fileID: 2100000, guid: e9ff276a661633d4ba2518d109c2dfe1, type: 2}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.b
+      value: 0.08896402
+      objectReference: {fileID: 0}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.g
+      value: 0.23319833
+      objectReference: {fileID: 0}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key0.r
+      value: 0.9245283
+      objectReference: {fileID: 0}
+    - target: {fileID: 984628512631221679, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_Parameters.colorGradient.key1.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1584060787817551926, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_Name
       value: NormalFoodPumpkin Variant
@@ -26,7 +42,7 @@ PrefabInstance:
     - target: {fileID: 1818010819203474786, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: explodePrefab
       value: 
-      objectReference: {fileID: 9176859161218886169, guid: d56ab8ecd01fc6245b47ef2c9cc8cdda, type: 3}
+      objectReference: {fileID: 7321604779301039974, guid: d5bb4e0c95678944083e35f608ee0fba, type: 3}
     - target: {fileID: 2211379877717590668, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -69,6 +85,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2211379877717590668, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9063905735174576940, guid: 5827f5e953f37a646b5dfe33c60b1344, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

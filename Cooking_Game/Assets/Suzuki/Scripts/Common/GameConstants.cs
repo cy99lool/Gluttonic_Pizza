@@ -15,6 +15,11 @@ public static class GameConstants
     public const int MillisecondPerSecond = 1000;   // 1秒は何ミリ秒か
     public const int DefaultIndex = -1;             // インデックスの初期値
     public const int HeadIndex = 0;                 // 配列やリストの先頭を指すインデックス
+    public const float MaxPercentage = 100f;        // 100%
+
+    // シーン名
+    //public const string TitleSceneName = ""
+    public const string MainSceneName = "PizzaTestScene";// メインシーン
 
     /// <summary>
     /// Vector3の割り算
