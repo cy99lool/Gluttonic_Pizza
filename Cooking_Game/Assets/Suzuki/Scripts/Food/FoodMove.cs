@@ -490,6 +490,7 @@ public class FoodMove : MonoBehaviour
         // 全く同じ食べ物がくっついていないか確かめる
         foreach (FoodMove food in mergedFoods)
         {
+            if(food.Root == target.Root) Debug.LogWarning($"[Merge Failed] {food.name}と{target.name}を結合しようとしましたが、すでに同じRootです！");// デバッグ文 後で消す
             if (food.Root == target.Root) return;
         }
 
@@ -805,9 +806,6 @@ public class FoodMove : MonoBehaviour
                     default:
                         break;
                 }
-
-                //Reflect(myRb, oppoentRb);
-                //stageManager.AddReflectList(this, opponentFood);
             }
         }
     }

@@ -13,6 +13,9 @@ public class SystemManager : MonoBehaviour
         [SerializeField] int score;
         public int Score => score;
 
+        [SerializeField] int explosionScore;
+        public int ExplosionScore => explosionScore;
+
         [Header("発射後のクールタイム"), SerializeField] float shootCT;
 
         [Header("チームの情報UIテキスト"), SerializeField] TMPro.TextMeshProUGUI scoreText;
@@ -79,6 +82,8 @@ public class SystemManager : MonoBehaviour
         {
             this.score += score;
         }
+
+        public void AddExplosionScore(int score) => this.explosionScore += score;
 
         /// <summary>
         /// フェーズ開始処理
@@ -193,6 +198,19 @@ public class SystemManager : MonoBehaviour
     {
         // BGMを再生
         if (soundManager != null && (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) soundManager.PlaySE(soundType, playTransform);
+    }
+
+    /// <summary>
+    /// Android環境のみSEを再生
+    /// </summary>
+    /// <param name="soundType">再生する種類</param>
+    /// <param name="playTransform">再生位置</param>
+    public void PlaySE_Android(PlayerSoundType soundType, Transform playTransform)
+    {
+#if UNITY_ANDROID
+        // BGMを再生
+        if (soundManager != null) soundManager.PlaySE(soundType, playTransform);
+#endif
     }
 
     void Update()

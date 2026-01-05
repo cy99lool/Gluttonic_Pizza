@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc39a3ad75b68544593d58527717c27b, type: 3}
   m_Name: CharacterSoundData
   m_EditorClassIdentifier: 
-  soundEntries: []
+  soundEntries:
+  - soundType: 3
+    soundName: "\u7206\u767A"
+    soundClip: {fileID: 8300000, guid: d9a049254591a9e4fadd5f8ab6e09aee, type: 3}
+    volume: 0.3
+    pitchVarietion: 0.3

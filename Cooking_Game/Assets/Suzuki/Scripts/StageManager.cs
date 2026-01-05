@@ -86,10 +86,11 @@ public class StageManager : MonoBehaviour
         float pullTimer = GameConstants.FirstTimerValue;
         bool eatMode = false;// 捕食モードかどうか
         public bool EatMode => eatMode;
+        public void SetEatModeFalse() => eatMode = false;
 
         bool onEatModeChanged = false;// 捕食モードに切り替わった瞬間か
         public bool OnEatModeChanged => onEatModeChanged;
-        public bool SetOnEatModeFalse() => onEatModeChanged = false;
+        public void SetOnEatModeFalse() => onEatModeChanged = false;
 
         CursorInfo cursorInfo;
         public CursorInfo Cursor => cursorInfo;
@@ -239,12 +240,12 @@ public class StageManager : MonoBehaviour
     List<InfoForReflect> eatEventList = new List<InfoForReflect>();
 
     [Header("振動のマネージャー"), SerializeField] VibrateManager vibrateManager;
-    [Header("サウンドのマネージャー"), SerializeField] SoundManager soundManager;
 
     SystemManager systemManager;
-    public SystemManager SystemManager => systemManager;
     void Start()
     {
+        systemManager = FindObjectOfType<SystemManager>();
+
         for (int i = 0; i < trackObjects.Count; i++)
         {
             trackObjects[i].SetStartPos();
@@ -276,6 +277,12 @@ public class StageManager : MonoBehaviour
 
                 // 発射可能状況の制御
                 trackObjects[i].Cursor.OnShoot();
+
+                // 振動を停止させる
+                vibrateManager.StopVibration();
+
+                // 捕食モードを切る
+                trackObjects[i].SetEatModeFalse();
             }
             // 発射クールタイム終了時
             if (trackObjects[i].Cursor.Team.Shootable && !trackObjects[i].FoodBeforeShoot.gameObject.activeSelf) trackObjects[i].OnFoodSpawn();
@@ -314,7 +321,7 @@ public class StageManager : MonoBehaviour
             {
                 mergeEventList[i].First.Food.OnMerge(mergeEventList[i].Second.Food);
                 // 結合SE再生
-                soundManager.PlaySE(PlayerSoundType.Merge, mergeEventList[i].First.Food.transform);
+                systemManager.PlaySE_Windows(PlayerSoundType.Merge, mergeEventList[i].First.Food.transform);
                 Debug.Log("[MERGE]");
             }
             mergeEventList.Clear();// リストをクリア
@@ -326,7 +333,7 @@ public class StageManager : MonoBehaviour
             {
                 eatEventList[i].First.Food.OnEat(eatEventList[i].Second.Food, eatEventList[i].First.Velocity);
                 // 捕食SE再生
-                soundManager.PlaySE(PlayerSoundType.Eat, mergeEventList[i].First.Food.transform);
+                systemManager.PlaySE_Windows(PlayerSoundType.Eat, mergeEventList[i].First.Food.transform);
                 Debug.Log("[EAT]");
             }
             eatEventList.Clear();// リストをクリア
@@ -340,6 +347,8 @@ public class StageManager : MonoBehaviour
     {
         // エフェクト表示
 
+        //  チャージ完了SE再生
+        if (systemManager != null) systemManager.PlaySE_Android(PlayerSoundType.Charge, trackObject.FoodBeforeShoot.transform);
         //// 捕食可能状態の切り替わりフラグの無効化
         //trackObject.SetOnEatModeFalse();
     }

@@ -19,8 +19,11 @@ public class Result : MonoBehaviour
     [Header("赤チームの得点表示テキスト"), SerializeField] TextMeshProUGUI redText;
     [Header("緑チームの得点表示テキスト"), SerializeField] TextMeshProUGUI greenText;
 
-    float redTeamScore;
-    float greenTeamScore;
+    float redTeamPizzaScore;
+    float redTeamExplosionScore;
+
+    float greenTeamPizzaScore;
+    float greenTeamExplosionScore;
 
     // リザルト画面表示
     public IEnumerator ShowResult(float debugReloadTime = 5f)
@@ -31,8 +34,8 @@ public class Result : MonoBehaviour
         CalcTeamScore();
 
         // 得点表示
-        if(redText != null) redText.text = "赤チーム：" + redTeamScore;
-        if(greenText != null) greenText.text = "緑チーム：" + greenTeamScore;
+        if(redText != null) redText.text = "赤チーム：" + redTeamPizzaScore + redTeamExplosionScore;
+        if(greenText != null) greenText.text = "緑チーム：" + greenTeamPizzaScore + greenTeamExplosionScore;
 
         yield return new WaitForSeconds(debugReloadTime);
 
@@ -48,16 +51,24 @@ public class Result : MonoBehaviour
     void CalcTeamScore()
     {
         // 初期化
-        redTeamScore = GameConstants.Zero;
-        greenTeamScore = GameConstants.Zero;
+        redTeamPizzaScore = GameConstants.Zero;
+        greenTeamPizzaScore = GameConstants.Zero;
 
         foreach(Team team in systemManager.Teams)
         {
             // 赤チームにスコア加算
-            if (team.Color == TeamColor.Red || team.Color == TeamColor.Yellow) redTeamScore += team.Score;
+            if (team.Color == TeamColor.Red || team.Color == TeamColor.Yellow)
+            {
+                redTeamPizzaScore += team.Score;
+                redTeamExplosionScore += team.ExplosionScore;
+            }
 
             // 緑チームにスコア加算
-            if (team.Color == TeamColor.Green || team.Color == TeamColor.Blue) greenTeamScore += team.Score;
+            if (team.Color == TeamColor.Green || team.Color == TeamColor.Blue)
+            {
+                greenTeamPizzaScore += team.Score;
+                greenTeamExplosionScore += team.ExplosionScore;
+            }
         }
     }
 
