@@ -431,6 +431,9 @@ public class SystemManager : MonoBehaviour
         // フェーズを設定
         currentPhase = GamePhase.InGame;
 
+        // ピザの上の食べ物をすべて消去
+        pizzaManager.ClearAllFood();
+
         // 完全に焼けるテクスチャになるまでの時間
         float cookTime = shootTime;
 

@@ -130,6 +130,9 @@ public class PizzaManager : MonoBehaviour
 
     public void AddExplosionScore(TeamColor color, int score)
     {
+        // ゲーム開始前の爆発はカウントしない
+        if (systemManager.CurrentPhase != SystemManager.GamePhase.InGame) return;
+
         foreach (SystemManager.Team team in systemManager.Teams)
         {
             // 同じ色のチームにポイントを与える
@@ -152,7 +155,29 @@ public class PizzaManager : MonoBehaviour
             // 取得、ポイント計上
             Take(slice);
         }
-        pizzaSlices.Clear();
+        //pizzaSlices.Clear();
+    }
+
+    public void ClearAllFood()
+    {
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            ClearFood(slice);
+        }
+    }
+
+    void ClearFood(PizzaSlice slice)
+    {
+        List<FoodMove> foodList = slice.FoodList;// リストをコピー
+        if (foodList.Count > 0)
+        {
+            for (int j = foodList.Count - 1; j >= 0; j--)
+            {
+                // 消去処理
+                Destroy(foodList[j].gameObject);
+            }
+            foodList.Clear();
+        }
     }
 
     public void StartSpin()

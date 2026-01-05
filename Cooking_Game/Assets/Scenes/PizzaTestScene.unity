@@ -15207,6 +15207,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NormalFoodPumpkin Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 8190534429889335181, guid: e2ff532b2b5b4c5428c7b54f9a460917, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8854445236900418871, guid: e2ff532b2b5b4c5428c7b54f9a460917, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -23307,6 +23311,7 @@ MonoBehaviour:
   teams:
   - color: 0
     score: 0
+    explosionScore: 0
     shootCT: 1
     scoreText: {fileID: 682609552}
     pickTimeText: {fileID: 1146503673}
@@ -23315,6 +23320,7 @@ MonoBehaviour:
     tabletScoreBar: {fileID: 0}
   - color: 1
     score: 0
+    explosionScore: 0
     shootCT: 1
     scoreText: {fileID: 801704762}
     pickTimeText: {fileID: 1611782053}
@@ -23323,6 +23329,7 @@ MonoBehaviour:
     tabletScoreBar: {fileID: 0}
   - color: 2
     score: 0
+    explosionScore: 0
     shootCT: 1
     scoreText: {fileID: 1293919561}
     pickTimeText: {fileID: 703397921}
@@ -23331,6 +23338,7 @@ MonoBehaviour:
     tabletScoreBar: {fileID: 0}
   - color: 3
     score: 0
+    explosionScore: 0
     shootCT: 1
     scoreText: {fileID: 1584859132}
     pickTimeText: {fileID: 258409422}
@@ -24941,7 +24949,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &952148038
 Transform:
   m_ObjectHideFlags: 0
@@ -50864,7 +50872,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1919479957
 Transform:
   m_ObjectHideFlags: 0

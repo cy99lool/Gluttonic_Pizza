@@ -392,6 +392,7 @@ public class UDPMulti : MonoBehaviour
     /// <param name="ip"></param>
     public void UpdateMyIP(string ip)
     {
+        Debug.Log($"{ip}を{myInfo.RelativeFilePath}に保存");
         if (ip == null) return;
 
         // 適用
