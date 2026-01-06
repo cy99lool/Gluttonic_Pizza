@@ -270,6 +270,8 @@ public class SystemManager : MonoBehaviour
         StartCoroutine(Main());
     }
 
+    public void OnStartReady() => StartCoroutine(Main());
+
     /// <summary>
     /// ゲームの進行状況、同期に使用する
     /// </summary>

@@ -1,12 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Concurrent;// ConCurrentQueue（スレッドセーフなキュー）を使う
 using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System;
 using System.Threading;
-using System.Linq;
-using System.Collections.Concurrent;// ConCurrentQueue（スレッドセーフなキュー）を使う
+using UnityEngine;
 
 public class UDPMulti : MonoBehaviour
 {
@@ -170,6 +170,18 @@ public class UDPMulti : MonoBehaviour
     [Header("自分の情報"), SerializeField] ClientInfo myInfo;
     public string MyRelativeFilePath => myInfo.RelativeFilePath;
     [Header("接続する相手たち"), SerializeField] List<ClientInfo> clients = new List<ClientInfo>();
+    bool IsAllPlayerReady
+    {
+        get
+        {
+            //  プレイヤー一人でも準備できていなければfalse
+            foreach (ClientInfo client in clients) if (client.ReadyState == ReadyState.NotReady) return false;
+
+            // 全員が準備完了ならtrue
+            return true;
+        }
+    }
+
     [Header("接続が切れた判定をするまでの時間"), SerializeField] float disconnectThreshold = 3f;
     [SerializeField] SystemManager systemManager;
 
@@ -718,12 +730,14 @@ public class UDPMulti : MonoBehaviour
                     // 準備状態を反映
                     foreach(ClientInfo player in clients)
                     {
-                        // 対応するプレイヤーの情報の場合
-                        if(player.Color == readyStateDto.Color)
+                        // 対応するプレイヤーの情報を更新する場合
+                        if(player.Color == readyStateDto.Color && player.ReadyState != readyStateDto.ReadyState)
                         {
                             // 準備状況を同期
                             player.SetReadyState(readyStateDto.ReadyState);
 
+                            // プレイヤーが全員準備完了の場合、ゲーム開始
+                            if (IsAllPlayerReady) systemManager.OnStartReady();
                             break;
                         }
                     }
@@ -751,6 +765,8 @@ public class UDPMulti : MonoBehaviour
         }
         //else Debug.Log("[CheckConnect] 発見不可");
     }
+
+    public void OnClickReadyButton() => myInfo.SetReadyState(myInfo.ReadyState == ReadyState.NotReady ? ReadyState.Ready : ReadyState.NotReady);// ボタンによる準備完了/未完了の切り替え
 
     /// <summary>
     /// 通信相手全員に自分の状態を送る
