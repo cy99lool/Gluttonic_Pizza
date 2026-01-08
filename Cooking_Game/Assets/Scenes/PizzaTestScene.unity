@@ -23342,6 +23342,7 @@ MonoBehaviour:
     tabletResult: {fileID: 862567330}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
+    phase: 0
   - color: 1
     score: 0
     explosionScore: 0
@@ -23351,6 +23352,7 @@ MonoBehaviour:
     tabletResult: {fileID: 1824460197}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
+    phase: 0
   - color: 2
     score: 0
     explosionScore: 0
@@ -23360,6 +23362,7 @@ MonoBehaviour:
     tabletResult: {fileID: 314942894}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
+    phase: 0
   - color: 3
     score: 0
     explosionScore: 0
@@ -23369,6 +23372,7 @@ MonoBehaviour:
     tabletResult: {fileID: 879510505}
     tabletResuiltUI: {fileID: 0}
     tabletScoreBar: {fileID: 0}
+    phase: 0
 --- !u!4 &901040593
 Transform:
   m_ObjectHideFlags: 0

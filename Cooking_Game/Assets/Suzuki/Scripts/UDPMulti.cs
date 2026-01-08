@@ -715,6 +715,7 @@ public class UDPMulti : MonoBehaviour
 
                             // フェーズを同期
                             systemManager.SyncGamePhase(myInfo.Cursor.Team, team.Phase);
+                            systemManager.SetCurrentPhase(team.Phase);
                             break;
                         }
                     }
@@ -854,6 +855,13 @@ public class UDPMulti : MonoBehaviour
             // メッセージに変換
             byte[] dtoMessage = System.Text.Encoding.UTF8.GetBytes(hostMessageDtoJson);
             byte[] hostMessage = MergeBytes(udpMessage, dtoMessage);
+
+            // デバッグ用
+            //string debugJson = System.Text.Encoding.UTF8.GetString(hostMessage, sizeof(Int32), hostMessage.Length - sizeof(Int32));// UDPMessage型のメッセージの先
+
+            //// Json形式からSystemManagerに変換
+            //HostMessageDto receiveDto = JsonUtility.FromJson<HostMessageDto>(debugJson);
+            //Debug.Log(receiveDto.Teams);
 
             // 送信
             SendAsyncToPlayers(hostMessage);

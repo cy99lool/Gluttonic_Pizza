@@ -53,7 +53,7 @@ public class SystemManager : MonoBehaviour
         public void SetUnshootable() => shootable = false;
         public void SetShootable() => shootable = true;
 
-        GamePhase phase;// ゲームの進行状況
+        [SerializeField] GamePhase phase;// ゲームの進行状況
         public GamePhase Phase => phase;
 
         /// <summary>
@@ -161,6 +161,8 @@ public class SystemManager : MonoBehaviour
     PizzaManager pizzaManager;
     GamePhase currentPhase;
     public GamePhase CurrentPhase => currentPhase;
+
+    public void SetCurrentPhase(GamePhase phase) => currentPhase = phase;
 
     void Start()
     {
