@@ -5057,6 +5057,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!1 &194387296
@@ -5202,6 +5203,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!23 &196492377
@@ -9178,6 +9180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!23 &364078312
@@ -10305,6 +10308,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 415189325}
   highlightObject: {fileID: 794665422}
   cookedRenderer: {fileID: 1607709082}
 --- !u!114 &415189333
@@ -10319,6 +10323,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 415189325}
   highlightObject: {fileID: 1070048860}
   cookedRenderer: {fileID: 109526639}
 --- !u!1 &418066683
@@ -11731,6 +11736,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 415189325}
   highlightObject: {fileID: 1589087752}
   cookedRenderer: {fileID: 1524888742}
 --- !u!1 &457925502
@@ -17550,6 +17556,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!1 &660841588
@@ -21195,6 +21202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!1 &785213636
@@ -21512,6 +21520,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!23 &794665426
@@ -22456,6 +22465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 415189325}
   highlightObject: {fileID: 364078308}
   cookedRenderer: {fileID: 50133657}
 --- !u!1 &846798455
@@ -23332,6 +23342,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainResult: {fileID: 1803423014}
   soundManager: {fileID: 983832147}
+  shootPhaseTime: 120
+  pickPhaseTime: 45
   teams:
   - color: 0
     score: 0
@@ -25837,6 +25849,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!23 &997093112
@@ -26249,6 +26262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!1 &999713496
@@ -28099,6 +28113,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!23 &1070048864
@@ -30910,6 +30925,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!1 &1163538360
@@ -30958,6 +30974,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!23 &1163538364
@@ -33161,6 +33178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!1 &1239648491
@@ -34845,6 +34863,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!64 &1275121438
@@ -36009,6 +36028,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 415189325}
   highlightObject: {fileID: 1163538360}
   cookedRenderer: {fileID: 1181197573}
 --- !u!64 &1303400095
@@ -36037,6 +36057,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 415189325}
   highlightObject: {fileID: 196492373}
   cookedRenderer: {fileID: 1672266536}
 --- !u!1 &1304733867
@@ -36534,6 +36555,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!1 &1313399842
@@ -42830,6 +42852,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!23 &1589087756
@@ -46646,6 +46669,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 415189325}
   highlightObject: {fileID: 2006351764}
   cookedRenderer: {fileID: 1150967908}
 --- !u!1 &1740629964
@@ -48723,6 +48747,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!64 &1840253642
@@ -51145,6 +51170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 415189325}
   highlightObject: {fileID: 997093108}
   cookedRenderer: {fileID: 1068408102}
 --- !u!1 &1946722849
@@ -52369,6 +52395,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56e7b2c75de14e4dbe44ee04d18da59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pizzaManager: {fileID: 0}
   highlightObject: {fileID: 0}
   cookedRenderer: {fileID: 0}
 --- !u!23 &2006351768

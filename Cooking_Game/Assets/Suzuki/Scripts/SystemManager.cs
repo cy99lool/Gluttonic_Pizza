@@ -152,6 +152,11 @@ public class SystemManager : MonoBehaviour
     [Header("メイン画面のリザルトのスクリプト"), SerializeField] Result mainResult;
     [Header("サウンドマネージャー"), SerializeField] SoundManager soundManager;
 
+    [Header("--- フェーズ時間 ---")]
+    [Header("食材の発射フェーズの時間"), SerializeField] float shootPhaseTime;
+    [Header("ハーフタイムの時間"), SerializeField] float breakPhaseTime;
+    [Header("ピザが取られるフェーズの時間"), SerializeField] float pickPhaseTime;
+
     [SerializeField] List<Team> teams;
     public List<Team> Teams => teams;
 
@@ -304,8 +309,6 @@ public class SystemManager : MonoBehaviour
 
     const float RouletteTime = 1f;// ルーレット演出の長さ
     const int pickNum = 1;
-    const float ShootableTime = 45f;
-    const float PreparePizzaTime = 2f;// ピザ取得準備の時間
     const int PhaseCount = 2;// フェーズの総数
     const int PinePhase = 2;
     const int LastPhase = 3;
@@ -326,10 +329,10 @@ public class SystemManager : MonoBehaviour
             //yield return StartCoroutine(PizzaSelectPhase(RouletteTime, pickNum));
 
             // 食材発射フェーズ
-            yield return StartCoroutine(ShootFoodPhase(ShootableTime));
+            yield return StartCoroutine(ShootFoodPhase(shootPhaseTime));
 
             // ピザ取得待機フェーズ
-            //yield return StartCoroutine(PreparePickPizzaPhase(PreparePizzaTime));
+            yield return StartCoroutine(PreparePickPizzaPhase(breakPhaseTime));
 
             // ピザ取得フェーズ
             //yield return StartCoroutine(PickPizzaPhase());
@@ -393,20 +396,21 @@ public class SystemManager : MonoBehaviour
     /// <returns>取得するピザの番号リスト</returns>
     List<int> SelectPizzaSlices(uint pickCount = 1)
     {
+        // 選択個数がピザ切れの総数より多かった場合は、ピザ切れの総数にする
+        if (pickCount > pizzaManager.PickableSlices.Count) pickCount = (uint)pizzaManager.PickableSlices.Count;
+
         // 選択個数が0個なら初期化されたものを返す
         if (pickCount == GameConstants.Zero) return new List<int>();
-
-        // 選択個数がピザ切れの総数より多かった場合は、ピザ切れの総数にする
-        if (pickCount > pizzaManager.PizzaSlices.Count) pickCount = (uint)pizzaManager.PizzaSlices.Count;
 
         //int pickIndex = Random.Range(0, pizzaManager.PizzaSlices.Count);
         List<int> pickIndexes = new List<int>();
         List<PizzaSlice> pickableSlices = new List<PizzaSlice>();
         //pickableSlices = pizzaManager.PizzaSlices;
-        for (int i = 0; i < pizzaManager.PizzaSlices.Count; i++)
-        {
-            pickableSlices.Add(pizzaManager.PizzaSlices[i]);
-        }
+        //for (int i = 0; i < pizzaManager.PickableSlices.Count; i++)
+        //{
+        //    pickableSlices.Add(pizzaManager.PickableSlices[i]);
+        //}
+        pickableSlices.AddRange(pizzaManager.PickableSlices);
 
         // 取る個数分取る場所を指定
         for (int i = 0; i < pickCount; i++)
@@ -417,7 +421,7 @@ public class SystemManager : MonoBehaviour
             pickIndexes.Add(index);
             Debug.Log($"{pickableSlices[index]}が選ばれた");
 
-            pickableSlices.RemoveAt(index);
+            pickableSlices.Remove(pickableSlices[index]);
         }
 
         return pickIndexes;// 取得するピザの番号を返す
@@ -566,10 +570,38 @@ public class SystemManager : MonoBehaviour
     {
         // フェーズ設定
         currentPhase = GamePhase.PickPizza;
-        // 取得
-        pizzaManager.TakeAllPizza();
+        //// 取得
+        //pizzaManager.TakeAllPizza();
 
-        yield return null;
+        // プレイヤーが発射可能に
+        SetAllPlayerShootable(teams);
+
+        // 取得ペースを計算
+        float pickPace = pickPhaseTime / pizzaManager.PizzaSlices.Count;
+        float timer = GameConstants.FirstTimerValue;
+
+        // 次に取るピザを決定
+        pickIndexes = SelectPizzaSlices();
+
+        while (pizzaManager.PickableSlices.Count != GameConstants.Zero)
+        {
+            if(timer >= pickPace)
+            {
+                // ピザを取得(アニメーションの再生に変更予定)
+                pizzaManager.TakePizzaSlice(pickIndexes);
+
+                // 次に取るピザを決定
+                pickIndexes = SelectPizzaSlices();
+
+                // ピックタイミングを待つ（タイマーリセット）
+                timer = GameConstants.FirstTimerValue;
+            }
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        
     }
 
     IEnumerator EndPhase(int phaseCounter)
@@ -578,11 +610,8 @@ public class SystemManager : MonoBehaviour
 
         // ピザの復活処理（アニメーションの再生）
 
-        // パイン開始フラグを設定予定
-        //if (nextPhase == PinePhase) 
-
-        // 魔王のピック開始フラグを設定予定
-        //if(nextPhase == LastPhase)
+        pizzaManager.ActivatePizzaSlices();
+        pizzaManager.FillAllPickableSlices();
 
         yield return null;
     }
