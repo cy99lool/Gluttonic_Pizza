@@ -46,7 +46,7 @@ public class PizzaManager : MonoBehaviour
         //foreach(PizzaSlice slice in pizzaSlices) 
 
         // 再有効化（仮の処理）
-        foreach (PizzaSlice slice in pizzaSlices) slice.gameObject.SetActive(true);
+        //foreach (PizzaSlice slice in pizzaSlices) slice.gameObject.SetActive(true);
     }
     public void FillAllPickableSlices()
     {
@@ -155,9 +155,6 @@ public class PizzaManager : MonoBehaviour
             }
             foodList.Clear();
         }
-
-        // 除去処理（仮）
-        slice.gameObject.SetActive(false);
     }
 
     /// <summary>

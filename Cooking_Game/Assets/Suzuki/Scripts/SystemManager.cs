@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class SystemManager : MonoBehaviour
 {
@@ -156,6 +157,9 @@ public class SystemManager : MonoBehaviour
     [Header("食材の発射フェーズの時間"), SerializeField] float shootPhaseTime;
     [Header("ハーフタイムの時間"), SerializeField] float breakPhaseTime;
     [Header("ピザが取られるフェーズの時間"), SerializeField] float pickPhaseTime;
+
+    [Header("--- タイムラインの設定 ---")]
+    [Header("ピザのカットを行うDirector"), SerializeField] PlayableDirector pizzaCutDirector;
 
     [SerializeField] List<Team> teams;
     public List<Team> Teams => teams;
@@ -548,6 +552,20 @@ public class SystemManager : MonoBehaviour
 
         // 取得待機演出
         yield return StartCoroutine(pizzaManager.PrepareTakePizza(preparePizzaTime));
+
+        // カット演出
+        // 有効化
+        if (!pizzaCutDirector.gameObject.activeSelf) pizzaCutDirector.gameObject.SetActive(true);
+        // 再生
+        pizzaCutDirector.Play();
+
+        // 再生完了まで待機（状態で判定）
+        yield return new WaitUntil(() => pizzaCutDirector.state != PlayState.Playing);
+        //// 再生完了まで待機（再生時間で判定、Hold用）
+        //yield return new WaitUntil(() => pizzaCutDirector.time >= pizzaCutDirector.duration);
+
+        // 無効化
+        pizzaCutDirector.gameObject.SetActive(false);
     }
 
     IEnumerator PickPizzaPhase()
