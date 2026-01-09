@@ -3,8 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="${applicationId}">
-    <!-- package属性はUnityがビルド時に自動置換してくれる -->
-    <application>
+    
+    <!-- android:allowBackup="false" を追加 -->
+    <!-- tools:replace="android:allowBackup" を追加して、Unityのデフォルト設定を上書きする -->
+    <application 
+        android:allowBackup="false" 
+        tools:replace="android:allowBackup">
+        
         <activity android:name="com.unity3d.player.UnityPlayerActivity"
                   android:theme="@style/UnityThemeSelector">
             <intent-filter>
@@ -14,5 +19,6 @@
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
     </application>
+    
     <uses-permission android:name="android.permission.VIBRATE" />
 </manifest>

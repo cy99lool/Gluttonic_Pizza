@@ -10,6 +10,11 @@ public class MyIPText : MonoBehaviour
     [Header("表示テキスト"), SerializeField] TextMeshProUGUI myIPText;
     [SerializeField] UDPMulti udpMulti;
 
+    void Awake()
+    {
+        if(udpMulti == null) IPJsonDataManager.LoadIPSetting(udpMulti.MyRelativeFilePath);
+    }
+
     public void UpdateMyIP()
     {
         // IPアドレス取得

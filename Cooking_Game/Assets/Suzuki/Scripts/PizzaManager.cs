@@ -7,16 +7,29 @@ using UnityEngine.SocialPlatforms.Impl;
 public class PizzaManager : MonoBehaviour
 {
     [SerializeField] List<PizzaSlice> pizzaSlices;
+    public List<PizzaSlice> PizzaSlices => pizzaSlices;
+
     [Header("回転速度"), SerializeField] float rotateSpeed = 20f;
 
     bool canSpin = false;
     [SerializeField] SystemManager systemManager;
 
-    public List<PizzaSlice> PizzaSlices => pizzaSlices;
+    List<PizzaSlice> pickableSlices = new List<PizzaSlice>();
+    public List<PizzaSlice> PickableSlices => pickableSlices;
+    void RemovePickableSlices(PizzaSlice slice)
+    {
+        // リストやその中に対象が存在しなければreturn
+        if (pickableSlices == null && !pickableSlices.Contains(slice)) return;
+
+        // 対象を除外
+        pickableSlices.Remove(slice);
+    }
 
     void Start()
     {
         if(systemManager != null) systemManager = FindObjectOfType<SystemManager>();
+
+        FillAllPickableSlices();
     }
 
     void Update()
@@ -24,6 +37,26 @@ public class PizzaManager : MonoBehaviour
         if (canSpin) Spin(rotateSpeed);
     }
 
+    /// <summary>
+    /// ピザの場所を戻す
+    /// </summary>
+    public void ActivatePizzaSlices()
+    {
+        // ピザの場所を戻す
+        //foreach(PizzaSlice slice in pizzaSlices) 
+
+        // 再有効化（仮の処理）
+        //foreach (PizzaSlice slice in pizzaSlices) slice.gameObject.SetActive(true);
+    }
+    public void FillAllPickableSlices()
+    {
+        // リストを空にする
+        pickableSlices.Clear();
+
+        // リストにすべて追加
+        pickableSlices.AddRange(pizzaSlices);
+        //foreach(PizzaSlice slice in pizzaSlices) pickableSlices.Add(slice);
+    }
     public IEnumerator PrepareTakePizza(float waitTime)
     {
         // ピザの上にあるすべての食べ物を取得
@@ -69,8 +102,41 @@ public class PizzaManager : MonoBehaviour
 
             //pizzaSlices[pizzaIndexes[i]].gameObject.SetActive(false);// 仮の除去処理
             //pizzaSlices.RemoveAt(pizzaIndexes[i]);// ピザのリストから除外
+            pickableSlices.RemoveAt(pizzaIndexes[i]);
             pizzaIndexes.RemoveAt(i);
         }
+        Debug.Log(pickableSlices.Count);
+    }
+
+    /// <summary>
+    /// ピザのスライスを取り上げ、上に乗っている具材に応じてポイントを獲得させる
+    /// </summary>
+    /// <param name="targetSlice">取り上げるスライス</param>
+    public void TakePizzaSlice(PizzaSlice targetSlice)
+    {
+        PizzaSlice pickSlice = null;
+
+        // スライスがあるか調べる
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            if(slice == targetSlice)
+            {
+                pickSlice = slice;
+                break;
+            }
+        }
+
+        // なければ取らない
+        if (pickSlice == null) return;
+
+        // ピザを取り上げる処理
+        Take(pickSlice);
+
+        // ハイライトを外す
+        pickSlice.DisableHighlightObject();
+
+        // 取得可能番号から除外
+        RemovePickableSlices(pickSlice);
     }
 
     void Take(PizzaSlice slice)
@@ -130,6 +196,9 @@ public class PizzaManager : MonoBehaviour
 
     public void AddExplosionScore(TeamColor color, int score)
     {
+        // ゲーム開始前の爆発はカウントしない
+        if (systemManager.CurrentPhase != SystemManager.GamePhase.InGame) return;
+
         foreach (SystemManager.Team team in systemManager.Teams)
         {
             // 同じ色のチームにポイントを与える
@@ -152,7 +221,29 @@ public class PizzaManager : MonoBehaviour
             // 取得、ポイント計上
             Take(slice);
         }
-        pizzaSlices.Clear();
+        //pizzaSlices.Clear();
+    }
+
+    public void ClearAllFood()
+    {
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            ClearFood(slice);
+        }
+    }
+
+    void ClearFood(PizzaSlice slice)
+    {
+        List<FoodMove> foodList = slice.FoodList;// リストをコピー
+        if (foodList.Count > 0)
+        {
+            for (int j = foodList.Count - 1; j >= 0; j--)
+            {
+                // 消去処理
+                Destroy(foodList[j].gameObject);
+            }
+            foodList.Clear();
+        }
     }
 
     public void StartSpin()

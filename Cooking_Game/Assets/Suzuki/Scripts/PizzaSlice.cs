@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PizzaSlice : MonoBehaviour
 {
+    [SerializeField] PizzaManager pizzaManager;
     [Header("ピザが選択されているときのハイライト"), SerializeField] GameObject highlightObject;
     [Header("焼けた後の見た目"), SerializeField] Renderer cookedRenderer;
 
@@ -25,6 +26,8 @@ public class PizzaSlice : MonoBehaviour
             return foodList;
         }
     }
+
+    public void PickThisSlice() => pizzaManager.TakePizzaSlice(this);
 
     public void EnableHighlightObject()
     {
