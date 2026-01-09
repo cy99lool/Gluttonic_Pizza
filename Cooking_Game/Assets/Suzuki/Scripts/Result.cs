@@ -34,8 +34,8 @@ public class Result : MonoBehaviour
         CalcTeamScore();
 
         // 得点表示
-        if(redText != null) redText.text = "赤チーム：" + redTeamPizzaScore + redTeamExplosionScore;
-        if(greenText != null) greenText.text = "緑チーム：" + greenTeamPizzaScore + greenTeamExplosionScore;
+        if(redText != null) redText.text = "赤チーム：" + (redTeamPizzaScore + redTeamExplosionScore);
+        if(greenText != null) greenText.text = "緑チーム：" + (greenTeamPizzaScore + greenTeamExplosionScore);
 
         yield return new WaitForSeconds(debugReloadTime);
 

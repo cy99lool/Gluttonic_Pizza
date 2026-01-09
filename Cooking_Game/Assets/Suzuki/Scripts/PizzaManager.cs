@@ -44,6 +44,9 @@ public class PizzaManager : MonoBehaviour
     {
         // ピザの場所を戻す
         //foreach(PizzaSlice slice in pizzaSlices) 
+
+        // 再有効化（仮の処理）
+        foreach (PizzaSlice slice in pizzaSlices) slice.gameObject.SetActive(true);
     }
     public void FillAllPickableSlices()
     {
@@ -129,6 +132,9 @@ public class PizzaManager : MonoBehaviour
         // ピザを取り上げる処理
         Take(pickSlice);
 
+        // ハイライトを外す
+        pickSlice.DisableHighlightObject();
+
         // 取得可能番号から除外
         RemovePickableSlices(pickSlice);
     }
@@ -149,6 +155,9 @@ public class PizzaManager : MonoBehaviour
             }
             foodList.Clear();
         }
+
+        // 除去処理（仮）
+        slice.gameObject.SetActive(false);
     }
 
     /// <summary>

@@ -369,13 +369,19 @@ public class SystemManager : MonoBehaviour
             if (pickIndexes.Count == GameConstants.Zero) yield return null;// 取得するピザがなければ演出カット
 
             // ルーレット演出をいれる
-            foreach (int index in pickIndexes)
-            {
-                pizzaManager.PizzaSlices[index].EnableHighlightObject();
-            }
+            EnablePizzaHighlight();
 
 
             yield return null;
+        }
+    }
+
+    // 取られるピザのハイライト
+    void EnablePizzaHighlight()
+    {
+        foreach (int index in pickIndexes)
+        {
+            pizzaManager.PickableSlices[index].EnableHighlightObject();
         }
     }
 
@@ -405,11 +411,6 @@ public class SystemManager : MonoBehaviour
         //int pickIndex = Random.Range(0, pizzaManager.PizzaSlices.Count);
         List<int> pickIndexes = new List<int>();
         List<PizzaSlice> pickableSlices = new List<PizzaSlice>();
-        //pickableSlices = pizzaManager.PizzaSlices;
-        //for (int i = 0; i < pizzaManager.PickableSlices.Count; i++)
-        //{
-        //    pickableSlices.Add(pizzaManager.PickableSlices[i]);
-        //}
         pickableSlices.AddRange(pizzaManager.PickableSlices);
 
         // 取る個数分取る場所を指定
@@ -465,10 +466,7 @@ public class SystemManager : MonoBehaviour
         if (pickIndexes.Count > 0)
         {
             // 念の為再度ハイライト
-            foreach (int index in pickIndexes)
-            {
-                pizzaManager.PizzaSlices[index].EnableHighlightObject();
-            }
+            EnablePizzaHighlight();
         }
 
         pizzaManager.StartSpin();// 回転開始
