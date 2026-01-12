@@ -19,23 +19,16 @@ public class SystemManager : MonoBehaviour
 
         [Header("発射後のクールタイム"), SerializeField] float shootCT;
 
+        [Header("--- UI設定 ---")]
+        [Header("ゲームスタート時に非表示にするUI"), SerializeField] List<UIGroupSwitcher> connectCanvases;
+
         [Header("チームの情報UIテキスト"), SerializeField] TMPro.TextMeshProUGUI scoreText;
         public TMPro.TextMeshProUGUI ScoreText => scoreText;
 
         [Header("取られるまでの時間のテキスト"), SerializeField] TMPro.TextMeshProUGUI pickTimeText;
         public TMPro.TextMeshProUGUI PickTimeText => pickTimeText;
 
-        // ----- リザルト表示 -----
         [Header("--- リザルト表示 ---")]
-        //[Header("メイン画面")]
-        //[Header("メイン画面のリザルトのスクリプト"), SerializeField] Result mainResult;
-        //public Result MainResult => mainResult;
-
-        //[Header("メイン画面のスコア表示オブジェクト"), SerializeField] GameObject mainResultUI;
-        //public GameObject MainResultUI => mainResultUI;
-
-        //[Header("〃のスコアバー"), SerializeField] RectTransform mainScoreBar;
-        //public RectTransform MainScoreBar => mainScoreBar;
 
         [Header("タブレット画面")]
         [Header("タブレット画面のリザルトのスクリプト"), SerializeField] Result tabletResult;
@@ -45,8 +38,6 @@ public class SystemManager : MonoBehaviour
 
         [Header("〃のスコアバー"), SerializeField] RectTransform tabletScoreBar;
         public RectTransform TabletScoreBar => tabletScoreBar;
-
-        // ----- リザルト表示ここまで -----
 
         float shootableTimer = GameConstants.FirstTimerValue;
         public float ShootableTimer => shootableTimer;
@@ -120,6 +111,9 @@ public class SystemManager : MonoBehaviour
         /// </summary>
         void StartInGamePhase()
         {
+            // 接続UIを非表示化
+            foreach (UIGroupSwitcher groupSwitcher in connectCanvases) groupSwitcher.ChangeUIGroup();
+
             // 発射可能にする
             SetShootable();
             ResetShootCT();
@@ -151,6 +145,7 @@ public class SystemManager : MonoBehaviour
         }
     }
     [Header("メイン画面のリザルトのスクリプト"), SerializeField] Result mainResult;
+    [Header("ゲームスタート時に非表示にするUI"), SerializeField] List<UIGroupSwitcher> connectCanvases;
     [Header("サウンドマネージャー"), SerializeField] SoundManager soundManager;
 
     [Header("--- フェーズ時間 ---")]
@@ -187,7 +182,9 @@ public class SystemManager : MonoBehaviour
         // 接続画面のBGMを再生（Windowsのみ）
         PlayBGM_Windows(BGMType.ConnectLobby);
 
+        // デバッグ用
         //StartCoroutine(Main());
+        //PlaySE_Windows(PlayerSoundType.Eat, transform);
     }
 
     /// <summary>
@@ -281,7 +278,14 @@ public class SystemManager : MonoBehaviour
         StartCoroutine(Main());
     }
 
-    public void OnStartReady() => StartCoroutine(Main());
+    public void OnStartReady()
+    {
+        // 準備画面を非表示
+        foreach (UIGroupSwitcher groupSwitcher in connectCanvases) groupSwitcher.ChangeUIGroup();
+
+        // ゲーム開始
+        StartCoroutine(Main());
+    }
 
     /// <summary>
     /// ゲームの進行状況、同期に使用する
