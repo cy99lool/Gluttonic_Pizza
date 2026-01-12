@@ -10,6 +10,7 @@ public class SEPlayer
 
     public void Play(SoundManager runner, PlayerSoundType soundType, Transform playTransform)
     {
+
         // 再生するAudioSourceを指定
         AudioSourceClass audioSource = null;
         {

@@ -60,7 +60,7 @@ public class UDPMulti : MonoBehaviour
         float disconnectTimer;
         public float DisconnectTimer => disconnectTimer;
 
-        ReadyState readyState;
+        ReadyState readyState = ReadyState.NotReady;
         public ReadyState ReadyState => readyState;
         public void SetReadyState(ReadyState state) => readyState = state;// 準備状況の設定
 
@@ -224,6 +224,10 @@ public class UDPMulti : MonoBehaviour
 
         // 接続
         OnRegister();
+
+        // デバッグ用
+        //// プレイヤーが全員準備完了の場合、ゲーム開始
+        //if (IsAllPlayerReady) systemManager.OnStartReady();
     }
 
     /// <summary>
