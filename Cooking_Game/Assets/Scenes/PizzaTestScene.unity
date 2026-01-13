@@ -31168,7 +31168,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &952148038
 Transform:
   m_ObjectHideFlags: 0
@@ -36347,9 +36347,13 @@ MonoBehaviour:
     parent: {fileID: 924424385}
     prefab: {fileID: 2364291439780734689, guid: a2ba047d1343d114c863fa49b738b71c, type: 3}
     poolSize: 10
-  mergedEffects:
+  redMergedEffects:
     parent: {fileID: 1963006037}
     prefab: {fileID: 3166891860360967930, guid: 4a4f519e98b92784faf3fe8f61c1694e, type: 3}
+    poolSize: 10
+  greenMergedEffects:
+    parent: {fileID: 1963006037}
+    prefab: {fileID: 8953939897243891153, guid: ec1619b4a4da21149b9b3a6a11028e08, type: 3}
     poolSize: 10
   chargedEffects:
     parent: {fileID: 1736640537}
@@ -50574,7 +50578,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1605009359
 Transform:
   m_ObjectHideFlags: 0
@@ -58433,7 +58437,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1919479957
 Transform:
   m_ObjectHideFlags: 0

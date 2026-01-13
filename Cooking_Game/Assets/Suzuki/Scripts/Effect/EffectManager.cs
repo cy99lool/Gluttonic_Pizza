@@ -7,14 +7,16 @@ public class EffectManager : MonoBehaviour
 {
     [Header("--- エフェクトごとの設定 ---")]
     [Header("捕食時のエフェクト"), SerializeField] EffectSetting eatenEffects;
-    [Header("結合時のエフェクト"), SerializeField] EffectSetting mergedEffects;
+    [Header("赤：結合時のエフェクト"), SerializeField] EffectSetting redMergedEffects;
+    [Header("緑：結合時のエフェクト"), SerializeField] EffectSetting greenMergedEffects;
     [Header("チャージ完了時のエフェクト"), SerializeField] EffectSetting chargedEffects;
 
     void Awake()
     {
         // 起動時にあらかじめ生成しておく
         Prewarm(eatenEffects);
-        Prewarm(mergedEffects);
+        Prewarm(redMergedEffects);
+        Prewarm(greenMergedEffects);
         Prewarm(chargedEffects);
     }
 
@@ -51,7 +53,14 @@ public class EffectManager : MonoBehaviour
     /// 結合エフェクトを再生
     /// </summary>
     /// <param name="position">再生位置</param>
-    public void PlayMergedEffect(Vector3 position) => PlayEffect(mergedEffects, position);
+    public void PlayMergedEffect(Vector3 position, TeamColor team)
+    {
+        // 赤チーム
+        if (team == TeamColor.Red || team == TeamColor.Yellow) PlayEffect(redMergedEffects, position);
+
+        // 緑チーム
+        else PlayEffect(greenMergedEffects, position);
+    }
 
     /// <summary>
     /// チャージ完了エフェクトを再生
