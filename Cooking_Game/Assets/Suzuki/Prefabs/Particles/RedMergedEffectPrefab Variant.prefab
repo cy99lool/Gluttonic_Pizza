@@ -357,8 +357,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 5
-      minScalar: 3
+      scalar: 2
+      minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -820,7 +820,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 8
+      value: 1
       mode: 0
       spread: 0
       speed:
@@ -4934,6 +4934,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8876474626684764855, guid: 076d744b8787301459d2a42acdda8723, type: 3}
+      propertyPath: particleSystems.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8876474626684764855, guid: 076d744b8787301459d2a42acdda8723, type: 3}
+      propertyPath: particleSystems.Array.data[0]
+      value: 
+      objectReference: {fileID: 4078022860710322450}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 076d744b8787301459d2a42acdda8723, type: 3}
 --- !u!4 &2510823406773425334 stripped

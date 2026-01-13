@@ -24,7 +24,12 @@ MonoBehaviour:
     volume: 0.5
     pitchVarietion: 0.3
   - soundType: 2
-    soundName: "\u6355\u98DF"
+    soundName: "\u7D50\u5408"
     soundClip: {fileID: 8300000, guid: a5d53a8a8fe4c934a9e38f6e58eb77c0, type: 3}
+    volume: 0.5
+    pitchVarietion: 0.3
+  - soundType: 0
+    soundName: "\u30C1\u30E3\u30FC\u30B8\u5B8C\u4E86"
+    soundClip: {fileID: 8300000, guid: 13b047317f44a9047b2920db6e33d1ff, type: 3}
     volume: 0.5
     pitchVarietion: 0.3
