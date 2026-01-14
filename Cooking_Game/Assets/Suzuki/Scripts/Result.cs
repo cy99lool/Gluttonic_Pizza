@@ -37,7 +37,17 @@ public class Result : MonoBehaviour
         if(redText != null) redText.text = "赤チーム：" + (redTeamPizzaScore + redTeamExplosionScore);
         if(greenText != null) greenText.text = "緑チーム：" + (greenTeamPizzaScore + greenTeamExplosionScore);
 
-        yield return new WaitForSeconds(debugReloadTime);
+        // 勝者によって切り替える
+        if(redTeamExplosionScore+redTeamPizzaScore > greenTeamExplosionScore+greenTeamPizzaScore)
+        {
+
+        }
+        else
+        {
+
+        }
+
+            yield return new WaitForSeconds(debugReloadTime);
 
         // テストプレイ用、シーンを再読み込み（接続待機画面に戻る）
         SceneManager.LoadScene("PizzaTestScene");
