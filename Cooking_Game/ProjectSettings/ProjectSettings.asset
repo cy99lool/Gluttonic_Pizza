@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: Gluttony's
-  productName: Cooking_Game_Test_20260107
+  productName: Cooking_Game_Test_20260114Player4
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -42,8 +42,8 @@ PlayerSettings:
   m_SplashScreenLogos: []
   m_VirtualRealitySplashScreen: {fileID: 0}
   m_HolographicTrackingLossScreen: {fileID: 0}
-  defaultScreenWidth: 800
-  defaultScreenHeight: 600
+  defaultScreenWidth: 900
+  defaultScreenHeight: 1600
   defaultScreenWidthWeb: 960
   defaultScreenHeightWeb: 600
   m_StereoRenderingPath: 0
@@ -159,7 +159,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.Gluttonys.Cooking_Game_Test_20260107
-    Standalone: com.DefaultCompany.Cooking-Game-Test-20250620
+    Standalone: com.Gluttony-s.Cooking-Game-Test-20260114
   buildNumber:
     Standalone: 0
     iPhone: 0

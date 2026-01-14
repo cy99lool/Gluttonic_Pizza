@@ -331,6 +331,15 @@ public class SystemManager : MonoBehaviour
         int counter = GameConstants.Zero;
 
         //while (pizzaManager.PizzaSlices.Count > 0)
+
+        // デバッグ用
+        currentPhase = GamePhase.InGame;
+        SetAllPlayerShootable(teams);
+        while(true)
+        {
+            yield return null;
+        }
+
         while (counter < PhaseCount)
         {
             // 発射準備フェーズ
