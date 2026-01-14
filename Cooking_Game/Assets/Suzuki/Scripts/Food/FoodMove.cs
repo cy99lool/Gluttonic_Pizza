@@ -214,9 +214,11 @@ public class FoodMove : MonoBehaviour
 
             return;
         }
+        // 起爆準備中は位置を更新
+        else if (bombCountEffectObject != null && bombCountEffectObject.activeSelf) bombCountEffectObject.transform.position = Root.transform.position;
 
-        // タイマーを更新して、起爆時間になったら起爆
-        bombTimer += Time.deltaTime;
+            // タイマーを更新して、起爆時間になったら起爆
+            bombTimer += Time.deltaTime;
 
         if (bombTimer >= explodeTimer) Explode();
     }

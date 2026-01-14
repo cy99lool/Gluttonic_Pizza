@@ -330,7 +330,7 @@ public class StageManager : MonoBehaviour
                 systemManager.PlaySE_Windows(PlayerSoundType.Merge, mergeEventList[i].First.Food.transform);
 
                 // 結合エフェクト再生
-                if (effectManager != null) effectManager.PlayMergedEffect(mergeEventList[i].First.Food.transform.position);
+                if (effectManager != null) effectManager.PlayMergedEffect(mergeEventList[i].First.Food.transform.position, mergeEventList[i].First.Food.Team);
 
                 //Debug.Log("[MERGE]");
             }
@@ -362,9 +362,10 @@ public class StageManager : MonoBehaviour
     {
         //  チャージ完了SE再生
         if (systemManager != null) systemManager.PlaySE_Android(PlayerSoundType.Charge, trackObject.FoodBeforeShoot.transform);
+        //if (systemManager != null) systemManager.PlaySE_Windows(PlayerSoundType.Charge, trackObject.FoodBeforeShoot.transform);
 
         // エフェクト表示
-        if(effectManager != null) effectManager.PlayChargedEffect(trackObject.FoodBeforeShoot.transform.position);
+        if (effectManager != null) effectManager.PlayChargedEffect(trackObject.FoodBeforeShoot.transform.position);
 
         //// 捕食可能状態の切り替わりフラグの無効化
         //trackObject.SetOnEatModeFalse();

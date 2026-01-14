@@ -18,3 +18,18 @@ MonoBehaviour:
     soundClip: {fileID: 8300000, guid: d9a049254591a9e4fadd5f8ab6e09aee, type: 3}
     volume: 0.3
     pitchVarietion: 0.3
+  - soundType: 1
+    soundName: "\u6355\u98DF"
+    soundClip: {fileID: 8300000, guid: 0e67625f78721c247b80b653d8470a79, type: 3}
+    volume: 0.5
+    pitchVarietion: 0.3
+  - soundType: 2
+    soundName: "\u7D50\u5408"
+    soundClip: {fileID: 8300000, guid: a5d53a8a8fe4c934a9e38f6e58eb77c0, type: 3}
+    volume: 0.5
+    pitchVarietion: 0.3
+  - soundType: 0
+    soundName: "\u30C1\u30E3\u30FC\u30B8\u5B8C\u4E86"
+    soundClip: {fileID: 8300000, guid: 13b047317f44a9047b2920db6e33d1ff, type: 3}
+    volume: 0.5
+    pitchVarietion: 0.3
