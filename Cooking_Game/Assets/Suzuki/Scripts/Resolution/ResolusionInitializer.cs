@@ -11,8 +11,8 @@ public class ResolusionInitializer
     static void InitializeResolution()
     {
         // Resourcesフォルダ内のアセットを読み込む
-        ResolutionConfig config = Resources.Load<ResolutionConfig>("HostConfig");
-        //ResolutionConfig config = Resources.Load<ResolutionConfig>("PlayerConfig");
+        //ResolutionConfig config = Resources.Load<ResolutionConfig>("HostConfig");
+        ResolutionConfig config = Resources.Load<ResolutionConfig>("PlayerConfig");
 
         if (config != null)
         {

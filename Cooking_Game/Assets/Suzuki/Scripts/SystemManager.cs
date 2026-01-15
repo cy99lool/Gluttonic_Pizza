@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.UI;
 
 public class SystemManager : MonoBehaviour
 {
@@ -155,6 +156,10 @@ public class SystemManager : MonoBehaviour
 
     [Header("--- タイムラインの設定 ---")]
     [Header("ピザのカットを行うDirector"), SerializeField] PlayableDirector pizzaCutDirector;
+
+    [Header("--- スクリプトでのアニメーション設定 ---")]
+    [Header("時計の中身"), SerializeField] List<Image> clockFillers;
+    [Header("時計を満たすアニメーションの時間（秒）"), SerializeField] float clockFillTime;
 
     [SerializeField] List<Team> teams;
     public List<Team> Teams => teams;
@@ -333,12 +338,12 @@ public class SystemManager : MonoBehaviour
         //while (pizzaManager.PizzaSlices.Count > 0)
 
         // デバッグ用
-        currentPhase = GamePhase.InGame;
-        SetAllPlayerShootable(teams);
-        while(true)
-        {
-            yield return null;
-        }
+        //currentPhase = GamePhase.InGame;
+        //SetAllPlayerShootable(teams);
+        //while(true)
+        //{
+        //    yield return null;
+        //}
 
         while (counter < PhaseCount)
         {
@@ -439,6 +444,9 @@ public class SystemManager : MonoBehaviour
             pickIndexes.Add(index);
             Debug.Log($"{pickableSlices[index]}が選ばれた");
 
+            // ハイライト
+            pickableSlices[index].EnableHighlightObject();
+
             pickableSlices.Remove(pickableSlices[index]);
         }
 
@@ -480,11 +488,18 @@ public class SystemManager : MonoBehaviour
             cookedMaterials.Add(slice.CookedRenderer.material);
         }
 
-        if (pickIndexes.Count > 0)
+        // ハイライトを消去
+        foreach(PizzaSlice slice in pizzaManager.PizzaSlices)
         {
-            // 念の為再度ハイライト
-            EnablePizzaHighlight();
+            // ハイライトの消去
+            slice.DisableHighlightObject();
         }
+
+        // 元の位置に戻す
+        pizzaManager.SetAllPizzaStartPosition();
+
+        // 時計のFillAmountをMaxにするアニメーション
+        //FillClock(clockFillTime);
 
         pizzaManager.StartSpin();// 回転開始
 
@@ -522,6 +537,33 @@ public class SystemManager : MonoBehaviour
             //if (IsAllPlayerUnShootable()) yield break;
 
             yield return null;
+        }
+    }
+
+    /// <summary>
+    /// 時計の時間を満たす
+    /// </summary>
+    /// <param name="fillTime">満たすまでの時間</param>
+    IEnumerator FillClock(float fillTime)
+    {
+        float timer = GameConstants.FirstTimerValue;
+
+        while(timer < fillTime)
+        {
+            // 時計の中身を増加させる
+            foreach(Image filler in clockFillers)
+            {
+                filler.fillAmount = Mathf.Lerp(GameConstants.Zero, GameConstants.One, timer / fillTime);
+            }
+
+            yield return null;
+            timer += Time.deltaTime;
+        }
+
+        // 確実に全て埋める
+        foreach(Image filler in clockFillers)
+        {
+            filler.fillAmount = GameConstants.One;
         }
     }
 

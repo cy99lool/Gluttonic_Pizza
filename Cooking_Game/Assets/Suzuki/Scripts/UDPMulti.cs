@@ -485,9 +485,12 @@ public class UDPMulti : MonoBehaviour
     {
         try
         {
+            Debug.Log("Thread Receive Started");
             while (isReceiving)
             {
-                IPEndPoint senderEP = null;
+                IPEndPoint senderEP = new IPEndPoint(IPAddress.Any, GameConstants.Zero);
+                Debug.Log("Waiting for UDP...");
+
                 try// 情報を受け取れないときに切断されないようにしている
                 {
                     byte[] receivedBytes = client.Receive(ref senderEP);

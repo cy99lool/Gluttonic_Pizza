@@ -57,6 +57,16 @@ public class PizzaManager : MonoBehaviour
         pickableSlices.AddRange(pizzaSlices);
         //foreach(PizzaSlice slice in pizzaSlices) pickableSlices.Add(slice);
     }
+
+    // すべてのピザを初期地点に戻す
+    public void SetAllPizzaStartPosition()
+    {
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            slice.transform.position = slice.StartPos;
+        }
+    }
+
     public IEnumerator PrepareTakePizza(float waitTime)
     {
         // ピザの上にあるすべての食べ物を取得
@@ -102,6 +112,12 @@ public class PizzaManager : MonoBehaviour
 
             //pizzaSlices[pizzaIndexes[i]].gameObject.SetActive(false);// 仮の除去処理
             //pizzaSlices.RemoveAt(pizzaIndexes[i]);// ピザのリストから除外
+
+            // ピザをはるか上空に
+            Vector3 pizzaPos = pickableSlices[pizzaIndexes[i]].transform.position;
+            pizzaPos.y += 100;
+            pickableSlices[pizzaIndexes[i]].transform.position = pizzaPos;
+
             pickableSlices.RemoveAt(pizzaIndexes[i]);
             pizzaIndexes.RemoveAt(i);
         }
