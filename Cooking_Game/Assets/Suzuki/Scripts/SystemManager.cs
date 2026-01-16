@@ -499,9 +499,10 @@ public class SystemManager : MonoBehaviour
         pizzaManager.SetAllPizzaStartPosition();
 
         // 時計のFillAmountをMaxにするアニメーション
-        //FillClock(clockFillTime);
+        yield return FillClock(clockFillTime);
 
-        pizzaManager.StartSpin();// 回転開始
+        // 回転開始
+        pizzaManager.StartSpin();
 
         // プレイヤーは発射できるように
         SetAllPlayerShootable(teams);
@@ -510,7 +511,8 @@ public class SystemManager : MonoBehaviour
         while (timer < shootTime)
         {
             // UI更新
-            UpdatePickTimeUI(shootTime - timer);
+            //UpdatePickTimeUI(shootTime - timer);
+            UpdateClockUI(timer, shootTime);
 
             //ピザの焼けるマテリアルへと変えていく
             if (timer <= cookTime)
@@ -525,18 +527,23 @@ public class SystemManager : MonoBehaviour
                 }
             }
 
-            // パインの召喚処理
-
-            // 途中でピザを取られるフェーズの処理
-            // 1.ピックするフェーズだったら、取得するピザを選ぶ（演出入り？） その後取得までの時間を現在タイマー+◯◯秒で設定、ピック中のフラグを立てる
-            // 2.取得する時間になったらそのピザの取得演出を入れる、その後ピック中のフラグをオフに
-
             // 時間経過
             timer += Time.deltaTime;
             // 全員が食材を発射し終えたら途中でも次のフェーズへ
             //if (IsAllPlayerUnShootable()) yield break;
 
             yield return null;
+        }
+    }
+
+    // 時計の見た目を更新
+    void UpdateClockUI(float time, float maxTime)
+    {
+        float ratio = time / maxTime;
+
+        foreach(Image filler in clockFillers)
+        {
+            filler.fillAmount = Mathf.Lerp(GameConstants.One, GameConstants.Zero, ratio);
         }
     }
 
@@ -643,20 +650,28 @@ public class SystemManager : MonoBehaviour
         currentPhase = GamePhase.PickPizza;
         //// 取得
         //pizzaManager.TakeAllPizza();
+        
+        // 次に取るピザを決定
+        pickIndexes = SelectPizzaSlices();
+
+        // 時計を再度埋める
+        yield return FillClock(clockFillTime);
+
+        // 回転開始
+        pizzaManager.StartSpin();
 
         // プレイヤーが発射可能に
         SetAllPlayerShootable(teams);
 
         // 取得ペースを計算
         float pickPace = pickPhaseTime / pizzaManager.PizzaSlices.Count;
-        float timer = GameConstants.FirstTimerValue;
 
-        // 次に取るピザを決定
-        pickIndexes = SelectPizzaSlices();
+        float pickTimer = GameConstants.FirstTimerValue;
+        float phaseTimer = GameConstants.FirstTimerValue; 
 
         while (pizzaManager.PickableSlices.Count != GameConstants.Zero)
         {
-            if(timer >= pickPace)
+            if(pickTimer >= pickPace)
             {
                 // ピザを取得(アニメーションの再生に変更予定)
                 pizzaManager.TakePizzaSlice(pickIndexes);
@@ -665,10 +680,14 @@ public class SystemManager : MonoBehaviour
                 pickIndexes = SelectPizzaSlices();
 
                 // ピックタイミングを待つ（タイマーリセット）
-                timer = GameConstants.FirstTimerValue;
+                pickTimer = GameConstants.FirstTimerValue;
             }
+            // タイマーのUI更新
+            UpdateClockUI(phaseTimer, pickPhaseTime);
 
-            timer += Time.deltaTime;
+            // タイマー増加
+            phaseTimer += Time.deltaTime;
+            pickTimer += Time.deltaTime;
             yield return null;
         }
 
