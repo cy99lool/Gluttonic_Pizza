@@ -168,8 +168,9 @@ public class UDPMulti : MonoBehaviour
     }
 
     [Header("自分の情報"), SerializeField] ClientInfo myInfo;
+
+    public ClientInfo Myinfo => myInfo;
     public string MyRelativeFilePath => myInfo.RelativeFilePath;
-    public ReadyState MyReadyState => myInfo.ReadyState;
     public string MyIP => myInfo.IP;
 
     [Header("接続する相手たち"), SerializeField] List<ClientInfo> clients = new List<ClientInfo>();
@@ -184,6 +185,16 @@ public class UDPMulti : MonoBehaviour
             return true;
         }
     }
+
+    public ClientInfo GetTargetClient(TeamColor color)
+    {
+        // 色が同じクライアントを返す
+        foreach(ClientInfo client in clients) if(client.Color == color) return client;
+        
+        // なければnull
+        return null;
+    }
+
 
     [Header("接続が切れた判定をするまでの時間"), SerializeField] float disconnectThreshold = 3f;
     [SerializeField] SystemManager systemManager;

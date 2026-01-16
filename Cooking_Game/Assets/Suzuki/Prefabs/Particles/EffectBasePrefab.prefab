@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8215869120118464763}
   - component: {fileID: 8876474626684764855}
+  - component: {fileID: 4096895311755949581}
   m_Layer: 0
   m_Name: EffectBasePrefab
   m_TagString: Untagged
@@ -44,4 +45,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b221eb2a8ef6cc458c35f96f4d9661b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleSystem: {fileID: 0}
+  particleSystems: []
+--- !u!114 &4096895311755949581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8215869120118464762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbb4ac3dd28d42d47bd4d4ccf4fbb7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetComponent: {fileID: 0}
+  checkRange: 0

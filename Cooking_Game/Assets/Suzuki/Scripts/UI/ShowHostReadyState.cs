@@ -36,6 +36,6 @@ public class ShowHostReadyState : ReadyStateSyncBase
         if (udpMulti == null) return;
 
         // プレイヤーごとに準備完了状況アイコンを更新
-        foreach (ShowClientReadyState player in playerReadyStates) player.UpdateReadyStateIcon();
+        foreach (ShowClientReadyState player in playerReadyStates) player.UpdateReadyStateIcon(udpMulti.GetTargetClient(player.Color));
     }
 }

@@ -365,7 +365,7 @@ public class StageManager : MonoBehaviour
         //if (systemManager != null) systemManager.PlaySE_Windows(PlayerSoundType.Charge, trackObject.FoodBeforeShoot.transform);
 
         // エフェクト表示
-        if (effectManager != null) effectManager.PlayChargedEffect(trackObject.FoodBeforeShoot.transform.position);
+        if (effectManager != null) effectManager.PlayChargedEffect(trackObject.FoodBeforeShoot.transform);
 
         //// 捕食可能状態の切り替わりフラグの無効化
         //trackObject.SetOnEatModeFalse();
