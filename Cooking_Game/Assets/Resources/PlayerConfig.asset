@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11cc3da84df2faf47b9d0f43fe74e7ec, type: 3}
   m_Name: PlayerConfig
   m_EditorClassIdentifier: 
-  width: 400
-  height: 640
+  width: 1200
+  height: 1920
   screenMode: 3

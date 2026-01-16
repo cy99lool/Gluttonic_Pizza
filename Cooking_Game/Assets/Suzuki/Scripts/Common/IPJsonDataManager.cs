@@ -107,6 +107,13 @@ public class IPJsonDataManager
     {
         // persistentDataPathを含んだ完全なファイルパスを生成
         string fullPath = Path.Combine(Application.persistentDataPath, relativeFilePath);
+
+        // フルパスをOS標準の形式に一度整える
+        fullPath = Path.GetFullPath(fullPath);
+
+        // バックスラッシュを全てスラッシュに変換
+        fullPath = fullPath.Replace("\\", "/");
+
         Debug.Log($"fullPath:{fullPath}");
 
         // ファイルが見つからない場合、null

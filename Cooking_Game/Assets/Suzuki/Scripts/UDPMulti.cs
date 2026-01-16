@@ -169,6 +169,9 @@ public class UDPMulti : MonoBehaviour
 
     [Header("自分の情報"), SerializeField] ClientInfo myInfo;
     public string MyRelativeFilePath => myInfo.RelativeFilePath;
+    public ReadyState MyReadyState => myInfo.ReadyState;
+    public string MyIP => myInfo.IP;
+
     [Header("接続する相手たち"), SerializeField] List<ClientInfo> clients = new List<ClientInfo>();
     bool IsAllPlayerReady
     {
@@ -386,14 +389,14 @@ public class UDPMulti : MonoBehaviour
         Debug.Log("IP:" + ip + "," + port + " に接続要求");
     }
 
-    [ContextMenu("Register")]
-    public void OnClickRegister()// Inspector上での右クリックメニュー
-    {
-        foreach (ClientInfo client in clients)
-        {
-            RegisterOpponentPort(client.IP, client.Port);
-        }
-    }
+    //[ContextMenu("Register")]
+    //public void OnClickRegister()// Inspector上での右クリックメニュー
+    //{
+    //    foreach (ClientInfo client in clients)
+    //    {
+    //        RegisterOpponentPort(client.IP, client.Port);
+    //    }
+    //}
 
     public void OnRegister()// ボタンを押したとき
     {
@@ -485,9 +488,12 @@ public class UDPMulti : MonoBehaviour
     {
         try
         {
+            Debug.Log("Thread Receive Started");
             while (isReceiving)
             {
-                IPEndPoint senderEP = null;
+                IPEndPoint senderEP = new IPEndPoint(IPAddress.Any, GameConstants.Zero);
+                Debug.Log("Waiting for UDP...");
+
                 try// 情報を受け取れないときに切断されないようにしている
                 {
                     byte[] receivedBytes = client.Receive(ref senderEP);
