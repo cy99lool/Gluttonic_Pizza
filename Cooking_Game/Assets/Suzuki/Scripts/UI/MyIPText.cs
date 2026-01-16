@@ -12,7 +12,7 @@ public class MyIPText : MonoBehaviour
 
     void Awake()
     {
-        if(udpMulti == null) IPJsonDataManager.LoadIPSetting(udpMulti.MyRelativeFilePath);
+        if(udpMulti != null) myIPText.text = IPJsonDataManager.LoadIPSetting(udpMulti.MyRelativeFilePath);
     }
 
     public void UpdateMyIP()
