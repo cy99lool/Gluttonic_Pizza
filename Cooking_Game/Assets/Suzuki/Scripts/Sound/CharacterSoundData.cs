@@ -30,6 +30,7 @@ public enum PlayerSoundType
     Eat,
     Merge,
     Bomb,
+    BeforeBomb,
 }
 
 [CreateAssetMenu(fileName = "CharacterSoundData", menuName = "Sound/Character Sound Data")]

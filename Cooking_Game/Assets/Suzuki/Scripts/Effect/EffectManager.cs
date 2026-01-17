@@ -65,22 +65,31 @@ public class EffectManager : MonoBehaviour
     /// <summary>
     /// チャージ完了エフェクトを再生
     /// </summary>
-    /// <param name="position">再生位置</param>
-    public void PlayChargedEffect(Vector3 position) => PlayEffect(chargedEffects, position);
+    /// <param name="target">再生対象</param>
+    public void PlayChargedEffect(Transform target)
+    {
+        // エフェクトの再生
+        EffectFollow effectFollow = PlayEffect(chargedEffects, target.position).GetComponent<EffectFollow>();
 
-    void PlayEffect(EffectSetting setting, Vector3 position)
+        // 追従設定
+        if(effectFollow != null) effectFollow.SetTarget(target);
+    }
+
+    EffectAutoDeactivation PlayEffect(EffectSetting setting, Vector3 position)
     {
         // プール内の再生可能なオブジェクトを取得
         EffectAutoDeactivation effect = GetPooledObject(setting.Pool);
 
         // 再生可能なオブジェクトがなければ再生しない
-        if (effect == null) return;
+        if (effect == null) return null;
 
         // 位置を設定
         effect.transform.position = position;
 
         // 再生
         effect.gameObject.SetActive(true);
+
+        return effect;
     }
 
     /// <summary>

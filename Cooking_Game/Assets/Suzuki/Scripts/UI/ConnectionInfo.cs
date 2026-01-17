@@ -9,6 +9,7 @@ public class ConnectionInfo : MonoBehaviour
     [Header("--- アイコン設定 ---")]
     [Header("接続待ちアイコン"), SerializeField] Image connectWaitIcon;
     [Header("接続済みアイコン"), SerializeField] Image connectedIcon;
+
     [Header("--- テキスト設定 ---")]
     [Header("接続状況テキスト"), SerializeField] TextMeshProUGUI statusText;
     [Header("接続待ちテキストの「」▶「...」1ループの長さ"), SerializeField] float waitTextAnimationLength;
@@ -37,6 +38,9 @@ public class ConnectionInfo : MonoBehaviour
 
     void Update()
     {
+        // 基本はbaseTextのみの表示
+        if (statusText.text != baseText) statusText.text = baseText;
+
         // 接続中はアニメーションを行わないためreturn
         if (connect) return;
 

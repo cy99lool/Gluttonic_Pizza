@@ -6,6 +6,9 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Image))]// Imageが必須（なければ自動で作られる）
 public class ShowClientReadyState : ReadyStateSyncBase
 {
+    [Header("色、ホストの準備状況確認でのみ設定"), SerializeField] TeamColor color;
+    public TeamColor Color => color;
+
     [Header("準備状況を表示するImage"), SerializeField] Image stateImage;
     public Image StateImage => stateImage;
 
@@ -31,16 +34,16 @@ public class ShowClientReadyState : ReadyStateSyncBase
         if (udpMulti == null) return;
 
         // 準備状況のアイコンを更新
-        UpdateReadyStateIcon();
+        UpdateReadyStateIcon(udpMulti.Myinfo);
     }
 
     /// <summary>
     /// 準備状況のアイコンを更新
     /// </summary>
-    public void UpdateReadyStateIcon()
+    public void UpdateReadyStateIcon(UDPMulti.ClientInfo clientInfo)
     {
         // 現在の準備状況を取得
-        ReadyState currentState = udpMulti.MyReadyState;
+        ReadyState currentState = clientInfo.ReadyState;
 
         // 自身の準備状況に応じてアイコンを切り替える（状況が切り替わったときだけ）
         ChangeReadyStateIcon(currentState);

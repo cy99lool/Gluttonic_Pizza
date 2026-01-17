@@ -327,7 +327,7 @@ public class StageManager : MonoBehaviour
                 mergeEventList[i].First.Food.OnMerge(mergeEventList[i].Second.Food);
 
                 // 結合SE再生
-                systemManager.PlaySE_Windows(PlayerSoundType.Merge, mergeEventList[i].First.Food.transform);
+                PlaySE_Windows(PlayerSoundType.Merge, mergeEventList[i].First.Food.transform);
 
                 // 結合エフェクト再生
                 if (effectManager != null) effectManager.PlayMergedEffect(mergeEventList[i].First.Food.transform.position, mergeEventList[i].First.Food.Team);
@@ -344,7 +344,7 @@ public class StageManager : MonoBehaviour
                 eatEventList[i].First.Food.OnEat(eatEventList[i].Second.Food, eatEventList[i].First.Velocity);
 
                 // 捕食SE再生
-                systemManager.PlaySE_Windows(PlayerSoundType.Eat, eatEventList[i].First.Food.transform);
+                PlaySE_Windows(PlayerSoundType.Eat, eatEventList[i].First.Food.transform);
 
                 // 捕食エフェクト再生
                 if (effectManager != null) effectManager.PlayEatenEffect(eatEventList[i].First.Food.transform.position);
@@ -354,6 +354,8 @@ public class StageManager : MonoBehaviour
             eatEventList.Clear();// リストをクリア
         }
     }
+
+    public void PlaySE_Windows(PlayerSoundType soundType, Transform playTransform) => systemManager.PlaySE_Windows(soundType, playTransform);
 
     /// <summary>
     /// 捕食可能になったときの演出・処理
@@ -365,7 +367,7 @@ public class StageManager : MonoBehaviour
         //if (systemManager != null) systemManager.PlaySE_Windows(PlayerSoundType.Charge, trackObject.FoodBeforeShoot.transform);
 
         // エフェクト表示
-        if (effectManager != null) effectManager.PlayChargedEffect(trackObject.FoodBeforeShoot.transform.position);
+        if (effectManager != null) effectManager.PlayChargedEffect(trackObject.FoodBeforeShoot.transform);
 
         //// 捕食可能状態の切り替わりフラグの無効化
         //trackObject.SetOnEatModeFalse();

@@ -578,6 +578,9 @@ public class FoodMove : MonoBehaviour
             // エフェクトを生成
             if (bombCountDownEffect != null && bombCountEffectObject == null) bombCountEffectObject = Instantiate(bombCountDownEffect);
 
+            // 爆破前SEを再生
+            stageManager.PlaySE_Windows(PlayerSoundType.BeforeBomb, transform);
+
             // エフェクトのオブジェクトが存在しているかnullチェック
             if (bombCountEffectObject == null) return;
 
