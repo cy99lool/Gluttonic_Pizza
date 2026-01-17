@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UI;
+using UnityEngine.Timeline;
+using System.Linq;
 
 public class SystemManager : MonoBehaviour
 {
@@ -156,6 +158,9 @@ public class SystemManager : MonoBehaviour
 
     [Header("--- タイムラインの設定 ---")]
     [Header("ピザのカットを行うDirector"), SerializeField] PlayableDirector pizzaCutDirector;
+    [Header("ピザの取得を行うDirector"), SerializeField] PlayableDirector pizzaStealDirector;
+    [Header("ピザの取得シグナルトラックの名前"), SerializeField] string pizzaStealSignalTrackName;
+    [Header("ピザの取得でスライスを動かすAnimationTrack"), SerializeField] string pizzaStealAnimationTrackName;
 
     [Header("--- スクリプトでのアニメーション設定 ---")]
     [Header("時計の中身"), SerializeField] List<Image> clockFillers;
@@ -673,8 +678,12 @@ public class SystemManager : MonoBehaviour
         {
             if(pickTimer >= pickPace)
             {
-                // ピザを取得(アニメーションの再生に変更予定)
-                pizzaManager.TakePizzaSlice(pickIndexes);
+                //pizzaManager.TakePizzaSlice(pickIndexes);
+                // スライスの親子付け解除
+                pizzaManager.PizzaSlices[pickIndexes[GameConstants.FirstIndex]].transform.SetParent(null);
+
+                // ピザの取得timeline再生
+                PlayPickTimeline(pizzaManager.PizzaSlices[pickIndexes[GameConstants.FirstIndex]].gameObject);
 
                 // 次に取るピザを決定
                 pickIndexes = SelectPizzaSlices();
@@ -690,8 +699,38 @@ public class SystemManager : MonoBehaviour
             pickTimer += Time.deltaTime;
             yield return null;
         }
+    }
 
-        
+    void PlayPickTimeline(GameObject target)
+    {
+        // 指定した名前のSignalTrackを探す
+        BindToTrack<SignalTrack>(pizzaStealSignalTrackName, target);
+
+        // 指定した名前のAnimationTrackを探す
+        BindToTrack<AnimationTrack>(pizzaStealAnimationTrackName, target);
+
+        // ピック準備位置へと移動
+
+        // スライスの方を向く
+
+        // 再生
+        pizzaStealDirector.Play();
+    }
+
+    //
+    void BindToTrack<T>(string trackName,  GameObject target) where T : TrackAsset
+    {
+        // Timelineアセットを取得
+        TimelineAsset timelineAsset = pizzaStealDirector.playableAsset as TimelineAsset;
+
+        // T型のTrackAssetで指定した名前のトラックを探す
+        TrackAsset track = timelineAsset.GetOutputTracks().OfType<T>().FirstOrDefault(track => track.name == trackName);
+
+        if (track != null)
+        {
+            // オブジェクトをバインドする（このトラック上のSignalEmitterがtargetのSignalEmitterを発火させるようにする）
+            pizzaStealDirector.SetGenericBinding(track, target);
+        }
     }
 
     IEnumerator EndPhase(int phaseCounter)
