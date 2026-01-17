@@ -158,9 +158,16 @@ public class SystemManager : MonoBehaviour
 
     [Header("--- タイムラインの設定 ---")]
     [Header("ピザのカットを行うDirector"), SerializeField] PlayableDirector pizzaCutDirector;
+
+    [Header("- ピザの取得 -")]
+    [Header("全体の親オブジェクト"), SerializeField] GameObject pizzaStealDirectorParent;
     [Header("ピザの取得を行うDirector"), SerializeField] PlayableDirector pizzaStealDirector;
     [Header("ピザの取得シグナルトラックの名前"), SerializeField] string pizzaStealSignalTrackName;
     [Header("ピザの取得でスライスを動かすAnimationTrack"), SerializeField] string pizzaStealAnimationTrackName;
+
+    [Header("- 次のフェーズ移行 -")]
+    [Header("親オブジェクト"), SerializeField] GameObject nextPhaseDirectorParent;
+    [Header("Director"), SerializeField] PlayableDirector nextPhaseDirector;
 
     [Header("--- スクリプトでのアニメーション設定 ---")]
     [Header("時計の中身"), SerializeField] List<Image> clockFillers;
@@ -678,12 +685,17 @@ public class SystemManager : MonoBehaviour
         {
             if(pickTimer >= pickPace)
             {
-                //pizzaManager.TakePizzaSlice(pickIndexes);
-                // スライスの親子付け解除
-                pizzaManager.PizzaSlices[pickIndexes[GameConstants.FirstIndex]].transform.SetParent(null);
+                pizzaManager.TakePizzaSlice(pickIndexes);
 
-                // ピザの取得timeline再生
-                PlayPickTimeline(pizzaManager.PizzaSlices[pickIndexes[GameConstants.FirstIndex]].gameObject);
+                //PizzaSlice targetSlice = pizzaManager.PizzaSlices[pickIndexes[GameConstants.FirstIndex]];
+                //// スライスの親子付け解除
+                //targetSlice.transform.SetParent(null);
+
+                //// ピザの取得timeline再生
+                //PlayPickTimeline(targetSlice);
+
+                //// 取得可能なスライス一覧から削除
+                //pizzaManager.RemovePickableSlices(targetSlice);
 
                 // 次に取るピザを決定
                 pickIndexes = SelectPizzaSlices();
@@ -692,7 +704,7 @@ public class SystemManager : MonoBehaviour
                 pickTimer = GameConstants.FirstTimerValue;
             }
             // タイマーのUI更新
-            UpdateClockUI(phaseTimer, pickPhaseTime);
+            UpdateClockUI(pickTimer, pickPace);
 
             // タイマー増加
             phaseTimer += Time.deltaTime;
@@ -701,24 +713,39 @@ public class SystemManager : MonoBehaviour
         }
     }
 
-    void PlayPickTimeline(GameObject target)
+    void PlayPickTimeline(PizzaSlice target)
     {
-        // 指定した名前のSignalTrackを探す
-        BindToTrack<SignalTrack>(pizzaStealSignalTrackName, target);
+        // SignalReceiverを取得する
+        SignalReceiver signalReceiver = target.GetComponent<SignalReceiver>();
 
-        // 指定した名前のAnimationTrackを探す
-        BindToTrack<AnimationTrack>(pizzaStealAnimationTrackName, target);
+        // 指定した名前のSignalTrackを探して割り当てる
+        if (signalReceiver != null) BindToTrack<SignalTrack>(pizzaStealSignalTrackName, signalReceiver);
+
+        // 指定した名前のAnimationTrackを探して割り当てる
+        BindToTrack<AnimationTrack>(pizzaStealAnimationTrackName, target.gameObject);
 
         // ピック準備位置へと移動
+        pizzaStealDirectorParent.transform.position = target.StealDirectorPosTransform.position;
 
         // スライスの方を向く
+        //pizzaStealDirectorParent.transform.LookAt(target.transform);
+        Vector3 eulerAngles = pizzaStealDirectorParent.transform.localEulerAngles;
+        eulerAngles.y = target.StealDirectorPosTransform.eulerAngles.y;
+
+        // 適用
+        pizzaStealDirectorParent.transform.localEulerAngles = eulerAngles;
 
         // 再生
         pizzaStealDirector.Play();
     }
 
-    //
-    void BindToTrack<T>(string trackName,  GameObject target) where T : TrackAsset
+    /// <summary>
+    /// トラックへと割り当てる
+    /// </summary>
+    /// <typeparam name="T">トラックの型</typeparam>
+    /// <param name="trackName">トラックの名前</param>
+    /// <param name="target">割り当てる対象</param>
+    void BindToTrack<T>(string trackName,  UnityEngine.Object target) where T : TrackAsset
     {
         // Timelineアセットを取得
         TimelineAsset timelineAsset = pizzaStealDirector.playableAsset as TimelineAsset;
@@ -738,8 +765,27 @@ public class SystemManager : MonoBehaviour
         int nextPhase = phaseCounter;// 次のフェーズを取得
 
         // ピザの復活処理（アニメーションの再生）
+        // 次のフェーズがある場合
+        if(nextPhase != PhaseCount)
+        {
+            nextPhaseDirectorParent.SetActive(true);
 
-        pizzaManager.ActivatePizzaSlices();
+            nextPhaseDirector.Play();
+
+            yield return null;
+            while(nextPhaseDirector.state == PlayState.Playing)
+            {
+                yield return null;
+            }
+            nextPhaseDirectorParent.SetActive(false);
+        }
+        // ゲーム終了時
+        else
+        {
+
+        }
+
+            pizzaManager.ActivatePizzaSlices();
         pizzaManager.FillAllPickableSlices();
 
         yield return null;

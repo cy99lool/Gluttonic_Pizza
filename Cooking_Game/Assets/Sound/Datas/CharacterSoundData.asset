@@ -38,3 +38,13 @@ MonoBehaviour:
     soundClip: {fileID: 8300000, guid: 77e104c27b85d7d4b80706ad9a296924, type: 3}
     volume: 0.5
     pitchVarietion: 0.3
+  - soundType: 5
+    soundName: "\u30AB\u30A6\u30F3\u30C8\u30A2\u30C3\u30D7\u4E2D"
+    soundClip: {fileID: 8300000, guid: a931589928a4893489d4beb1adecf221, type: 3}
+    volume: 0.5
+    pitchVarietion: 0
+  - soundType: 6
+    soundName: "\u30AB\u30A6\u30F3\u30C8\u30A2\u30C3\u30D7\u5B8C\u4E86"
+    soundClip: {fileID: 8300000, guid: cdc1b4a9fcf85e44bad2185282d394d2, type: 3}
+    volume: 0.5
+    pitchVarietion: 0
