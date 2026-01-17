@@ -64,6 +64,9 @@ public class PizzaManager : MonoBehaviour
         foreach(PizzaSlice slice in pizzaSlices)
         {
             slice.transform.position = slice.StartPos;
+
+            // 親子関係が外れていたら戻す
+            if(slice.transform.parent != transform) slice.transform.SetParent(transform);
         }
     }
 
