@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using UnityEngine.Playables;
+using UnityEngine.Timeline;
 
 /// <summary>
 /// 複数のスクリプトで共通で使う定数やメソッド等をまとめておく
@@ -36,5 +39,57 @@ public static class GameConstants
     public static Vector3 MultiplyVector3(Vector3 first, Vector3 second)
     {
         return new Vector3(first.x * second.x, first.y * second.y, first.z * second.z);
+    }
+
+    /// <summary>
+    /// トラックへと割り当てる
+    /// </summary>
+    /// <param name="director">割り当てるDirector（呼び出し元）</param>
+    /// <typeparam name="T">トラックの型</typeparam>
+    /// <param name="trackName">トラックの名前</param>
+    /// <param name="target">割り当てる対象</param>
+    public static void BindToTrack<T>(this PlayableDirector director, string trackName, UnityEngine.Object target) where T : TrackAsset
+    {
+        // nullチェック
+        if (director == null || director.playableAsset == null) return;
+
+        // Timelineアセットを取得
+        TimelineAsset timelineAsset = director.playableAsset as TimelineAsset;
+
+        // T型のTrackAssetで指定した名前のトラックを探す
+        TrackAsset track = timelineAsset.GetOutputTracks().OfType<T>().FirstOrDefault(track => track.name == trackName);
+
+        if (track != null)
+        {
+            // オブジェクトをバインドする（このトラック上のSignalEmitterがtargetのSignalEmitterを発火させるようにする）
+            director.SetGenericBinding(track, target);
+        }
+    }
+
+    /// <summary>
+    /// Timelineを再生し、終了まで待つコルーチン
+    /// </summary>
+    /// <param name="parent">Timelineの親オブジェクト</param>
+    /// <param name="director">再生するDirector</param>
+    /// <returns></returns>
+    public static IEnumerator PlayAndWaitTimeline(GameObject parent, PlayableDirector director)
+    {
+        // nullチェック
+        if (director == null) yield break;
+
+        // 有効化
+        if (parent != null && !parent.activeSelf) parent.SetActive(true);
+
+        // 再生
+        director.Play();
+
+        // 確実に再生状態になるように1フレーム待っている
+        yield return null;
+
+        // 再生完了まで待機
+        yield return new WaitUntil(() => director.state != PlayState.Playing);
+
+        // 非有効化
+        if (parent != null && parent.activeSelf) parent.SetActive(false);
     }
 }

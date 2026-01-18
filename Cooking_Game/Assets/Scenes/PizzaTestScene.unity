@@ -32843,13 +32843,17 @@ MonoBehaviour:
   shootPhaseTime: 1
   breakPhaseTime: 1
   pickPhaseTime: 8
-  pizzaCutDirector: {fileID: 1756918229}
-  pizzaStealDirectorParent: {fileID: 593661802}
-  pizzaStealDirector: {fileID: 1297761881}
+  pizzaCutTimeline:
+    directorParent: {fileID: 1984474777}
+    director: {fileID: 1756918229}
+  pizzaStealTimeline:
+    directorParent: {fileID: 593661802}
+    director: {fileID: 1297761881}
   pizzaStealSignalTrackName: PizzaPickSignal
   pizzaStealAnimationTrackName: PizzaSliceAnimation
-  nextPhaseDirectorParent: {fileID: 0}
-  nextPhaseDirector: {fileID: 0}
+  nextPhaseTimeline:
+    directorParent: {fileID: 0}
+    director: {fileID: 0}
   clockFillers:
   - {fileID: 1046333926}
   - {fileID: 1969789682}
@@ -75312,6 +75316,10 @@ PrefabInstance:
     - target: {fileID: 3500950785008963960, guid: 5bfedeea99e0f9544ac00501560b7af2, type: 3}
       propertyPath: m_Name
       value: PizzaStealTimeline
+      objectReference: {fileID: 0}
+    - target: {fileID: 3500950785008963960, guid: 5bfedeea99e0f9544ac00501560b7af2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3500950785008963961, guid: 5bfedeea99e0f9544ac00501560b7af2, type: 3}
       propertyPath: m_RootOrder
