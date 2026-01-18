@@ -805,6 +805,11 @@ MonoBehaviour:
   connectedIcon: {fileID: 74413026}
   statusText: {fileID: 0}
   waitTextAnimationLength: 2
+--- !u!320 &19717691 stripped
+PlayableDirector:
+  m_CorrespondingSourceObject: {fileID: 8408315580025303851, guid: daafe4eb5ce3048469eaae8179372726, type: 3}
+  m_PrefabInstance: {fileID: 1785943221}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &20708681
 GameObject:
   m_ObjectHideFlags: 0
@@ -5239,6 +5244,11 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!320 &175572414 stripped
+PlayableDirector:
+  m_CorrespondingSourceObject: {fileID: 6051986758669428063, guid: 2fa3e1ceffff0f74abd24d983229d3ad, type: 3}
+  m_PrefabInstance: {fileID: 2831831352847504172}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &175790927
 GameObject:
   m_ObjectHideFlags: 0
@@ -32775,6 +32785,11 @@ MonoBehaviour:
   sumPointCountedSE: 0
   redSumPointText: {fileID: 0}
   greenSumPointText: {fileID: 0}
+--- !u!320 &893295555 stripped
+PlayableDirector:
+  m_CorrespondingSourceObject: {fileID: 2023517995855797780, guid: a0ecdb9c771809c438770b2058ddc0df, type: 3}
+  m_PrefabInstance: {fileID: 5984748936047404969}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &895360742
 GameObject:
   m_ObjectHideFlags: 0
@@ -32893,11 +32908,11 @@ MonoBehaviour:
     directorParent: {fileID: 0}
     director: {fileID: 0}
   firstBargeInTimeline:
-    directorParent: {fileID: 0}
-    director: {fileID: 0}
+    directorParent: {fileID: 1550879472}
+    director: {fileID: 19717691}
   secondBargeInTimeline:
-    directorParent: {fileID: 0}
-    director: {fileID: 0}
+    directorParent: {fileID: 2089659722}
+    director: {fileID: 175572414}
   pizzaCutTimeline:
     directorParent: {fileID: 1984474777}
     director: {fileID: 1756918229}
@@ -32910,8 +32925,8 @@ MonoBehaviour:
     directorParent: {fileID: 0}
     director: {fileID: 0}
   endGameTimeline:
-    directorParent: {fileID: 0}
-    director: {fileID: 0}
+    directorParent: {fileID: 1415859485}
+    director: {fileID: 893295555}
   clockFillers:
   - {fileID: 1046333926}
   - {fileID: 1969789682}
@@ -50297,6 +50312,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410875387}
   m_CullTransparentMesh: 1
+--- !u!1 &1415859485 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6971170360094776975, guid: a0ecdb9c771809c438770b2058ddc0df, type: 3}
+  m_PrefabInstance: {fileID: 5984748936047404969}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1417414889
 GameObject:
   m_ObjectHideFlags: 0
@@ -53549,6 +53569,11 @@ MonoBehaviour:
   connectedIcon: {fileID: 1401613188}
   statusText: {fileID: 875686169}
   waitTextAnimationLength: 2
+--- !u!1 &1550879472 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 583847392071938992, guid: daafe4eb5ce3048469eaae8179372726, type: 3}
+  m_PrefabInstance: {fileID: 1785943221}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1550879473 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5348818596990593037, guid: daafe4eb5ce3048469eaae8179372726, type: 3}
@@ -74094,6 +74119,11 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!1 &2089659722 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3411073750923077060, guid: 2fa3e1ceffff0f74abd24d983229d3ad, type: 3}
+  m_PrefabInstance: {fileID: 2831831352847504172}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2102927388
 GameObject:
   m_ObjectHideFlags: 0
