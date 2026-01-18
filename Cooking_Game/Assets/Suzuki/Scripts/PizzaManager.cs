@@ -162,8 +162,18 @@ public class PizzaManager : MonoBehaviour
         Debug.Log($"残りスライス数: {pickableSlices.Count}");
     }
 
+    /// <summary>
+    /// 取得前の動かす処理
+    /// </summary>
+    /// <param name="targetSlice"></param>
+    /// <param name="targetPos"></param>
+    /// <param name="duration"></param>
+    /// <returns></returns>
     IEnumerator MoveSlice(PizzaSlice targetSlice, Vector3 targetPos, float duration)
     {
+        // タベリーナの手を有効化
+        targetSlice.SetDemonHandActive(true);
+
         try
         {
             if(duration == GameConstants.Zero) yield break;
@@ -183,7 +193,11 @@ public class PizzaManager : MonoBehaviour
         }
         finally
         {
+            // 位置を設定
             targetSlice.transform.position = targetPos;
+
+            // タベリーナの手を無効化
+            targetSlice.SetDemonHandActive(false);
         }
     }
 
