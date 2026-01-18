@@ -9,6 +9,11 @@ public class PizzaSlice : MonoBehaviour
     [Header("ピザが選択されているときのハイライト"), SerializeField] GameObject highlightObject;
     [Header("焼けた後の見た目"), SerializeField] Renderer cookedRenderer;
     public Renderer CookedRenderer => cookedRenderer;
+
+    [Header("魔王の手"), SerializeField] GameObject demonHand;
+    public GameObject DemonHand => demonHand;
+    public void SetDemonHandActive(bool value) => demonHand.SetActive(value); 
+
     [Header("ピザの取得Directorを移動させる場所"), SerializeField] Transform stealDirectorPos;
     public Transform StealDirectorPosTransform => stealDirectorPos;
 
