@@ -157,17 +157,19 @@ public class SystemManager : MonoBehaviour
     [Header("ピザが取られるフェーズの時間"), SerializeField] float pickPhaseTime;
 
     [Header("--- タイムラインの設定 ---")]
-    [Header("ピザのカットを行うDirector"), SerializeField] PlayableDirector pizzaCutDirector;
+    [Header("ゲームの開始前Timeline"), SerializeField] TimelineInfo startGameTimeline;
+    [Header("ハーフタイムTimeline"), SerializeField] TimelineInfo breakTimeTimeline;
+    [Header("乱入Timeline（1フェーズ目）"), SerializeField] TimelineInfo firstBargeInTimeline;
+    [Header("乱入Timeline（2フェーズ目）"), SerializeField] TimelineInfo secondBargeInTimeline;
+    [Header("ピザのカットを行うTimeline"), SerializeField] TimelineInfo pizzaCutTimeline;
 
     [Header("- ピザの取得 -")]
-    [Header("全体の親オブジェクト"), SerializeField] GameObject pizzaStealDirectorParent;
-    [Header("ピザの取得を行うDirector"), SerializeField] PlayableDirector pizzaStealDirector;
+    [Header("Timelineの情報"), SerializeField] TimelineInfo pizzaStealTimeline;
     [Header("ピザの取得シグナルトラックの名前"), SerializeField] string pizzaStealSignalTrackName;
     [Header("ピザの取得でスライスを動かすAnimationTrack"), SerializeField] string pizzaStealAnimationTrackName;
 
-    [Header("- 次のフェーズ移行 -")]
-    [Header("親オブジェクト"), SerializeField] GameObject nextPhaseDirectorParent;
-    [Header("Director"), SerializeField] PlayableDirector nextPhaseDirector;
+    [Header("次のフェーズ移行Timeline"), SerializeField] TimelineInfo nextPhaseTimeline;
+    [Header("ゲーム終了Timeline"), SerializeField] TimelineInfo endGameTimeline;
 
     [Header("--- スクリプトでのアニメーション設定 ---")]
     [Header("時計の中身"), SerializeField] List<Image> clockFillers;
@@ -341,6 +343,9 @@ public class SystemManager : MonoBehaviour
     {
         if (!isStarted)
         {
+            // ゲーム開始前Timelineの再生
+            yield return GameConstants.PlayAndWaitTimeline(startGameTimeline.DirectorParent, startGameTimeline.Director);
+
             isStarted = true;
             // インゲームBGMを再生(Windowsのみ)
             PlayBGM_Windows(BGMType.InGame);
@@ -366,7 +371,7 @@ public class SystemManager : MonoBehaviour
             yield return StartCoroutine(ShootFoodPhase(shootPhaseTime));
 
             // ピザ取得待機フェーズ
-            yield return StartCoroutine(PreparePickPizzaPhase(breakPhaseTime));
+            yield return StartCoroutine(PreparePickPizzaPhase(breakPhaseTime, counter));
 
             // ピザ取得フェーズ
             //yield return StartCoroutine(PickPizzaPhase());
@@ -614,7 +619,7 @@ public class SystemManager : MonoBehaviour
         return true;
     }
 
-    IEnumerator PreparePickPizzaPhase(float preparePizzaTime)
+    IEnumerator PreparePickPizzaPhase(float preparePizzaTime, int count)
     {
         // フェーズ設定
         currentPhase = GamePhase.PickPizza;
@@ -624,22 +629,20 @@ public class SystemManager : MonoBehaviour
         // プレイヤーは発射不可
         SetAllPlayerUnshootable(teams);
 
+        // 乱入演出
+        yield return count + GameConstants.One != PhaseCount ? GameConstants.PlayAndWaitTimeline(firstBargeInTimeline.DirectorParent, firstBargeInTimeline.Director) : GameConstants.PlayAndWaitTimeline(secondBargeInTimeline.DirectorParent, secondBargeInTimeline.Director);
+
         // 取得待機演出
         yield return StartCoroutine(pizzaManager.PrepareTakePizza(preparePizzaTime));
 
         // カット演出
-        // 有効化
-        if (!pizzaCutDirector.gameObject.activeSelf) pizzaCutDirector.gameObject.SetActive(true);
-        // 再生
-        pizzaCutDirector.Play();
+        yield return GameConstants.PlayAndWaitTimeline(pizzaCutTimeline.DirectorParent, pizzaCutTimeline.Director);
 
-        // 再生完了まで待機（状態で判定）
-        yield return new WaitUntil(() => pizzaCutDirector.state != PlayState.Playing);
         //// 再生完了まで待機（再生時間で判定、Hold用）
         //yield return new WaitUntil(() => pizzaCutDirector.time >= pizzaCutDirector.duration);
 
-        // 無効化
-        pizzaCutDirector.gameObject.SetActive(false);
+        //// 無効化
+        //pizzaCutTimeline.DirectorParent.gameObject.SetActive(false);
     }
 
     IEnumerator PickPizzaPhase()
@@ -719,77 +722,49 @@ public class SystemManager : MonoBehaviour
         SignalReceiver signalReceiver = target.GetComponent<SignalReceiver>();
 
         // 指定した名前のSignalTrackを探して割り当てる
-        if (signalReceiver != null) BindToTrack<SignalTrack>(pizzaStealSignalTrackName, signalReceiver);
+        if (signalReceiver != null) pizzaStealTimeline.Director.BindToTrack<SignalTrack>(pizzaStealSignalTrackName, signalReceiver);
 
         // 指定した名前のAnimationTrackを探して割り当てる
-        BindToTrack<AnimationTrack>(pizzaStealAnimationTrackName, target.gameObject);
+        pizzaStealTimeline.Director.BindToTrack<AnimationTrack>(pizzaStealAnimationTrackName, target.gameObject);
 
         // ピック準備位置へと移動
-        pizzaStealDirectorParent.transform.position = target.StealDirectorPosTransform.position;
+        pizzaStealTimeline.DirectorParent.transform.position = target.StealDirectorPosTransform.position;
 
         // スライスの方を向く
         //pizzaStealDirectorParent.transform.LookAt(target.transform);
-        Vector3 eulerAngles = pizzaStealDirectorParent.transform.localEulerAngles;
+        Vector3 eulerAngles = pizzaStealTimeline.DirectorParent.transform.localEulerAngles;
         eulerAngles.y = target.StealDirectorPosTransform.eulerAngles.y;
 
         // 適用
-        pizzaStealDirectorParent.transform.localEulerAngles = eulerAngles;
+        pizzaStealTimeline.DirectorParent.transform.localEulerAngles = eulerAngles;
 
         // 再生
-        pizzaStealDirector.Play();
-    }
-
-    /// <summary>
-    /// トラックへと割り当てる
-    /// </summary>
-    /// <typeparam name="T">トラックの型</typeparam>
-    /// <param name="trackName">トラックの名前</param>
-    /// <param name="target">割り当てる対象</param>
-    void BindToTrack<T>(string trackName,  UnityEngine.Object target) where T : TrackAsset
-    {
-        // Timelineアセットを取得
-        TimelineAsset timelineAsset = pizzaStealDirector.playableAsset as TimelineAsset;
-
-        // T型のTrackAssetで指定した名前のトラックを探す
-        TrackAsset track = timelineAsset.GetOutputTracks().OfType<T>().FirstOrDefault(track => track.name == trackName);
-
-        if (track != null)
-        {
-            // オブジェクトをバインドする（このトラック上のSignalEmitterがtargetのSignalEmitterを発火させるようにする）
-            pizzaStealDirector.SetGenericBinding(track, target);
-        }
+        pizzaStealTimeline.Director.Play();
     }
 
     IEnumerator EndPhase(int phaseCounter)
     {
         int nextPhase = phaseCounter;// 次のフェーズを取得
 
-        // ピザの復活処理（アニメーションの再生）
-        // 次のフェーズがある場合
+        // 次のフェーズがある場合のTimeline再生
         if(nextPhase != PhaseCount)
         {
-            nextPhaseDirectorParent.SetActive(true);
-
-            nextPhaseDirector.Play();
-
-            yield return null;
-            while(nextPhaseDirector.state == PlayState.Playing)
-            {
-                yield return null;
-            }
-            nextPhaseDirectorParent.SetActive(false);
+            yield return GameConstants.PlayAndWaitTimeline(nextPhaseTimeline.DirectorParent, nextPhaseTimeline.Director);
         }
-        // ゲーム終了時
+        // ゲーム終了時のTimeline再生
         else
         {
-
+            yield return GameConstants.PlayAndWaitTimeline(endGameTimeline.DirectorParent, endGameTimeline.Director);
         }
 
-            pizzaManager.ActivatePizzaSlices();
+        // ピザの復活処理
+        pizzaManager.ActivatePizzaSlices();
         pizzaManager.FillAllPickableSlices();
 
         yield return null;
     }
+
+    
 
     IEnumerator ResultPhase()
     {
@@ -798,20 +773,29 @@ public class SystemManager : MonoBehaviour
 
         mainResult.gameObject.SetActive(true);
 
-        //for(int i = 0; i < teams.Count; i++)
-        //{
-        //    //break;// デバッグ用
-        //    if (teams[i].Result == null) continue;
+        for (int i = 0; i < teams.Count; i++)
+        {
+            if (teams[i].TabletResult == null) continue;
 
-        //    if (!teams[i].Result.gameObject.activeInHierarchy) teams[i].Result.gameObject.SetActive(true);
-        //    if (!teams[i].Result.gameObject.activeInHierarchy) continue;
-
-        //    yield return teams[i].Result.ShowResult();
-        //}
+            if (!teams[i].TabletResult.gameObject.activeInHierarchy) teams[i].TabletResult.gameObject.SetActive(true);
+            if (!teams[i].TabletResult.gameObject.activeInHierarchy) continue;
+            
+            yield return teams[i].TabletResult.ShowResult();
+        }
 
         if (mainResult.gameObject.activeInHierarchy)
         {
             yield return StartCoroutine(mainResult.ShowResult());
         }
     }
+}
+
+[System.Serializable]
+public class TimelineInfo
+{
+    [Header("Timelineの親オブジェクト"), SerializeField] GameObject directorParent;
+    public GameObject DirectorParent => directorParent;
+
+    [Header("Timelineを動かすDirector"), SerializeField] PlayableDirector director;
+    public PlayableDirector Director => director;
 }
