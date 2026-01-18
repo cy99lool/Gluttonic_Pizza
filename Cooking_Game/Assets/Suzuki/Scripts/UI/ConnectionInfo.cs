@@ -9,6 +9,7 @@ public class ConnectionInfo : MonoBehaviour
     [Header("--- アイコン設定 ---")]
     [Header("接続待ちアイコン"), SerializeField] Image connectWaitIcon;
     [Header("接続済みアイコン"), SerializeField] Image connectedIcon;
+
     [Header("--- テキスト設定 ---")]
     [Header("接続状況テキスト"), SerializeField] TextMeshProUGUI statusText;
     [Header("接続待ちテキストの「」▶「...」1ループの長さ"), SerializeField] float waitTextAnimationLength;
@@ -27,18 +28,27 @@ public class ConnectionInfo : MonoBehaviour
         nextTextAnimationTime = waitTextAnimationLength / TextAnimationAmount;
 
         animationCount = GameConstants.Zero;
+
+        // 接続済みアイコンの非有効化
+        if(connectedIcon != null && connectedIcon.gameObject.activeSelf) connectedIcon.gameObject.SetActive(false);
+
+        // 接続待ちアイコンの有効化
+        if (connectWaitIcon != null && !connectWaitIcon.gameObject.activeSelf) connectWaitIcon.gameObject.SetActive(true);
     }
 
     void Update()
     {
+        // 基本はbaseTextのみの表示
+        if (statusText.text != baseText) statusText.text = baseText;
+
         // 接続中はアニメーションを行わないためreturn
         if (connect) return;
 
         // テキストのアニメーション
-        animationText = UpdateTextAnimation();
+        if(statusText != null) animationText = UpdateTextAnimation();
 
         // テキストに反映
-        statusText.text = baseText + animationText;
+        if (statusText != null) statusText.text = baseText + animationText;
     }
 
     string UpdateTextAnimation()
@@ -80,11 +90,11 @@ public class ConnectionInfo : MonoBehaviour
 
         // 接続済みテキストへ変更
         baseText = "接続済み";
-        statusText.text = baseText;
+        if (statusText != null) statusText.text = baseText;
 
         // 接続済みアイコンへ変化
-        connectWaitIcon.gameObject.SetActive(false);
-        connectedIcon.gameObject.SetActive(true);
+        if (connectWaitIcon != null) connectWaitIcon.gameObject.SetActive(false);
+        if (connectedIcon != null) connectedIcon.gameObject.SetActive(true);
     }
 
     /// <summary>
@@ -99,7 +109,7 @@ public class ConnectionInfo : MonoBehaviour
         textTimer = GameConstants.FirstTimerValue;
 
         // 接続待ちアイコンへ変化
-        connectWaitIcon.gameObject.SetActive(true);
-        connectedIcon.gameObject.SetActive(false);
+        if (connectWaitIcon != null) connectWaitIcon.gameObject.SetActive(true);
+        if (connectedIcon != null) connectedIcon.gameObject.SetActive(false);
     }
 }

@@ -214,9 +214,11 @@ public class FoodMove : MonoBehaviour
 
             return;
         }
+        // 起爆準備中は位置を更新
+        else if (bombCountEffectObject != null && bombCountEffectObject.activeSelf) bombCountEffectObject.transform.position = Root.transform.position;
 
-        // タイマーを更新して、起爆時間になったら起爆
-        bombTimer += Time.deltaTime;
+            // タイマーを更新して、起爆時間になったら起爆
+            bombTimer += Time.deltaTime;
 
         if (bombTimer >= explodeTimer) Explode();
     }
@@ -490,6 +492,7 @@ public class FoodMove : MonoBehaviour
         // 全く同じ食べ物がくっついていないか確かめる
         foreach (FoodMove food in mergedFoods)
         {
+            if(food.Root == target.Root) Debug.LogWarning($"[Merge Failed] {food.name}と{target.name}を結合しようとしましたが、すでに同じRootです！");// デバッグ文 後で消す
             if (food.Root == target.Root) return;
         }
 
@@ -574,6 +577,9 @@ public class FoodMove : MonoBehaviour
 
             // エフェクトを生成
             if (bombCountDownEffect != null && bombCountEffectObject == null) bombCountEffectObject = Instantiate(bombCountDownEffect);
+
+            // 爆破前SEを再生
+            stageManager.PlaySE_Windows(PlayerSoundType.BeforeBomb, transform);
 
             // エフェクトのオブジェクトが存在しているかnullチェック
             if (bombCountEffectObject == null) return;
@@ -805,9 +811,6 @@ public class FoodMove : MonoBehaviour
                     default:
                         break;
                 }
-
-                //Reflect(myRb, oppoentRb);
-                //stageManager.AddReflectList(this, opponentFood);
             }
         }
     }

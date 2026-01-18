@@ -20,7 +20,7 @@ public class StageManager : MonoBehaviour
             Vector3 velocity;
             public Vector3 Velocity => velocity;
 
-            public FoodReflectInfo( FoodMove foodMove)
+            public FoodReflectInfo(FoodMove foodMove)
             {
                 this.rb = foodMove.Rigidbody;
                 this.food = foodMove;
@@ -86,10 +86,10 @@ public class StageManager : MonoBehaviour
         float pullTimer = GameConstants.FirstTimerValue;
         bool eatMode = false;// 捕食モードかどうか
         public bool EatMode => eatMode;
-
-        bool onEatModeChanged = false;// 捕食モードに切り替わった瞬間か
-        public bool OnEatModeChanged => onEatModeChanged;
-        public bool SetOnEatModeFalse() => onEatModeChanged = false;
+        public void SetEatModeFalse() => eatMode = false;
+        
+        bool lastEatMode = false;
+        public bool LastEatMode { get; set; }
 
         CursorInfo cursorInfo;
         public CursorInfo Cursor => cursorInfo;
@@ -182,18 +182,13 @@ public class StageManager : MonoBehaviour
                     bowStringController.StartAim(foodBeforeShoot);// 弦を引っ張り始める
                     pullTimer = GameConstants.FirstTimerValue;// タイマーをリセット
                     eatMode = false;
-                    onEatModeChanged = false;
                 }
 
                 // 引張時間を経過
                 pullTimer += Time.deltaTime;
                 // 一定時間を超えたら捕食を有効化する
-                if(pullTimer >= eatModeChargeSeconds)
+                if (pullTimer >= eatModeChargeSeconds)
                 {
-                    // チャージ完了した瞬間だけのフラグを設定
-                    if(!onEatModeChanged && eatMode) onEatModeChanged = true;
-                    else onEatModeChanged = false;
-
                     eatMode = true;
                 }
 
@@ -221,11 +216,17 @@ public class StageManager : MonoBehaviour
         }
 
         const float MaxRate = 1f;
+        // 引き絞り度合いを計算する
         float calcRate(Vector2 target)
         {
             Vector2 distanceVector = new Vector2(pivot.position.x - target.x, pivot.position.z - target.y);
-            float squaredDistance = distanceVector.x * distanceVector.x + distanceVector.y * distanceVector.y;// 距離の二乗(-をなくすため)
+            // 距離の二乗(-をなくすため)
+            float squaredDistance = distanceVector.x * distanceVector.x + distanceVector.y * distanceVector.y;
+
+            // 度合いを計算
             float rate = squaredDistance / (maxDistance * maxDistance);
+
+            // 最大値までに抑える
             if (rate > MaxRate) rate = MaxRate;
             return rate;
         }
@@ -238,13 +239,15 @@ public class StageManager : MonoBehaviour
     List<InfoForReflect> mergeEventList = new List<InfoForReflect>();
     List<InfoForReflect> eatEventList = new List<InfoForReflect>();
 
+    [Header("--- マネージャー ---")]
     [Header("振動のマネージャー"), SerializeField] VibrateManager vibrateManager;
-    [Header("サウンドのマネージャー"), SerializeField] SoundManager soundManager;
+    [Header("エフェクトのマネージャー"), SerializeField] EffectManager effectManager;
 
     SystemManager systemManager;
-    public SystemManager SystemManager => systemManager;
     void Start()
     {
+        systemManager = FindObjectOfType<SystemManager>();
+
         for (int i = 0; i < trackObjects.Count; i++)
         {
             trackObjects[i].SetStartPos();
@@ -276,6 +279,12 @@ public class StageManager : MonoBehaviour
 
                 // 発射可能状況の制御
                 trackObjects[i].Cursor.OnShoot();
+
+                // 振動を停止させる
+                vibrateManager.StopVibration();
+
+                // 捕食モードを切る
+                trackObjects[i].SetEatModeFalse();
             }
             // 発射クールタイム終了時
             if (trackObjects[i].Cursor.Team.Shootable && !trackObjects[i].FoodBeforeShoot.gameObject.activeSelf) trackObjects[i].OnFoodSpawn();
@@ -288,14 +297,17 @@ public class StageManager : MonoBehaviour
             // ドラッグ中の矢の表示
             trackObjects[i].UpdateArrow();
 
-            // 捕食可能になったときの処理
-            if (trackObjects[i].OnEatModeChanged) OnEatableChanged(trackObjects[i]);
+            // 捕食可能になった瞬間の処理（一回の引き絞りにつき一度きり）
+            if (trackObjects[i].EatMode && !trackObjects[i].LastEatMode) OnEatableChanged(trackObjects[i]);
 
             // 捕食モードの処理
             if (trackObjects[i].EatMode) OnEatMode(trackObjects[i]);
 
             // ドラッグ位置の履歴を更新
             trackObjects[i].UpdateLastPosition();
+
+            // 捕食モードの履歴を記録
+            trackObjects[i].LastEatMode = trackObjects[i].EatMode;
         }
 
         // 反射リストにあったら反射する
@@ -310,35 +322,52 @@ public class StageManager : MonoBehaviour
         // くっつける
         if (mergeEventList.Count > 0)
         {
-            for(int i = mergeEventList.Count - 1;i >= 0;i--)
+            for (int i = mergeEventList.Count - 1; i >= 0; i--)
             {
                 mergeEventList[i].First.Food.OnMerge(mergeEventList[i].Second.Food);
+
                 // 結合SE再生
-                soundManager.PlaySE(PlayerSoundType.Merge, mergeEventList[i].First.Food.transform);
-                Debug.Log("[MERGE]");
+                PlaySE_Windows(PlayerSoundType.Merge, mergeEventList[i].First.Food.transform);
+
+                // 結合エフェクト再生
+                if (effectManager != null) effectManager.PlayMergedEffect(mergeEventList[i].First.Food.transform.position, mergeEventList[i].First.Food.Team);
+
+                //Debug.Log("[MERGE]");
             }
             mergeEventList.Clear();// リストをクリア
         }
         // 食べる
-        if(eatEventList.Count > 0)
+        if (eatEventList.Count > 0)
         {
-            for(int i =  eatEventList.Count - 1; i>=0;i--)
+            for (int i = eatEventList.Count - 1; i >= 0; i--)
             {
                 eatEventList[i].First.Food.OnEat(eatEventList[i].Second.Food, eatEventList[i].First.Velocity);
+
                 // 捕食SE再生
-                soundManager.PlaySE(PlayerSoundType.Eat, mergeEventList[i].First.Food.transform);
-                Debug.Log("[EAT]");
+                PlaySE_Windows(PlayerSoundType.Eat, eatEventList[i].First.Food.transform);
+
+                // 捕食エフェクト再生
+                if (effectManager != null) effectManager.PlayEatenEffect(eatEventList[i].First.Food.transform.position);
+
+                //Debug.Log("[EAT]");
             }
             eatEventList.Clear();// リストをクリア
         }
     }
+
+    public void PlaySE_Windows(PlayerSoundType soundType, Transform playTransform) => systemManager.PlaySE_Windows(soundType, playTransform);
 
     /// <summary>
     /// 捕食可能になったときの演出・処理
     /// </summary>
     void OnEatableChanged(TrackObject trackObject)
     {
+        //  チャージ完了SE再生
+        if (systemManager != null) systemManager.PlaySE_Android(PlayerSoundType.Charge, trackObject.FoodBeforeShoot.transform);
+        //if (systemManager != null) systemManager.PlaySE_Windows(PlayerSoundType.Charge, trackObject.FoodBeforeShoot.transform);
+
         // エフェクト表示
+        if (effectManager != null) effectManager.PlayChargedEffect(trackObject.FoodBeforeShoot.transform);
 
         //// 捕食可能状態の切り替わりフラグの無効化
         //trackObject.SetOnEatModeFalse();
@@ -353,14 +382,14 @@ public class StageManager : MonoBehaviour
         trackObject.BowStringController.CurrentArrow.EnableEatMode();
     }
 
-    public void SummonAndShotFood(FoodMove foodPrefab,bool eatMode, Vector3 summonPosition, Vector3 shotDirection, Vector3 pivotPos, float power)
+    public void SummonAndShotFood(FoodMove foodPrefab, bool eatMode, Vector3 summonPosition, Vector3 shotDirection, Vector3 pivotPos, float power)
     {
         // 具材の生成
         GameObject food = Instantiate(foodPrefab.gameObject, summonPosition, Quaternion.identity);
         FoodMove foodMove = food.GetComponent<FoodMove>();
 
         // 捕食可能モードの設定
-        if(eatMode) foodMove.EnableEatMode();
+        if (eatMode) foodMove.EnableEatMode();
 
         // 発射する方を向かせる
         food.transform.LookAt(pivotPos);
@@ -397,7 +426,7 @@ public class StageManager : MonoBehaviour
     /// <returns>同じペアを含んでいるかどうか</returns>
     bool HasPair(List<InfoForReflect> list, FoodMove first, FoodMove second)
     {
-        return list.Any(e => (e.First.Food == first &&  e.Second.Food == second) || (e.First.Food == second && e.Second.Food == first));
+        return list.Any(e => (e.First.Food == first && e.Second.Food == second) || (e.First.Food == second && e.Second.Food == first));
     }
 
     const float MaxReflectScale = 1f;
@@ -410,30 +439,19 @@ public class StageManager : MonoBehaviour
     {
         if (reflectInfo.First.Rigidbody == null || reflectInfo.Second.Rigidbody == null) return;
 
-        // RigidBodyのIsKinemanicも加味する予定
+        // 勢いのあるRigidBodyを基準にする
         Rigidbody baseRb = reflectInfo.First.Rigidbody.velocity.magnitude >= reflectInfo.Second.Rigidbody.velocity.magnitude ?
             reflectInfo.First.Rigidbody : reflectInfo.Second.Rigidbody;
 
-        Vector3 baseVelocity = reflectInfo.First.Rigidbody.velocity + reflectInfo.Second.Rigidbody.velocity;// お互いの勢いを足す
-
-        //Vector3 direction = (reflectInfo.Second.Rigidbody.transform.position - reflectInfo.First.Rigidbody.position);
-        //float distance = direction.magnitude;
-        //// 重なりの防止
-        //if (distance <= ResolvePenetrationThreshold)
-        //{
-
-        //    // 力を加える方向
-        //    direction.Normalize();
-
-        //    float penetrationDepth = ResolvePenetrationThreshold - distance;
-        //    baseVelocity = direction * penetrationDepth * ResolvePenetrationFactor;
-
-        //    //baseVelocity = baseRb == reflectInfo.First.Rigidbody ? -distance : distance;
-        //}
+        // お互いの勢いを足す
+        Vector3 baseVelocity = reflectInfo.First.Rigidbody.velocity + reflectInfo.Second.Rigidbody.velocity;
 
         // 勢いを計算しやすいように変換
-        baseVelocity /= BaseKeepReflectSpeedRate;// 後で食材ごとに%を変換しないで済むようにしている
-        baseVelocity.y = 0f;// y方向の力は必要ないので無くしておく
+        // 後で食材ごとに%を変換しないで済むようにあらかじめ変換しておく
+        baseVelocity /= BaseKeepReflectSpeedRate;
+
+        // y方向の力は必要ないので無くしておく
+        baseVelocity.y = 0f;
 
         Vector3 firstVelocity = Vector3.zero;
         Vector3 secondVelocity = Vector3.zero;

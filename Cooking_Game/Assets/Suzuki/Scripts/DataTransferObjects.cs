@@ -65,3 +65,24 @@ public class TeamDetaDto
         this.phase = currentPhase;
     }
 }
+
+[System.Serializable]
+public class ReadyStateDto
+{
+    [SerializeField] TeamColor color;
+    public TeamColor Color => color;
+
+    [SerializeField] ReadyState readyState;
+    public ReadyState ReadyState => readyState;
+
+    /// <summary>
+    /// JsonUtility用のデフォルトコンストラクタ
+    /// </summary>
+    public ReadyStateDto() { }
+
+    public ReadyStateDto(SystemManager.Team team, ReadyState readyState)
+    {
+        this.color = team.Color;
+        this.readyState = readyState;
+    }
+}

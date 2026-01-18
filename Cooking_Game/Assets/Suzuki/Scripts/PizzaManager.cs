@@ -7,21 +7,75 @@ using UnityEngine.SocialPlatforms.Impl;
 public class PizzaManager : MonoBehaviour
 {
     [SerializeField] List<PizzaSlice> pizzaSlices;
+    public List<PizzaSlice> PizzaSlices => pizzaSlices;
+
     [Header("回転速度"), SerializeField] float rotateSpeed = 20f;
+    [Header("取得アニメーションの長さ"), SerializeField] float pickAnimationDuration;
 
     bool canSpin = false;
     [SerializeField] SystemManager systemManager;
 
-    public List<PizzaSlice> PizzaSlices => pizzaSlices;
+    List<PizzaSlice> pickableSlices = new List<PizzaSlice>();
+    public List<PizzaSlice> PickableSlices => pickableSlices;
+    public void RemovePickableSlices(PizzaSlice slice)
+    {
+        // リストやその中に対象が存在しなければreturn
+        if (pickableSlices == null && !pickableSlices.Contains(slice)) return;
+
+        // 番号を取得
+        int index = pickableSlices.IndexOf(slice);
+
+        // 対象を除外
+        if (index != GameConstants.DefaultIndex)
+        {
+            pickableSlices.RemoveAt(index);
+            Debug.Log($"{index}番を除外");
+        }
+    }
 
     void Start()
     {
         if(systemManager != null) systemManager = FindObjectOfType<SystemManager>();
+
+        FillAllPickableSlices();
     }
 
     void Update()
     {
         if (canSpin) Spin(rotateSpeed);
+    }
+
+    /// <summary>
+    /// ピザの場所を戻す
+    /// </summary>
+    public void ActivatePizzaSlices()
+    {
+        // ピザの場所を戻す
+        //foreach(PizzaSlice slice in pizzaSlices) 
+
+        // 再有効化（仮の処理）
+        //foreach (PizzaSlice slice in pizzaSlices) slice.gameObject.SetActive(true);
+    }
+    public void FillAllPickableSlices()
+    {
+        // リストを空にする
+        pickableSlices.Clear();
+
+        // リストにすべて追加
+        pickableSlices.AddRange(pizzaSlices);
+        //foreach(PizzaSlice slice in pizzaSlices) pickableSlices.Add(slice);
+    }
+
+    // すべてのピザを初期地点に戻す
+    public void SetAllPizzaStartPosition()
+    {
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            slice.transform.position = slice.StartPos;
+
+            // 親子関係が外れていたら戻す
+            if(slice.transform.parent != transform) slice.transform.SetParent(transform);
+        }
     }
 
     public IEnumerator PrepareTakePizza(float waitTime)
@@ -56,21 +110,124 @@ public class PizzaManager : MonoBehaviour
     /// <param name="pizzaIndexes">取り上げるスライス</param>
     public void TakePizzaSlice(List<int> pizzaIndexes)
     {
-        // リストを小さい順にソート
-        pizzaIndexes = SortByLowest(pizzaIndexes);
+        //// リストを小さい順にソート
+        //pizzaIndexes = SortByLowest(pizzaIndexes);
+
+        //// ピザを取り上げる処理
+        //for (int i = pizzaIndexes.Count - 1; i >= 0; i--)
+        //{
+        //    if (pizzaIndexes[i] > pizzaSlices.Count) return;
+
+        //    // 取得、スコア計上
+        //    Take(pizzaSlices[pizzaIndexes[i]]);
+
+        //    //pizzaSlices[pizzaIndexes[i]].gameObject.SetActive(false);// 仮の除去処理
+        //    //pizzaSlices.RemoveAt(pizzaIndexes[i]);// ピザのリストから除外
+
+        //    // ピザを動かす
+        //    StartCoroutine(MoveSlice(pizzaSlices[pizzaIndexes[i]], pizzaSlices[pizzaIndexes[i]].StealDirectorPosTransform.position, pickAnimationDuration));
+
+        //    //Vector3 pizzaPos = pickableSlices[pizzaIndexes[i]].transform.position;
+        //    //pizzaPos.y += 100;
+        //    //pickableSlices[pizzaIndexes[i]].transform.position = pizzaPos;
+
+        //    pickableSlices.RemoveAt(pizzaIndexes[i]);
+        //    pizzaIndexes.RemoveAt(i);
+        //}
+        //Debug.Log(pickableSlices.Count);
+
+        // 1. 削除対象のオブジェクトを先にリストアップする（インデックスのズレ対策）
+        List<PizzaSlice> targetsToRemove = new List<PizzaSlice>();
+        foreach (int index in pizzaIndexes)
+        {
+            if (index >= 0 && index < pickableSlices.Count)
+            {
+                targetsToRemove.Add(pickableSlices[index]);
+            }
+        }
+
+        // 2. 対象のオブジェクトに対して処理を行う
+        foreach (var target in targetsToRemove)
+        {
+            // 取得・スコア計上
+            Take(target);
+
+            // コルーチン開始
+            StartCoroutine(MoveSlice(target, target.StealDirectorPosTransform.position, pickAnimationDuration));
+
+            // リストから削除（オブジェクト指定で消すのでズレの影響を受けない）
+            pickableSlices.Remove(target);
+        }
+
+        Debug.Log($"残りスライス数: {pickableSlices.Count}");
+    }
+
+    IEnumerator MoveSlice(PizzaSlice targetSlice, Vector3 targetPos, float duration)
+    {
+        try
+        {
+            if(duration == GameConstants.Zero) yield break;
+
+            // 最初の地点を記録
+            Vector3 basePosition = targetSlice.transform.position;
+
+            float timer = GameConstants.FirstTimerValue;
+
+            while (timer < duration)
+            {
+                targetSlice.transform.position = Vector3.Lerp(basePosition, targetPos, timer / duration);
+
+                timer += Time.deltaTime;
+                yield return null;
+            }
+        }
+        finally
+        {
+            targetSlice.transform.position = targetPos;
+        }
+    }
+
+    public void TakePizzaSlice(int pizzaIndex)
+    {
+        // 取得、スコア計上
+        Take(pizzaSlices[pizzaIndex]);
+
+        //pickableSlices.RemoveAt(pizzaIndex);
+
+        Debug.Log(pickableSlices.Count);
+    }
+
+    /// <summary>
+    /// ピザのスライスを取り上げ、上に乗っている具材に応じてポイントを獲得させる
+    /// </summary>
+    /// <param name="targetSlice">取り上げるスライス</param>
+    public void TakePizzaSlice(PizzaSlice targetSlice)
+    {
+        PizzaSlice pickSlice = null;
+
+        // スライスがあるか調べる
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            if(slice == targetSlice)
+            {
+                pickSlice = slice;
+                break;
+            }
+        }
+
+        // なければ取らない
+        if (pickSlice == null) return;
 
         // ピザを取り上げる処理
-        for (int i = pizzaIndexes.Count - 1; i >= 0; i--)
-        {
-            if (pizzaIndexes[i] > pizzaSlices.Count) return;
+        Take(pickSlice);
 
-            // 取得、スコア計上
-            Take(pizzaSlices[pizzaIndexes[i]]);
+        Debug.Log($"取得:{pickSlice}");
 
-            //pizzaSlices[pizzaIndexes[i]].gameObject.SetActive(false);// 仮の除去処理
-            //pizzaSlices.RemoveAt(pizzaIndexes[i]);// ピザのリストから除外
-            pizzaIndexes.RemoveAt(i);
-        }
+        //// ハイライトを外す
+        //pickSlice.DisableHighlightObject();
+
+        // 取得可能番号から除外
+        //RemovePickableSlices(pickSlice);
     }
 
     void Take(PizzaSlice slice)
@@ -127,6 +284,24 @@ public class PizzaManager : MonoBehaviour
             }
         }
     }
+
+    public void AddExplosionScore(TeamColor color, int score)
+    {
+        // ゲーム開始前の爆発はカウントしない
+        if (systemManager.CurrentPhase != SystemManager.GamePhase.InGame) return;
+
+        foreach (SystemManager.Team team in systemManager.Teams)
+        {
+            // 同じ色のチームにポイントを与える
+            if (color == team.Color)
+            {
+                team.AddExplosionScore(score);
+                Debug.Log(team.Color + ":" + team.ExplosionScore);
+                return;// 与えたらそれ以降の処理は行わない
+            }
+        }
+    }
+
     /// <summary>
     /// すべてのピザを取得、ポイントを計算（アニメーションのイベントから呼ぶことでアニメーションの回収タイミングと同期できる）
     /// </summary>
@@ -137,7 +312,29 @@ public class PizzaManager : MonoBehaviour
             // 取得、ポイント計上
             Take(slice);
         }
-        pizzaSlices.Clear();
+        //pizzaSlices.Clear();
+    }
+
+    public void ClearAllFood()
+    {
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            ClearFood(slice);
+        }
+    }
+
+    void ClearFood(PizzaSlice slice)
+    {
+        List<FoodMove> foodList = slice.FoodList;// リストをコピー
+        if (foodList.Count > 0)
+        {
+            for (int j = foodList.Count - 1; j >= 0; j--)
+            {
+                // 消去処理
+                Destroy(foodList[j].gameObject);
+            }
+            foodList.Clear();
+        }
     }
 
     public void StartSpin()

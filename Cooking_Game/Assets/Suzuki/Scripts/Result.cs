@@ -4,25 +4,45 @@ using UnityEngine;
 using static SystemManager;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Playables;
 
 public class Result : MonoBehaviour
 {
     [SerializeField] SystemManager systemManager;
     [Header("--- リザルト表示設定 ---")]
     [Header("リザルトUI"), SerializeField] GameObject resultGroup;
-    [Header("カウントするスピード（スコア/秒）"), SerializeField] int countSpeed;
-    [Header("バーの長さ（スコアあたり）"), SerializeField] float extendPerScore = 3f;
-    [Header("メイン画面\nリザルトバーの表示位置"), SerializeField] List<RectTransform> mainUIBarPositions;
-    [Header("タブレット画面\nリザルトバーの表示位置"), SerializeField] List<RectTransform> tabletUIBarPositions;
+    [Header("赤チーム:勝利タイムライン"), SerializeField] PlayableDirector redWinTimeline;
+    [Header("緑チーム:勝利タイムライン"), SerializeField] PlayableDirector greenWinTimeline;
+    [Header("引き分け：両チーム勝利タイムライン"), SerializeField] PlayableDirector drawTimeline;
 
-    [Header("--- チームのスコア設定 ---")]
-    [Header("赤チームの得点表示テキスト"), SerializeField] TextMeshProUGUI redText;
-    [Header("緑チームの得点表示テキスト"), SerializeField] TextMeshProUGUI greenText;
+    [Header("--- チームのスコア表示設定 ---")]
+    [Header("全体：数字のカウントアップ速度（数値/秒）"), SerializeField] float numCountSpeed;
 
-    float redTeamScore;
-    float greenTeamScore;
+    [Header("- 事前点表示 -")]
+    [Header("カウントアニメーション終了SE"), SerializeField] PlayerSoundType prePointCountedSE;
+    [Header("赤チーム:テキスト"), SerializeField] TextMeshProUGUI redPrePointText;
+    [Header("緑チーム:テキスト"), SerializeField] TextMeshProUGUI greenPrePointText;
 
-    // リザルト画面表示
+    [Header("- 具材点表示 -")]
+    [Header("カウントアニメーション終了SE"), SerializeField] PlayerSoundType foodPointCountedSE;
+    [Header("赤チーム:テキスト"), SerializeField] TextMeshProUGUI redFoodPointText;
+    [Header("緑チーム:テキスト"), SerializeField] TextMeshProUGUI greenFoodPointText;
+
+    [Header("- 総得点表示 -")]
+    [Header("カウントアニメーション終了SE"), SerializeField] PlayerSoundType sumPointCountedSE;
+    [Header("赤チーム:テキスト"), SerializeField] TextMeshProUGUI redSumPointText;
+    [Header("緑チーム:テキスト"), SerializeField] TextMeshProUGUI greenSumPointText;
+    
+    int redPreScore;
+    int greenPreScore;
+
+    int redFoodScore;
+    int greenFoodScore;
+    
+
+    NumberCountUp numberCounter = new NumberCountUp();
+
+    // リザルト画面表示、timelineからのsignalでの呼び出しを考慮して細かく分けるかも
     public IEnumerator ShowResult(float debugReloadTime = 5f)
     {
         if (resultGroup != null) resultGroup.SetActive(true);// リザルトUIを有効化
@@ -30,11 +50,36 @@ public class Result : MonoBehaviour
         // チームのスコア計算
         CalcTeamScore();
 
-        // 得点表示
-        if(redText != null) redText.text = "赤チーム：" + redTeamScore;
-        if(greenText != null) greenText.text = "緑チーム：" + greenTeamScore;
+        int redSumScore = redPreScore + redFoodScore;
+        int greenSumScore = greenFoodScore + greenPreScore;
 
-        yield return new WaitForSeconds(debugReloadTime);
+        // 得点表示
+        // 事前点（現状は爆発のみ）
+        yield return ShowBothTeamScore(redPrePointText, greenPrePointText, redPreScore, greenPreScore, prePointCountedSE);
+
+        // 具材点
+        yield return ShowBothTeamScore(redFoodPointText, greenFoodPointText, redFoodScore, greenFoodScore, foodPointCountedSE);
+
+        // 合計
+        yield return ShowBothTeamScore(redSumPointText, greenSumPointText, redSumScore, greenSumScore, sumPointCountedSE);
+
+
+        // 勝者によって切り替える
+        if(redSumScore > greenSumScore)
+        {
+            if(redWinTimeline != null) redWinTimeline.Play();
+        }
+        else if (redSumScore < greenSumScore)
+        {
+            if (greenWinTimeline != null) greenWinTimeline.Play();
+        }
+        // 引き分け
+        else
+        {
+           if(drawTimeline != null) drawTimeline.Play();
+        }
+
+            yield return new WaitForSeconds(debugReloadTime);
 
         // テストプレイ用、シーンを再読み込み（接続待機画面に戻る）
         SceneManager.LoadScene("PizzaTestScene");
@@ -45,51 +90,51 @@ public class Result : MonoBehaviour
         //yield return StartCoroutine(ExtendScoreBar(systemManager.Teams));// スコアのバーを伸ばす
     }
 
+    /// <summary>
+    /// 両チームの得点を表示(表示が終わるまで待つ)
+    /// </summary>
+    /// <param name="redTargetText">赤チームのテキスト</param>
+    /// <param name="greenTargetText">緑チームのテキスト</param>
+    /// <param name="redScore">赤チームのスコア</param>
+    /// <param name="greenScore">緑チームのスコア</param>
+    /// <param name="soundType">アニメーション完了時に鳴らすSE</param>
+    IEnumerator ShowBothTeamScore(TextMeshProUGUI redTargetText, TextMeshProUGUI greenTargetText, int redScore, int greenScore, PlayerSoundType soundType)
+    {
+        // 両チームの得点表示
+        if (redTargetText != null) StartCoroutine(numberCounter.CountUpNumBySpeed(redTargetText, redScore, numCountSpeed, () => PlaySE(soundType)));
+        if (greenTargetText != null) StartCoroutine(numberCounter.CountUpNumBySpeed(greenTargetText, greenScore, numCountSpeed, () => PlaySE(soundType)));
+
+        // アニメーション終了まで待つ
+        yield return new WaitUntil(() => numberCounter.IsAllFinished);
+    }
+
+    // SEの再生（Windowsのみ）
+    void PlaySE(PlayerSoundType soundType) => systemManager.PlaySE_Windows(soundType, transform);
+
+    /// <summary>
+    /// スコアを計算
+    /// </summary>
     void CalcTeamScore()
     {
         // 初期化
-        redTeamScore = GameConstants.Zero;
-        greenTeamScore = GameConstants.Zero;
+        redFoodScore = GameConstants.Zero;
+        greenFoodScore = GameConstants.Zero;
 
         foreach(Team team in systemManager.Teams)
         {
             // 赤チームにスコア加算
-            if (team.Color == TeamColor.Red || team.Color == TeamColor.Yellow) redTeamScore += team.Score;
+            if (team.Color == TeamColor.Red || team.Color == TeamColor.Yellow)
+            {
+                redFoodScore += team.Score;
+                redPreScore += team.ExplosionScore;
+            }
 
             // 緑チームにスコア加算
-            if (team.Color == TeamColor.Green || team.Color == TeamColor.Blue) greenTeamScore += team.Score;
+            if (team.Color == TeamColor.Green || team.Color == TeamColor.Blue)
+            {
+                greenFoodScore += team.Score;
+                greenPreScore += team.ExplosionScore;
+            }
         }
     }
-
-    //IEnumerator ExtendScoreBar(List<SystemManager.Team> teams)
-    //{
-    //    int maxScore = teams[GameConstants.HeadIndex].Score;// 最大スコアを記録
-
-    //    // 順位の位置設定
-    //    for (int i = 0; i < teams.Count; i++)
-    //    {
-    //        if (teams[i].MainScoreBar != null && mainUIBarPositions[i] != null) teams[i].MainScoreBar.anchoredPosition = mainUIBarPositions[i].anchoredPosition;
-    //    }
-
-    //    // 伸ばす
-    //    int nowScore = 0;
-    //    while(nowScore < maxScore)
-    //    {
-    //        foreach(SystemManager.Team team in teams)
-    //        {
-    //            // スコアを更新する対象はゲージを伸ばす
-    //            if (nowScore <= team.Score && team.MainScoreBar != null)
-    //            {
-    //                // スコアをカウントアップするならここに追加
-    //                team.MainScoreBar.offsetMax = new Vector2(team.MainScoreBar.offsetMax.x + nowScore * extendPerScore, team.MainScoreBar.offsetMax.y);
-    //            }
-    //        }
-
-    //        // スコア加算
-    //        nowScore += (int)(countSpeed * Time.deltaTime);
-    //        if(nowScore > maxScore) nowScore = maxScore;// 最大スコアを超えないように
-
-    //        yield return null;
-    //    }
-    //}
 }

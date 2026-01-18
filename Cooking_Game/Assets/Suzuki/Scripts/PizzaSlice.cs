@@ -5,10 +5,15 @@ using UnityEngine;
 
 public class PizzaSlice : MonoBehaviour
 {
+    [SerializeField] PizzaManager pizzaManager;
     [Header("ピザが選択されているときのハイライト"), SerializeField] GameObject highlightObject;
     [Header("焼けた後の見た目"), SerializeField] Renderer cookedRenderer;
-
     public Renderer CookedRenderer => cookedRenderer;
+    [Header("ピザの取得Directorを移動させる場所"), SerializeField] Transform stealDirectorPos;
+    public Transform StealDirectorPosTransform => stealDirectorPos;
+
+    Vector3 startPos;
+    public Vector3 StartPos => startPos;
 
     List<FoodMove> foodList;// 食べ物のステータスを設定するスクリプトを別に作ったなら型をそちらに変更すること
     public List<FoodMove> FoodList
@@ -25,6 +30,13 @@ public class PizzaSlice : MonoBehaviour
             return foodList;
         }
     }
+
+    void Start()
+    {
+        startPos = transform.position;
+    }
+
+    public void PickThisSlice() => pizzaManager.TakePizzaSlice(pizzaManager.PizzaSlices.IndexOf(this));
 
     public void EnableHighlightObject()
     {

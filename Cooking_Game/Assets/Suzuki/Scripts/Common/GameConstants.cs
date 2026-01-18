@@ -16,6 +16,7 @@ public static class GameConstants
     public const int DefaultIndex = -1;             // インデックスの初期値
     public const int HeadIndex = 0;                 // 配列やリストの先頭を指すインデックス
     public const float MaxPercentage = 100f;        // 100%
+    public const int FirstIndex = 0;                // 先頭の番号
 
     // シーン名
     //public const string TitleSceneName = ""

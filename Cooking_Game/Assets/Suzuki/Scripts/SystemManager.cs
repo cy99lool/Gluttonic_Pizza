@@ -1,6 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
+using UnityEngine.UI;
+using UnityEngine.Timeline;
+using System.Linq;
 
 public class SystemManager : MonoBehaviour
 {
@@ -13,7 +17,13 @@ public class SystemManager : MonoBehaviour
         [SerializeField] int score;
         public int Score => score;
 
+        [SerializeField] int explosionScore;
+        public int ExplosionScore => explosionScore;
+
         [Header("発射後のクールタイム"), SerializeField] float shootCT;
+
+        [Header("--- UI設定 ---")]
+        [Header("ゲームスタート時に非表示にするUI"), SerializeField] List<UIGroupSwitcher> connectCanvases;
 
         [Header("チームの情報UIテキスト"), SerializeField] TMPro.TextMeshProUGUI scoreText;
         public TMPro.TextMeshProUGUI ScoreText => scoreText;
@@ -21,17 +31,7 @@ public class SystemManager : MonoBehaviour
         [Header("取られるまでの時間のテキスト"), SerializeField] TMPro.TextMeshProUGUI pickTimeText;
         public TMPro.TextMeshProUGUI PickTimeText => pickTimeText;
 
-        // ----- リザルト表示 -----
         [Header("--- リザルト表示 ---")]
-        //[Header("メイン画面")]
-        //[Header("メイン画面のリザルトのスクリプト"), SerializeField] Result mainResult;
-        //public Result MainResult => mainResult;
-
-        //[Header("メイン画面のスコア表示オブジェクト"), SerializeField] GameObject mainResultUI;
-        //public GameObject MainResultUI => mainResultUI;
-
-        //[Header("〃のスコアバー"), SerializeField] RectTransform mainScoreBar;
-        //public RectTransform MainScoreBar => mainScoreBar;
 
         [Header("タブレット画面")]
         [Header("タブレット画面のリザルトのスクリプト"), SerializeField] Result tabletResult;
@@ -42,15 +42,13 @@ public class SystemManager : MonoBehaviour
         [Header("〃のスコアバー"), SerializeField] RectTransform tabletScoreBar;
         public RectTransform TabletScoreBar => tabletScoreBar;
 
-        // ----- リザルト表示ここまで -----
-
         float shootableTimer = GameConstants.FirstTimerValue;
         public float ShootableTimer => shootableTimer;
 
         public void SetUnshootable() => shootable = false;
         public void SetShootable() => shootable = true;
 
-        GamePhase phase;// ゲームの進行状況
+        [SerializeField] GamePhase phase;// ゲームの進行状況
         public GamePhase Phase => phase;
 
         /// <summary>
@@ -79,6 +77,8 @@ public class SystemManager : MonoBehaviour
         {
             this.score += score;
         }
+
+        public void AddExplosionScore(int score) => this.explosionScore += score;
 
         /// <summary>
         /// フェーズ開始処理
@@ -114,6 +114,9 @@ public class SystemManager : MonoBehaviour
         /// </summary>
         void StartInGamePhase()
         {
+            // 接続UIを非表示化
+            foreach (UIGroupSwitcher groupSwitcher in connectCanvases) groupSwitcher.ChangeUIGroup();
+
             // 発射可能にする
             SetShootable();
             ResetShootCT();
@@ -145,7 +148,30 @@ public class SystemManager : MonoBehaviour
         }
     }
     [Header("メイン画面のリザルトのスクリプト"), SerializeField] Result mainResult;
+    [Header("ゲームスタート時に非表示にするUI"), SerializeField] List<UIGroupSwitcher> connectCanvases;
     [Header("サウンドマネージャー"), SerializeField] SoundManager soundManager;
+
+    [Header("--- フェーズ時間 ---")]
+    [Header("食材の発射フェーズの時間"), SerializeField] float shootPhaseTime;
+    [Header("ハーフタイムの時間"), SerializeField] float breakPhaseTime;
+    [Header("ピザが取られるフェーズの時間"), SerializeField] float pickPhaseTime;
+
+    [Header("--- タイムラインの設定 ---")]
+    [Header("ピザのカットを行うDirector"), SerializeField] PlayableDirector pizzaCutDirector;
+
+    [Header("- ピザの取得 -")]
+    [Header("全体の親オブジェクト"), SerializeField] GameObject pizzaStealDirectorParent;
+    [Header("ピザの取得を行うDirector"), SerializeField] PlayableDirector pizzaStealDirector;
+    [Header("ピザの取得シグナルトラックの名前"), SerializeField] string pizzaStealSignalTrackName;
+    [Header("ピザの取得でスライスを動かすAnimationTrack"), SerializeField] string pizzaStealAnimationTrackName;
+
+    [Header("- 次のフェーズ移行 -")]
+    [Header("親オブジェクト"), SerializeField] GameObject nextPhaseDirectorParent;
+    [Header("Director"), SerializeField] PlayableDirector nextPhaseDirector;
+
+    [Header("--- スクリプトでのアニメーション設定 ---")]
+    [Header("時計の中身"), SerializeField] List<Image> clockFillers;
+    [Header("時計を満たすアニメーションの時間（秒）"), SerializeField] float clockFillTime;
 
     [SerializeField] List<Team> teams;
     public List<Team> Teams => teams;
@@ -156,6 +182,8 @@ public class SystemManager : MonoBehaviour
     PizzaManager pizzaManager;
     GamePhase currentPhase;
     public GamePhase CurrentPhase => currentPhase;
+
+    public void SetCurrentPhase(GamePhase phase) => currentPhase = phase;
 
     void Start()
     {
@@ -171,7 +199,9 @@ public class SystemManager : MonoBehaviour
         // 接続画面のBGMを再生（Windowsのみ）
         PlayBGM_Windows(BGMType.ConnectLobby);
 
+        // デバッグ用
         //StartCoroutine(Main());
+        //PlaySE_Windows(PlayerSoundType.Eat, transform);
     }
 
     /// <summary>
@@ -193,6 +223,19 @@ public class SystemManager : MonoBehaviour
     {
         // BGMを再生
         if (soundManager != null && (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) soundManager.PlaySE(soundType, playTransform);
+    }
+
+    /// <summary>
+    /// Android環境のみSEを再生
+    /// </summary>
+    /// <param name="soundType">再生する種類</param>
+    /// <param name="playTransform">再生位置</param>
+    public void PlaySE_Android(PlayerSoundType soundType, Transform playTransform)
+    {
+#if UNITY_ANDROID
+        // BGMを再生
+        if (soundManager != null) soundManager.PlaySE(soundType, playTransform);
+#endif
     }
 
     void Update()
@@ -252,6 +295,15 @@ public class SystemManager : MonoBehaviour
         StartCoroutine(Main());
     }
 
+    public void OnStartReady()
+    {
+        // 準備画面を非表示
+        foreach (UIGroupSwitcher groupSwitcher in connectCanvases) groupSwitcher.ChangeUIGroup();
+
+        // ゲーム開始
+        StartCoroutine(Main());
+    }
+
     /// <summary>
     /// ゲームの進行状況、同期に使用する
     /// </summary>
@@ -282,8 +334,6 @@ public class SystemManager : MonoBehaviour
 
     const float RouletteTime = 1f;// ルーレット演出の長さ
     const int pickNum = 1;
-    const float ShootableTime = 45f;
-    const float PreparePizzaTime = 2f;// ピザ取得準備の時間
     const int PhaseCount = 2;// フェーズの総数
     const int PinePhase = 2;
     const int LastPhase = 3;
@@ -298,16 +348,25 @@ public class SystemManager : MonoBehaviour
         int counter = GameConstants.Zero;
 
         //while (pizzaManager.PizzaSlices.Count > 0)
+
+        // デバッグ用
+        //currentPhase = GamePhase.InGame;
+        //SetAllPlayerShootable(teams);
+        //while(true)
+        //{
+        //    yield return null;
+        //}
+
         while (counter < PhaseCount)
         {
             // 発射準備フェーズ
             //yield return StartCoroutine(PizzaSelectPhase(RouletteTime, pickNum));
 
             // 食材発射フェーズ
-            yield return StartCoroutine(ShootFoodPhase(ShootableTime));
+            yield return StartCoroutine(ShootFoodPhase(shootPhaseTime));
 
             // ピザ取得待機フェーズ
-            //yield return StartCoroutine(PreparePickPizzaPhase(PreparePizzaTime));
+            yield return StartCoroutine(PreparePickPizzaPhase(breakPhaseTime));
 
             // ピザ取得フェーズ
             //yield return StartCoroutine(PickPizzaPhase());
@@ -344,13 +403,19 @@ public class SystemManager : MonoBehaviour
             if (pickIndexes.Count == GameConstants.Zero) yield return null;// 取得するピザがなければ演出カット
 
             // ルーレット演出をいれる
-            foreach (int index in pickIndexes)
-            {
-                pizzaManager.PizzaSlices[index].EnableHighlightObject();
-            }
+            EnablePizzaHighlight();
 
 
             yield return null;
+        }
+    }
+
+    // 取られるピザのハイライト
+    void EnablePizzaHighlight()
+    {
+        foreach (int index in pickIndexes)
+        {
+            pizzaManager.PickableSlices[index].EnableHighlightObject();
         }
     }
 
@@ -371,20 +436,16 @@ public class SystemManager : MonoBehaviour
     /// <returns>取得するピザの番号リスト</returns>
     List<int> SelectPizzaSlices(uint pickCount = 1)
     {
+        // 選択個数がピザ切れの総数より多かった場合は、ピザ切れの総数にする
+        if (pickCount > pizzaManager.PickableSlices.Count) pickCount = (uint)pizzaManager.PickableSlices.Count;
+
         // 選択個数が0個なら初期化されたものを返す
         if (pickCount == GameConstants.Zero) return new List<int>();
-
-        // 選択個数がピザ切れの総数より多かった場合は、ピザ切れの総数にする
-        if (pickCount > pizzaManager.PizzaSlices.Count) pickCount = (uint)pizzaManager.PizzaSlices.Count;
 
         //int pickIndex = Random.Range(0, pizzaManager.PizzaSlices.Count);
         List<int> pickIndexes = new List<int>();
         List<PizzaSlice> pickableSlices = new List<PizzaSlice>();
-        //pickableSlices = pizzaManager.PizzaSlices;
-        for (int i = 0; i < pizzaManager.PizzaSlices.Count; i++)
-        {
-            pickableSlices.Add(pizzaManager.PizzaSlices[i]);
-        }
+        pickableSlices.AddRange(pizzaManager.PickableSlices);
 
         // 取る個数分取る場所を指定
         for (int i = 0; i < pickCount; i++)
@@ -395,7 +456,10 @@ public class SystemManager : MonoBehaviour
             pickIndexes.Add(index);
             Debug.Log($"{pickableSlices[index]}が選ばれた");
 
-            pickableSlices.RemoveAt(index);
+            // ハイライト
+            pickableSlices[index].EnableHighlightObject();
+
+            pickableSlices.Remove(pickableSlices[index]);
         }
 
         return pickIndexes;// 取得するピザの番号を返す
@@ -412,6 +476,9 @@ public class SystemManager : MonoBehaviour
     {
         // フェーズを設定
         currentPhase = GamePhase.InGame;
+
+        // ピザの上の食べ物をすべて消去
+        pizzaManager.ClearAllFood();
 
         // 完全に焼けるテクスチャになるまでの時間
         float cookTime = shootTime;
@@ -433,16 +500,21 @@ public class SystemManager : MonoBehaviour
             cookedMaterials.Add(slice.CookedRenderer.material);
         }
 
-        if (pickIndexes.Count > 0)
+        // ハイライトを消去
+        foreach(PizzaSlice slice in pizzaManager.PizzaSlices)
         {
-            // 念の為再度ハイライト
-            foreach (int index in pickIndexes)
-            {
-                pizzaManager.PizzaSlices[index].EnableHighlightObject();
-            }
+            // ハイライトの消去
+            slice.DisableHighlightObject();
         }
 
-        pizzaManager.StartSpin();// 回転開始
+        // 元の位置に戻す
+        pizzaManager.SetAllPizzaStartPosition();
+
+        // 時計のFillAmountをMaxにするアニメーション
+        yield return FillClock(clockFillTime);
+
+        // 回転開始
+        pizzaManager.StartSpin();
 
         // プレイヤーは発射できるように
         SetAllPlayerShootable(teams);
@@ -451,7 +523,8 @@ public class SystemManager : MonoBehaviour
         while (timer < shootTime)
         {
             // UI更新
-            UpdatePickTimeUI(shootTime - timer);
+            //UpdatePickTimeUI(shootTime - timer);
+            UpdateClockUI(timer, shootTime);
 
             //ピザの焼けるマテリアルへと変えていく
             if (timer <= cookTime)
@@ -466,18 +539,50 @@ public class SystemManager : MonoBehaviour
                 }
             }
 
-            // パインの召喚処理
-
-            // 途中でピザを取られるフェーズの処理
-            // 1.ピックするフェーズだったら、取得するピザを選ぶ（演出入り？） その後取得までの時間を現在タイマー+◯◯秒で設定、ピック中のフラグを立てる
-            // 2.取得する時間になったらそのピザの取得演出を入れる、その後ピック中のフラグをオフに
-
             // 時間経過
             timer += Time.deltaTime;
             // 全員が食材を発射し終えたら途中でも次のフェーズへ
             //if (IsAllPlayerUnShootable()) yield break;
 
             yield return null;
+        }
+    }
+
+    // 時計の見た目を更新
+    void UpdateClockUI(float time, float maxTime)
+    {
+        float ratio = time / maxTime;
+
+        foreach(Image filler in clockFillers)
+        {
+            filler.fillAmount = Mathf.Lerp(GameConstants.One, GameConstants.Zero, ratio);
+        }
+    }
+
+    /// <summary>
+    /// 時計の時間を満たす
+    /// </summary>
+    /// <param name="fillTime">満たすまでの時間</param>
+    IEnumerator FillClock(float fillTime)
+    {
+        float timer = GameConstants.FirstTimerValue;
+
+        while(timer < fillTime)
+        {
+            // 時計の中身を増加させる
+            foreach(Image filler in clockFillers)
+            {
+                filler.fillAmount = Mathf.Lerp(GameConstants.Zero, GameConstants.One, timer / fillTime);
+            }
+
+            yield return null;
+            timer += Time.deltaTime;
+        }
+
+        // 確実に全て埋める
+        foreach(Image filler in clockFillers)
+        {
+            filler.fillAmount = GameConstants.One;
         }
     }
 
@@ -521,6 +626,20 @@ public class SystemManager : MonoBehaviour
 
         // 取得待機演出
         yield return StartCoroutine(pizzaManager.PrepareTakePizza(preparePizzaTime));
+
+        // カット演出
+        // 有効化
+        if (!pizzaCutDirector.gameObject.activeSelf) pizzaCutDirector.gameObject.SetActive(true);
+        // 再生
+        pizzaCutDirector.Play();
+
+        // 再生完了まで待機（状態で判定）
+        yield return new WaitUntil(() => pizzaCutDirector.state != PlayState.Playing);
+        //// 再生完了まで待機（再生時間で判定、Hold用）
+        //yield return new WaitUntil(() => pizzaCutDirector.time >= pizzaCutDirector.duration);
+
+        // 無効化
+        pizzaCutDirector.gameObject.SetActive(false);
     }
 
     IEnumerator PickPizzaPhase()
@@ -541,10 +660,104 @@ public class SystemManager : MonoBehaviour
     {
         // フェーズ設定
         currentPhase = GamePhase.PickPizza;
-        // 取得
-        pizzaManager.TakeAllPizza();
+        //// 取得
+        //pizzaManager.TakeAllPizza();
+        
+        // 次に取るピザを決定
+        pickIndexes = SelectPizzaSlices();
 
-        yield return null;
+        // 時計を再度埋める
+        yield return FillClock(clockFillTime);
+
+        // 回転開始
+        pizzaManager.StartSpin();
+
+        // プレイヤーが発射可能に
+        SetAllPlayerShootable(teams);
+
+        // 取得ペースを計算
+        float pickPace = pickPhaseTime / pizzaManager.PizzaSlices.Count;
+
+        float pickTimer = GameConstants.FirstTimerValue;
+        float phaseTimer = GameConstants.FirstTimerValue; 
+
+        while (pizzaManager.PickableSlices.Count != GameConstants.Zero)
+        {
+            if(pickTimer >= pickPace)
+            {
+                pizzaManager.TakePizzaSlice(pickIndexes);
+
+                //PizzaSlice targetSlice = pizzaManager.PizzaSlices[pickIndexes[GameConstants.FirstIndex]];
+                //// スライスの親子付け解除
+                //targetSlice.transform.SetParent(null);
+
+                //// ピザの取得timeline再生
+                //PlayPickTimeline(targetSlice);
+
+                //// 取得可能なスライス一覧から削除
+                //pizzaManager.RemovePickableSlices(targetSlice);
+
+                // 次に取るピザを決定
+                pickIndexes = SelectPizzaSlices();
+
+                // ピックタイミングを待つ（タイマーリセット）
+                pickTimer = GameConstants.FirstTimerValue;
+            }
+            // タイマーのUI更新
+            UpdateClockUI(pickTimer, pickPace);
+
+            // タイマー増加
+            phaseTimer += Time.deltaTime;
+            pickTimer += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    void PlayPickTimeline(PizzaSlice target)
+    {
+        // SignalReceiverを取得する
+        SignalReceiver signalReceiver = target.GetComponent<SignalReceiver>();
+
+        // 指定した名前のSignalTrackを探して割り当てる
+        if (signalReceiver != null) BindToTrack<SignalTrack>(pizzaStealSignalTrackName, signalReceiver);
+
+        // 指定した名前のAnimationTrackを探して割り当てる
+        BindToTrack<AnimationTrack>(pizzaStealAnimationTrackName, target.gameObject);
+
+        // ピック準備位置へと移動
+        pizzaStealDirectorParent.transform.position = target.StealDirectorPosTransform.position;
+
+        // スライスの方を向く
+        //pizzaStealDirectorParent.transform.LookAt(target.transform);
+        Vector3 eulerAngles = pizzaStealDirectorParent.transform.localEulerAngles;
+        eulerAngles.y = target.StealDirectorPosTransform.eulerAngles.y;
+
+        // 適用
+        pizzaStealDirectorParent.transform.localEulerAngles = eulerAngles;
+
+        // 再生
+        pizzaStealDirector.Play();
+    }
+
+    /// <summary>
+    /// トラックへと割り当てる
+    /// </summary>
+    /// <typeparam name="T">トラックの型</typeparam>
+    /// <param name="trackName">トラックの名前</param>
+    /// <param name="target">割り当てる対象</param>
+    void BindToTrack<T>(string trackName,  UnityEngine.Object target) where T : TrackAsset
+    {
+        // Timelineアセットを取得
+        TimelineAsset timelineAsset = pizzaStealDirector.playableAsset as TimelineAsset;
+
+        // T型のTrackAssetで指定した名前のトラックを探す
+        TrackAsset track = timelineAsset.GetOutputTracks().OfType<T>().FirstOrDefault(track => track.name == trackName);
+
+        if (track != null)
+        {
+            // オブジェクトをバインドする（このトラック上のSignalEmitterがtargetのSignalEmitterを発火させるようにする）
+            pizzaStealDirector.SetGenericBinding(track, target);
+        }
     }
 
     IEnumerator EndPhase(int phaseCounter)
@@ -552,12 +765,28 @@ public class SystemManager : MonoBehaviour
         int nextPhase = phaseCounter;// 次のフェーズを取得
 
         // ピザの復活処理（アニメーションの再生）
+        // 次のフェーズがある場合
+        if(nextPhase != PhaseCount)
+        {
+            nextPhaseDirectorParent.SetActive(true);
 
-        // パイン開始フラグを設定予定
-        //if (nextPhase == PinePhase) 
+            nextPhaseDirector.Play();
 
-        // 魔王のピック開始フラグを設定予定
-        //if(nextPhase == LastPhase)
+            yield return null;
+            while(nextPhaseDirector.state == PlayState.Playing)
+            {
+                yield return null;
+            }
+            nextPhaseDirectorParent.SetActive(false);
+        }
+        // ゲーム終了時
+        else
+        {
+
+        }
+
+            pizzaManager.ActivatePizzaSlices();
+        pizzaManager.FillAllPickableSlices();
 
         yield return null;
     }
