@@ -203,7 +203,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100386010004159346}
   m_Layer: 0
-  m_Name: AndroidTransitionCloseTimeline
+  m_Name: AndroidFangCloseTimeline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

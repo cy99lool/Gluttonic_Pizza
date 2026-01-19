@@ -193,6 +193,7 @@ public class SystemManager : MonoBehaviour
     [Header("ピザの取得でスライスを動かすAnimationTrack"), SerializeField] string pizzaStealAnimationTrackName;
 
     [Header("次のフェーズ移行Timeline"), SerializeField] TimelineInfo nextPhaseTimeline;
+    [Header("第2ラウンド開始前Timeline"), SerializeField] TimelineInfo secondRoundStartTimeline;
     [Header("ゲーム終了Timeline"), SerializeField] TimelineInfo endGameTimeline;
 
     [Header("--- スクリプトでのアニメーション設定 ---")]
@@ -776,16 +777,19 @@ public class SystemManager : MonoBehaviour
         if (nextPhase != PhaseCount)
         {
             yield return GameConstants.PlayAndWaitTimeline(nextPhaseTimeline.DirectorParent, nextPhaseTimeline.Director);
+
+            // ピザの復活処理
+            pizzaManager.ActivatePizzaSlices();
+            pizzaManager.FillAllPickableSlices();
+
+            yield return GameConstants.PlayAndWaitTimeline(secondRoundStartTimeline.DirectorParent, secondRoundStartTimeline.Director);
+
         }
         // ゲーム終了時のTimeline再生
         else
         {
             yield return GameConstants.PlayAndWaitTimeline(endGameTimeline.DirectorParent, endGameTimeline.Director);
         }
-
-        // ピザの復活処理
-        pizzaManager.ActivatePizzaSlices();
-        pizzaManager.FillAllPickableSlices();
 
         yield return null;
     }

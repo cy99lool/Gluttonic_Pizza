@@ -87,7 +87,9 @@ public class PizzaManager : MonoBehaviour
         {
             food.SetAnimatorBool("PickPhase", true);// ピザを取る前の表情に変化
         }
-        yield return new WaitForSeconds(waitTime);
+
+        // 0秒以外は指定された秒数待機する（0秒は1フレーム待機でnewしない、メモリ負荷を考慮）
+        yield return waitTime != GameConstants.Zero ? new WaitForSeconds(waitTime) : null;
     }
 
     List<FoodMove> GetAllFoodOnPizza()
