@@ -1227,15 +1227,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &-2710793545799202363
 MonoBehaviour:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fde0d25a170598d46a0b9dc16b4527a5, type: 3}
-  m_Name: ActivationPlayableAsset
+  m_Script: {fileID: 11500000, guid: bfda56da833e2384a9677cd3c976a436, type: 3}
+  m_Name: CurtainOpenTimeline
   m_EditorClassIdentifier: 
 --- !u!114 &-1984611203919718204
 MonoBehaviour:
@@ -1343,10 +1343,10 @@ MonoBehaviour:
   m_Name: VideoScriptPlayableAsset
   m_EditorClassIdentifier: 
   videoPlayer:
-    exposedName: 0318c00abcfbfaf4e99511dbde677527
+    exposedName: 29453fdb8c2ba194b847a3fc255e0d8d
     defaultValue: {fileID: 0}
   videoClip: {fileID: 32900000, guid: ac5d3a46afd34444fa8b9ef9f978df6b, type: 3}
-  mute: 1
+  mute: 0
   loop: 0
   preloadTime: 0
   clipInTime: 3
@@ -1543,7 +1543,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5bef7c9d630a7042b864b59b09e597c, type: 3}
-  m_Name: o Script Playable Trackrack
+  m_Name: Video Script Playable Track
   m_EditorClassIdentifier: 
   m_Version: 3
   m_AnimClip: {fileID: 0}
@@ -1555,12 +1555,12 @@ MonoBehaviour:
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 1.2166666666666666
+    m_Start: 0
     m_ClipIn: 0
-    m_Asset: {fileID: -1978569110302221370}
-    m_Duration: 3.0000000000000004
+    m_Asset: {fileID: 3605411534586607358}
+    m_Duration: 5
     m_TimeScale: 1
-    m_ParentTrack: {fileID: 5128823282001334934}
+    m_ParentTrack: {fileID: 7126134606593642150}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
     m_BlendInDuration: -1

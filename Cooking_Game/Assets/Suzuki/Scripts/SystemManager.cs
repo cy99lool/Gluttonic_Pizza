@@ -36,11 +36,11 @@ public class SystemManager : MonoBehaviour
         [Header("タブレット画面")]
         [Header("タブレット画面のリザルトのスクリプト"), SerializeField] Result tabletResult;
         public Result TabletResult => tabletResult;
-        [Header("タブレット画面のスコア表示オブジェクト"), SerializeField] GameObject tabletResuiltUI;
-        public GameObject TabletResuiltUI => tabletResuiltUI;
+        //[Header("タブレット画面のスコア表示オブジェクト"), SerializeField] GameObject tabletResultUI;
+        //public GameObject TabletResultUI => tabletResultUI;
 
-        [Header("〃のスコアバー"), SerializeField] RectTransform tabletScoreBar;
-        public RectTransform TabletScoreBar => tabletScoreBar;
+        //[Header("〃のスコアバー"), SerializeField] RectTransform tabletScoreBar;
+        //public RectTransform TabletScoreBar => tabletScoreBar;
 
         float shootableTimer = GameConstants.FirstTimerValue;
         public float ShootableTimer => shootableTimer;
@@ -101,6 +101,9 @@ public class SystemManager : MonoBehaviour
                 case GamePhase.PickPizza:
                     StartPickPizzaPhase();
                     break;
+                case GamePhase.PreparePickPizza:
+                    StartPreparePickPizzaPhase();
+                    break;
                 case GamePhase.Result:
                     StartResultPhase();
                     break;
@@ -117,18 +120,39 @@ public class SystemManager : MonoBehaviour
             // 接続UIを非表示化
             foreach (UIGroupSwitcher groupSwitcher in connectCanvases) groupSwitcher.ChangeUIGroup();
 
+            // メイン画面を見るよう促す画面を非表示（念の為）
+            tabletResult.SetResultGroupActive(false);
+
             // 発射可能にする
             SetShootable();
             ResetShootCT();
         }
+
+        /// <summary>
+        /// ピザを取るフェーズを開始
+        /// </summary>
+        void StartPreparePickPizzaPhase()
+        {
+            // 発射不可能にする
+            SetUnshootable();
+
+            // メイン画面を見るよう促す画面を表示
+            tabletResult.SetResultGroupActive(true);
+        }
+
         /// <summary>
         /// ピザを取るフェーズを開始
         /// </summary>
         void StartPickPizzaPhase()
         {
-            // 発射不可能にする
-            SetUnshootable();
+            // 発射可能にする
+            SetShootable();
+            ResetShootCT();
+
+            // メイン画面を見るよう促す画面を非表示
+            tabletResult.SetResultGroupActive(false);
         }
+
         /// <summary>
         /// リザルトフェーズを開始
         /// </summary>
@@ -316,6 +340,7 @@ public class SystemManager : MonoBehaviour
         GameStart = 1,
         InGame = 2,
         PickPizza = 3,
+        PreparePickPizza = 4,
         Result = 5
     }
 
@@ -347,8 +372,6 @@ public class SystemManager : MonoBehaviour
             yield return GameConstants.PlayAndWaitTimeline(startGameTimeline.DirectorParent, startGameTimeline.Director);
 
             isStarted = true;
-            // インゲームBGMを再生(Windowsのみ)
-            PlayBGM_Windows(BGMType.InGame);
         }
         int counter = GameConstants.Zero;
 
@@ -479,6 +502,9 @@ public class SystemManager : MonoBehaviour
     /// <returns></returns>
     IEnumerator ShootFoodPhase(float shootTime)
     {
+        // インゲームBGMを再生(Windowsのみ)
+        PlayBGM_Windows(BGMType.InGame);
+
         // フェーズを設定
         currentPhase = GamePhase.InGame;
 
@@ -506,7 +532,7 @@ public class SystemManager : MonoBehaviour
         }
 
         // ハイライトを消去
-        foreach(PizzaSlice slice in pizzaManager.PizzaSlices)
+        foreach (PizzaSlice slice in pizzaManager.PizzaSlices)
         {
             // ハイライトの消去
             slice.DisableHighlightObject();
@@ -558,7 +584,7 @@ public class SystemManager : MonoBehaviour
     {
         float ratio = time / maxTime;
 
-        foreach(Image filler in clockFillers)
+        foreach (Image filler in clockFillers)
         {
             filler.fillAmount = Mathf.Lerp(GameConstants.One, GameConstants.Zero, ratio);
         }
@@ -572,10 +598,10 @@ public class SystemManager : MonoBehaviour
     {
         float timer = GameConstants.FirstTimerValue;
 
-        while(timer < fillTime)
+        while (timer < fillTime)
         {
             // 時計の中身を増加させる
-            foreach(Image filler in clockFillers)
+            foreach (Image filler in clockFillers)
             {
                 filler.fillAmount = Mathf.Lerp(GameConstants.Zero, GameConstants.One, timer / fillTime);
             }
@@ -585,7 +611,7 @@ public class SystemManager : MonoBehaviour
         }
 
         // 確実に全て埋める
-        foreach(Image filler in clockFillers)
+        foreach (Image filler in clockFillers)
         {
             filler.fillAmount = GameConstants.One;
         }
@@ -665,7 +691,7 @@ public class SystemManager : MonoBehaviour
         currentPhase = GamePhase.PickPizza;
         //// 取得
         //pizzaManager.TakeAllPizza();
-        
+
         // 次に取るピザを決定
         pickIndexes = SelectPizzaSlices();
 
@@ -682,11 +708,11 @@ public class SystemManager : MonoBehaviour
         float pickPace = pickPhaseTime / pizzaManager.PizzaSlices.Count;
 
         float pickTimer = GameConstants.FirstTimerValue;
-        float phaseTimer = GameConstants.FirstTimerValue; 
+        float phaseTimer = GameConstants.FirstTimerValue;
 
         while (pizzaManager.PickableSlices.Count != GameConstants.Zero)
         {
-            if(pickTimer >= pickPace)
+            if (pickTimer >= pickPace)
             {
                 pizzaManager.TakePizzaSlice(pickIndexes);
 
@@ -747,7 +773,7 @@ public class SystemManager : MonoBehaviour
         int nextPhase = phaseCounter;// 次のフェーズを取得
 
         // 次のフェーズがある場合のTimeline再生
-        if(nextPhase != PhaseCount)
+        if (nextPhase != PhaseCount)
         {
             yield return GameConstants.PlayAndWaitTimeline(nextPhaseTimeline.DirectorParent, nextPhaseTimeline.Director);
         }
@@ -764,8 +790,6 @@ public class SystemManager : MonoBehaviour
         yield return null;
     }
 
-    
-
     IEnumerator ResultPhase()
     {
         // フェーズ設定
@@ -773,15 +797,15 @@ public class SystemManager : MonoBehaviour
 
         mainResult.gameObject.SetActive(true);
 
-        for (int i = 0; i < teams.Count; i++)
-        {
-            if (teams[i].TabletResult == null) continue;
+        //for (int i = 0; i < teams.Count; i++)
+        //{
+        //    if (teams[i].TabletResult == null) continue;
 
-            if (!teams[i].TabletResult.gameObject.activeInHierarchy) teams[i].TabletResult.gameObject.SetActive(true);
-            if (!teams[i].TabletResult.gameObject.activeInHierarchy) continue;
-            
-            yield return teams[i].TabletResult.ShowResult();
-        }
+        //    if (!teams[i].TabletResult.gameObject.activeInHierarchy) teams[i].TabletResult.gameObject.SetActive(true);
+        //    if (!teams[i].TabletResult.gameObject.activeInHierarchy) continue;
+
+        //    yield return teams[i].TabletResult.ShowResult();
+        //}
 
         if (mainResult.gameObject.activeInHierarchy)
         {

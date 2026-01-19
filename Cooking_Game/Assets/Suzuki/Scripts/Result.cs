@@ -11,9 +11,9 @@ public class Result : MonoBehaviour
     [SerializeField] SystemManager systemManager;
     [Header("--- リザルト表示設定 ---")]
     [Header("リザルトUI"), SerializeField] GameObject resultGroup;
-    [Header("赤チーム:勝利タイムライン"), SerializeField] PlayableDirector redWinTimeline;
-    [Header("緑チーム:勝利タイムライン"), SerializeField] PlayableDirector greenWinTimeline;
-    [Header("引き分け：両チーム勝利タイムライン"), SerializeField] PlayableDirector drawTimeline;
+    [Header("赤チーム:勝利タイムライン"), SerializeField] TimelineInfo redWinTimeline;
+    [Header("緑チーム:勝利タイムライン"), SerializeField] TimelineInfo greenWinTimeline;
+    [Header("引き分け：両チーム勝利タイムライン"), SerializeField] TimelineInfo drawTimeline;
 
     [Header("--- チームのスコア表示設定 ---")]
     [Header("全体：数字のカウントアップ速度（数値/秒）"), SerializeField] float numCountSpeed;
@@ -67,16 +67,16 @@ public class Result : MonoBehaviour
         // 勝者によって切り替える
         if(redSumScore > greenSumScore)
         {
-            if(redWinTimeline != null) redWinTimeline.Play();
+            yield return GameConstants.PlayAndWaitTimeline(redWinTimeline.DirectorParent, redWinTimeline.Director);
         }
         else if (redSumScore < greenSumScore)
         {
-            if (greenWinTimeline != null) greenWinTimeline.Play();
+            yield return GameConstants.PlayAndWaitTimeline(greenWinTimeline.DirectorParent, greenWinTimeline.Director);
         }
         // 引き分け
         else
         {
-           if(drawTimeline != null) drawTimeline.Play();
+           yield return GameConstants.PlayAndWaitTimeline(drawTimeline.DirectorParent, drawTimeline.Director);
         }
 
             yield return new WaitForSeconds(debugReloadTime);
@@ -89,6 +89,8 @@ public class Result : MonoBehaviour
 
         //yield return StartCoroutine(ExtendScoreBar(systemManager.Teams));// スコアのバーを伸ばす
     }
+
+    public void SetResultGroupActive(bool active) => resultGroup.SetActive(active);
 
     /// <summary>
     /// 両チームの得点を表示(表示が終わるまで待つ)
