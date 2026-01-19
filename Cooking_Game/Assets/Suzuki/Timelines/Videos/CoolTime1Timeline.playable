@@ -15,7 +15,7 @@ MonoBehaviour:
   videoPlayer:
     exposedName: 0318c00abcfbfaf4e99511dbde677527
     defaultValue: {fileID: 0}
-  videoClip: {fileID: 32900000, guid: 3bff1f24eb951e5479ab82ab575b9985, type: 3}
+  videoClip: {fileID: 32900000, guid: 0856cf601e43a30448569c9ff08982d1, type: 3}
   mute: 0
   loop: 0
   preloadTime: 0.3

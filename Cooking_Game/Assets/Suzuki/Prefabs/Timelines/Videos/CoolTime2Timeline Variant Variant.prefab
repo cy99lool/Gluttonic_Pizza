@@ -9,12 +9,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 583847392071938992, guid: daafe4eb5ce3048469eaae8179372726, type: 3}
       propertyPath: m_Name
-      value: CoolTime2Timeline Variant
+      value: CoolTime2Timeline Variant Variant
       objectReference: {fileID: 0}
     - target: {fileID: 4437897828301032015, guid: daafe4eb5ce3048469eaae8179372726, type: 3}
       propertyPath: m_VideoClip
       value: 
-      objectReference: {fileID: 32900000, guid: f3230ff484cb251489a97f748b935d72, type: 3}
+      objectReference: {fileID: 32900000, guid: 185778d6fdf8a6847904ad45d454d1d3, type: 3}
     - target: {fileID: 5348818596990593037, guid: daafe4eb5ce3048469eaae8179372726, type: 3}
       propertyPath: m_RootOrder
       value: 0

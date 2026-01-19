@@ -359,7 +359,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3724630767703854827, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_Name
-      value: OpeningTimeline
+      value: OpeningTimeline Variant
       objectReference: {fileID: 0}
     - target: {fileID: 5700118518650670704, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_PlayableAsset
@@ -424,7 +424,7 @@ PrefabInstance:
     - target: {fileID: 5700118518650670704, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_ExposedReferences.m_References.Array.data[0].second
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 9207370564478955484}
     - target: {fileID: 5700118518650670704, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_ExposedReferences.m_References.Array.data[1].second
       value: 
@@ -478,5 +478,10 @@ PrefabInstance:
 --- !u!224 &5147667880362694928 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+  m_PrefabInstance: {fileID: 8789627748436760776}
+  m_PrefabAsset: {fileID: 0}
+--- !u!328 &9207370564478955484 stripped
+VideoPlayer:
+  m_CorrespondingSourceObject: {fileID: 449270762358617876, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
   m_PrefabInstance: {fileID: 8789627748436760776}
   m_PrefabAsset: {fileID: 0}

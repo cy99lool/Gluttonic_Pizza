@@ -56,6 +56,7 @@ public class SEPlayer
         audioSource.SetChaseTransform(playTransform);
 
         // 再生
+        audioSource.OnPlay();
         audioSource.AudioSource.Play();
     }
 }

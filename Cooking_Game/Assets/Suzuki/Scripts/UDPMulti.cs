@@ -203,7 +203,7 @@ public class UDPMulti : MonoBehaviour
     const int MessageStackSize = 30;                                // メッセージの待機列のサイズ
     const int PosDataMargin = 3;                                    // 受け取った位置情報の保有可能量
     const int RecieveBufferSize = 65536;                            // 受信バッファのサイズ
-    const int MaxParsePerFrame = 100;                               // 1フレームごとのパース可能回数
+    const int MaxParsePerFrame = 1000;                               // 1フレームごとのパース可能回数
     const int ThreadSleepMillisecond = 1;                           // スレッドの処理を一時停止する時間（ミリ秒）
 
     static int sendPerSecond = 10;                                // 1秒に何回送信するか
@@ -228,6 +228,7 @@ public class UDPMulti : MonoBehaviour
 
         isReceiving = true;
         receiveThread = new Thread(new ThreadStart(ThreadReceive));
+        receiveThread.IsBackground = true;
         receiveThread.Start();// 受信スレッド開始
 
         isSending = false;
@@ -949,6 +950,7 @@ public class UDPMulti : MonoBehaviour
         if (sendThread != null && sendThread.IsAlive) return;// 生きているsendThreadがあるなら更に開始はしない
         isSending = true;
         sendThread = new Thread(new ThreadStart(ThreadSend));
+        sendThread.IsBackground = true;
         sendThread.Start();
     }
 
@@ -997,18 +999,14 @@ public class UDPMulti : MonoBehaviour
     /// </summary>
     void OnApplicationQuit()
     {
-        const int ThreadMilliSecondsTimeOut = 500;
 
-        // 送信スレッド
+        // 送信、受信スレッドのフラグを折る
         isSending = false;
-        if (sendThread != null && sendThread.IsAlive) sendThread.Join(ThreadMilliSecondsTimeOut);// 指定された時間が経過するまで呼び出し元のスレッドをブロック
-
-        // 受信スレッド
         isReceiving = false;
-        client?.Close();// UDP接続を終了
-        if (receiveThread != null && receiveThread.IsAlive) receiveThread.Join(ThreadMilliSecondsTimeOut);// 指定された時間が経過するまで呼び出し元のスレッドをブロック
 
+        client?.Close();// UDP接続を終了
         client?.Dispose();// リソースを開放
+        client = null;
     }
 }
 

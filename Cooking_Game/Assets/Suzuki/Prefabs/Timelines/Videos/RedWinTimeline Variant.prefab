@@ -13,12 +13,16 @@ PrefabInstance:
       objectReference: {fileID: 32900000, guid: e14e9bf95b2e9a24c8ea1d428f7d7598, type: 3}
     - target: {fileID: 3724630767703854827, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_Name
-      value: RedWinTimeline
+      value: RedWinTimeline Variant
       objectReference: {fileID: 0}
     - target: {fileID: 5700118518650670704, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_PlayableAsset
       value: 
       objectReference: {fileID: 11400000, guid: 99a1aadee30819e4d816e863f344787c, type: 2}
+    - target: {fileID: 7332153161308274770, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8183154613011502422, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_RootOrder
       value: 0

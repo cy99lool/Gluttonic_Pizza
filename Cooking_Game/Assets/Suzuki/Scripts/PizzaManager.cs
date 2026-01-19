@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
+using System.Linq;
 
 public class PizzaManager : MonoBehaviour
 {
@@ -87,7 +87,9 @@ public class PizzaManager : MonoBehaviour
         {
             food.SetAnimatorBool("PickPhase", true);// ピザを取る前の表情に変化
         }
-        yield return new WaitForSeconds(waitTime);
+
+        // 0秒以外は指定された秒数待機する（0秒は1フレーム待機でnewしない、メモリ負荷を考慮）
+        yield return waitTime != GameConstants.Zero ? new WaitForSeconds(waitTime) : null;
     }
 
     List<FoodMove> GetAllFoodOnPizza()
@@ -136,7 +138,7 @@ public class PizzaManager : MonoBehaviour
         //}
         //Debug.Log(pickableSlices.Count);
 
-        // 1. 削除対象のオブジェクトを先にリストアップする（インデックスのズレ対策）
+        // 削除対象のオブジェクトを先にリストアップする（インデックスのズレ対策）
         List<PizzaSlice> targetsToRemove = new List<PizzaSlice>();
         foreach (int index in pizzaIndexes)
         {
@@ -146,16 +148,16 @@ public class PizzaManager : MonoBehaviour
             }
         }
 
-        // 2. 対象のオブジェクトに対して処理を行う
+        // 対象のオブジェクトに対して処理を行う
         foreach (var target in targetsToRemove)
         {
             // 取得・スコア計上
             Take(target);
 
-            // コルーチン開始
+            // 移動開始
             StartCoroutine(MoveSlice(target, target.StealDirectorPosTransform.position, pickAnimationDuration));
 
-            // リストから削除（オブジェクト指定で消すのでズレの影響を受けない）
+            // リストから削除
             pickableSlices.Remove(target);
         }
 
@@ -278,6 +280,28 @@ public class PizzaManager : MonoBehaviour
                 return;// 与えたらそれ以降の処理は行わない
             }
         }
+    }
+
+    /// <summary>
+    /// 点数計算（プレイヤーごと、実際に食べ物を取らない）
+    /// </summary>
+    /// <param name="playerColor">プレイヤーの色</param>
+    /// <returns></returns>
+    public int culcScore(TeamColor playerColor)
+    {
+        int score = 0;
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            // スライス上の食べ物を取得
+            List<FoodMove> foods = slice.FoodList.Where(food => food.Team == playerColor).ToList();
+
+            foreach (FoodMove food in foods)
+            {
+                // スコア加算
+                score += food.ScorePoint;
+            }
+        }
+        return score;
     }
 
     /// <summary>

@@ -16,8 +16,11 @@ public class AudioSourceClass : MonoBehaviour
     /// <param name="transform"></param>
     public void SetChaseTransform(Transform transform) => chaseTransform = transform;
 
+    bool isReserved = false;
+    void Reserve() => isReserved = true;
+
     // 再生中かどうか
-    public bool IsPlaying => audioSource != null && audioSource.isPlaying;
+    public bool IsPlaying => audioSource != null && audioSource.isPlaying && !isReserved;
 
     /// <summary>
     /// 再生可能か調べる
@@ -35,5 +38,21 @@ public class AudioSourceClass : MonoBehaviour
     void Chase()
     {
         transform.position = chaseTransform.position;
+    }
+
+    public void OnPlay()
+    {
+        // 予約
+        Reserve();
+        StartCoroutine(ResetReserved());
+    }
+
+    IEnumerator ResetReserved()
+    {
+        // 1フレーム待つ
+        yield return null;
+
+        // 予約解除
+        isReserved = false;
     }
 }

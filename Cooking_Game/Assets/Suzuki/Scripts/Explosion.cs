@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Explosion : MonoBehaviour
 {
@@ -15,12 +16,17 @@ public class Explosion : MonoBehaviour
     [Header("--- ゲームルール関連 ---")]
     [Header("得点を加えるチーム"), SerializeField] TeamColor team;
     [Header("爆発で得る得点"), SerializeField] int score = 30;
+    [Header("文字"), SerializeField] TextMeshProUGUI pointText;
+    [Header("文字の色"), SerializeField] Color textColor;
+    [Header("文字のカウント完了時間（秒）"), SerializeField] float countUpTime;
 
     Collider explodeCollider;
     List<FoodMove> blewAwayFoodList = new List<FoodMove>();
     RaycastHit[] hits;
     PizzaManager pizzaManager;
     SystemManager systemManager;
+
+    NumberCountUp numberCountUp = new NumberCountUp();
     void Start()
     {
         explodeCollider = GetComponent<Collider>();
@@ -56,6 +62,9 @@ public class Explosion : MonoBehaviour
 
         // 得点を加算
         if(pizzaManager != null) pizzaManager.AddExplosionScore(team, score);
+
+        // 文字表示
+        StartCoroutine(numberCountUp.CountUpNumByTime(pointText, score, countUpTime));
 
         float timer = GameConstants.FirstTimerValue;
         while (timer <= destroyTime)
