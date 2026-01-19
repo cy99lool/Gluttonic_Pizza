@@ -254,6 +254,15 @@ public class SystemManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Windows環境のみBGMを停止
+    /// </summary>
+    void StopBGM_Windows()
+    {
+        // BGMを再生
+        if (soundManager != null && (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) soundManager.StopBGM();
+    }
+
+    /// <summary>
     /// Windows環境のみSEを再生
     /// </summary>
     /// <param name="soundType">再生する種類</param>
@@ -537,8 +546,14 @@ public class SystemManager : MonoBehaviour
         // マテリアルを登録
         foreach (PizzaSlice slice in pizzaManager.PizzaSlices)
         {
+            // nullチェック
+            if(slice.CookedRenderer == null) continue;
+
             // 無効化されていたら有効化
             if (!slice.CookedRenderer.gameObject.activeSelf) slice.CookedRenderer.gameObject.SetActive(true);
+
+            // 透明化
+            slice.CookedRenderer.material.SetFloat(OpacityPropertyName, GameConstants.Zero);
 
             // リストに追加
             cookedMaterials.Add(slice.CookedRenderer.material);
@@ -665,6 +680,9 @@ public class SystemManager : MonoBehaviour
 
         pizzaManager.StopSpin();// 回転停止
 
+        // インゲームBGMを停止(Windowsのみ)
+        StopBGM_Windows();
+
         // プレイヤーは発射不可
         SetAllPlayerUnshootable(teams);
 
@@ -680,12 +698,12 @@ public class SystemManager : MonoBehaviour
             greenMiddleText.SetText($"{0}", pizzaManager.culcScore(TeamColor.Blue) + pizzaManager.culcScore(TeamColor.Green) + CulcGreenPreScore());
         }
 
-        // 無効化
-        redMiddleText.gameObject.SetActive(false);
-        greenMiddleText.gameObject.SetActive(false);
-
         // 乱入演出
         yield return count + GameConstants.One != PhaseCount ? GameConstants.PlayAndWaitTimeline(firstBargeInTimeline.DirectorParent, firstBargeInTimeline.Director) : GameConstants.PlayAndWaitTimeline(secondBargeInTimeline.DirectorParent, secondBargeInTimeline.Director);
+     
+        // テキストを無効化
+        redMiddleText.gameObject.SetActive(false);
+        greenMiddleText.gameObject.SetActive(false);
 
         // 取得待機演出
         yield return StartCoroutine(pizzaManager.PrepareTakePizza(preparePizzaTime));
@@ -746,6 +764,9 @@ public class SystemManager : MonoBehaviour
 
     IEnumerator PickAllPizzaPhase()
     {
+        // インゲームBGMを再生(Windowsのみ)
+        PlayBGM_Windows(BGMType.InGame);
+
         // フェーズ設定
         currentPhase = GamePhase.PickPizza;
         //// 取得

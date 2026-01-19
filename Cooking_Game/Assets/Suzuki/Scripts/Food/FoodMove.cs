@@ -52,6 +52,13 @@ public class FoodMove : MonoBehaviour
     StageManager stageManager;
     public StageManager StageManager => stageManager;
 
+    bool isEventRegistered = false;
+    public bool IsEventRegistered => isEventRegistered;
+    // イベントの登録
+    public void RegisterEvent() => isEventRegistered = true;
+    // 登録のリセット
+    public void ResetRegistration() => isEventRegistered = false;
+
     float eraseTimer = GameConstants.FirstTimerValue;
 
     float BrakePower => (GameConstants.MaxPercentage - brakeRate) / GameConstants.MaxPercentage;
@@ -170,6 +177,12 @@ public class FoodMove : MonoBehaviour
                 fangDisappered = true;
             }
         }
+    }
+
+    void LateUpdate()
+    {
+        // 再度イベントに登録できるように
+        ResetRegistration();
     }
 
     IEnumerator FangDisapper(float shrinkTime)

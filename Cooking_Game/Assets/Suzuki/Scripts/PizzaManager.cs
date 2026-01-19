@@ -138,7 +138,7 @@ public class PizzaManager : MonoBehaviour
         //}
         //Debug.Log(pickableSlices.Count);
 
-        // 1. 削除対象のオブジェクトを先にリストアップする（インデックスのズレ対策）
+        // 削除対象のオブジェクトを先にリストアップする（インデックスのズレ対策）
         List<PizzaSlice> targetsToRemove = new List<PizzaSlice>();
         foreach (int index in pizzaIndexes)
         {
@@ -148,16 +148,16 @@ public class PizzaManager : MonoBehaviour
             }
         }
 
-        // 2. 対象のオブジェクトに対して処理を行う
+        // 対象のオブジェクトに対して処理を行う
         foreach (var target in targetsToRemove)
         {
             // 取得・スコア計上
             Take(target);
 
-            // コルーチン開始
+            // 移動開始
             StartCoroutine(MoveSlice(target, target.StealDirectorPosTransform.position, pickAnimationDuration));
 
-            // リストから削除（オブジェクト指定で消すのでズレの影響を受けない）
+            // リストから削除
             pickableSlices.Remove(target);
         }
 

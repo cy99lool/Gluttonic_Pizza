@@ -317,6 +317,11 @@ public class StageManager : MonoBehaviour
             {
                 Reflect(reflectList[i]);
             }
+            foreach(InfoForReflect foodevent in reflectList)
+            {
+                if(foodevent.First.Food != null) foodevent.First.Food.ResetRegistration();
+                if (foodevent.Second.Food != null) foodevent.Second.Food.ResetRegistration();
+            }
             reflectList.Clear();// リストをクリア
         }
         // くっつける
@@ -334,6 +339,11 @@ public class StageManager : MonoBehaviour
 
                 //Debug.Log("[MERGE]");
             }
+            foreach (InfoForReflect foodevent in mergeEventList)
+            {
+                if (foodevent.First.Food != null) foodevent.First.Food.ResetRegistration();
+                if (foodevent.Second.Food != null) foodevent.Second.Food.ResetRegistration();
+            }
             mergeEventList.Clear();// リストをクリア
         }
         // 食べる
@@ -350,6 +360,11 @@ public class StageManager : MonoBehaviour
                 if (effectManager != null) effectManager.PlayEatenEffect(eatEventList[i].First.Food.transform.position);
 
                 //Debug.Log("[EAT]");
+            }
+            foreach (InfoForReflect foodevent in eatEventList)
+            {
+                if (foodevent.First.Food != null) foodevent.First.Food.ResetRegistration();
+                if (foodevent.Second.Food != null) foodevent.Second.Food.ResetRegistration();
             }
             eatEventList.Clear();// リストをクリア
         }
@@ -405,6 +420,12 @@ public class StageManager : MonoBehaviour
 
     void AddInfoForReflectList(List<InfoForReflect> list, FoodMove self, FoodMove target)
     {
+        // nullチェック
+        if(self  == null || target == null) return;
+
+        // すでに予約されていたらそのフレーム中は登録しない
+        if (self.IsEventRegistered || target.IsEventRegistered) return;
+
         // リストに何も無ければ追加
         if (list.Count == 0)
         {
@@ -413,6 +434,10 @@ public class StageManager : MonoBehaviour
         }
         // リストにすでに入っているときは追加しない
         if (HasPair(list, self, target)) return;
+
+        // イベントの登録
+        self.RegisterEvent();
+        target.RegisterEvent();
 
         list.Add(new InfoForReflect(self, target));// 追加
     }

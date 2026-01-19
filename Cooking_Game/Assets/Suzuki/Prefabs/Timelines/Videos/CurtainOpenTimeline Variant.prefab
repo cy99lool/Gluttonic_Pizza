@@ -33,12 +33,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3724630767703854827, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_Name
-      value: CurtainOpenTimeline
+      value: CurtainOpenTimeline Variant
       objectReference: {fileID: 0}
     - target: {fileID: 5700118518650670704, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_PlayableAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 21612dd9d48736b43971ec058d79f1bd, type: 2}
+      objectReference: {fileID: 11400000, guid: a529bb5b17464b747ba0e8d49c8bd569, type: 2}
     - target: {fileID: 5700118518650670704, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_ExposedReferences.m_References.Array.size
       value: 5
