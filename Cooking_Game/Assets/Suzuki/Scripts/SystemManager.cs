@@ -5,6 +5,7 @@ using UnityEngine.Playables;
 using UnityEngine.UI;
 using UnityEngine.Timeline;
 using System.Linq;
+using TMPro;
 
 public class SystemManager : MonoBehaviour
 {
@@ -182,7 +183,10 @@ public class SystemManager : MonoBehaviour
 
     [Header("--- タイムラインの設定 ---")]
     [Header("ゲームの開始前Timeline"), SerializeField] TimelineInfo startGameTimeline;
-    [Header("ハーフタイムTimeline"), SerializeField] TimelineInfo breakTimeTimeline;
+    //[Header("ハーフタイムTimeline"), SerializeField] TimelineInfo breakTimeTimeline;
+    [Header("赤の途中得点表示"), SerializeField] TextMeshProUGUI redMiddleText;
+    [Header("緑の途中得点表示"), SerializeField] TextMeshProUGUI greenMiddleText;
+
     [Header("乱入Timeline（1フェーズ目）"), SerializeField] TimelineInfo firstBargeInTimeline;
     [Header("乱入Timeline（2フェーズ目）"), SerializeField] TimelineInfo secondBargeInTimeline;
     [Header("ピザのカットを行うTimeline"), SerializeField] TimelineInfo pizzaCutTimeline;
@@ -211,6 +215,14 @@ public class SystemManager : MonoBehaviour
     public GamePhase CurrentPhase => currentPhase;
 
     public void SetCurrentPhase(GamePhase phase) => currentPhase = phase;
+
+    void Awake()
+    {
+        const int TargetFrameRate = 60;
+
+        // フレームレートを設定
+        Application.targetFrameRate = TargetFrameRate;
+    }
 
     void Start()
     {
@@ -649,12 +661,28 @@ public class SystemManager : MonoBehaviour
     IEnumerator PreparePickPizzaPhase(float preparePizzaTime, int count)
     {
         // フェーズ設定
-        currentPhase = GamePhase.PickPizza;
+        currentPhase = GamePhase.PreparePickPizza;
 
         pizzaManager.StopSpin();// 回転停止
 
         // プレイヤーは発射不可
         SetAllPlayerUnshootable(teams);
+
+        // スコアを途中計算し表示
+        if (redMiddleText != null && greenMiddleText != null)
+        {
+            // 有効化
+            redMiddleText.gameObject.SetActive(true);
+            greenMiddleText.gameObject.SetActive(true);
+
+            // 表示
+            redMiddleText.SetText($"{0}", pizzaManager.culcScore(TeamColor.Red) + pizzaManager.culcScore(TeamColor.Yellow) + CulcRedPreScore());
+            greenMiddleText.SetText($"{0}", pizzaManager.culcScore(TeamColor.Blue) + pizzaManager.culcScore(TeamColor.Green) + CulcGreenPreScore());
+        }
+
+        // 無効化
+        redMiddleText.gameObject.SetActive(false);
+        greenMiddleText.gameObject.SetActive(false);
 
         // 乱入演出
         yield return count + GameConstants.One != PhaseCount ? GameConstants.PlayAndWaitTimeline(firstBargeInTimeline.DirectorParent, firstBargeInTimeline.Director) : GameConstants.PlayAndWaitTimeline(secondBargeInTimeline.DirectorParent, secondBargeInTimeline.Director);
@@ -670,6 +698,36 @@ public class SystemManager : MonoBehaviour
 
         //// 無効化
         //pizzaCutTimeline.DirectorParent.gameObject.SetActive(false);
+
+
+    }
+
+    int CulcRedPreScore()
+    {
+        List<Team> redTeam = teams.Where(team => team.Color == TeamColor.Red || team.Color == TeamColor.Yellow).ToList();
+
+        int preScore = GameConstants.Zero;
+        foreach (Team player in redTeam)
+        {
+            // スコア加算
+            preScore += player.ExplosionScore;
+        }
+
+        return preScore;
+    }
+
+    int CulcGreenPreScore()
+    {
+        List<Team> greenTeam = teams.Where(team => team.Color == TeamColor.Blue || team.Color == TeamColor.Green).ToList();
+
+        int preScore = GameConstants.Zero;
+        foreach (Team player in greenTeam)
+        {
+            // スコア加算
+            preScore += player.ExplosionScore;
+        }
+
+        return preScore;
     }
 
     IEnumerator PickPizzaPhase()

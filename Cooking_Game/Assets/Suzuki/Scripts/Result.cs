@@ -11,6 +11,7 @@ public class Result : MonoBehaviour
     [SerializeField] SystemManager systemManager;
     [Header("--- リザルト表示設定 ---")]
     [Header("リザルトUI"), SerializeField] GameObject resultGroup;
+    [Header("カーテンのタイムライン"), SerializeField] TimelineInfo curtainTimeline;
     [Header("赤チーム:勝利タイムライン"), SerializeField] TimelineInfo redWinTimeline;
     [Header("緑チーム:勝利タイムライン"), SerializeField] TimelineInfo greenWinTimeline;
     [Header("引き分け：両チーム勝利タイムライン"), SerializeField] TimelineInfo drawTimeline;
@@ -43,7 +44,7 @@ public class Result : MonoBehaviour
     NumberCountUp numberCounter = new NumberCountUp();
 
     // リザルト画面表示、timelineからのsignalでの呼び出しを考慮して細かく分けるかも
-    public IEnumerator ShowResult(float debugReloadTime = 5f)
+    public IEnumerator ShowResult(float debugReloadTime = 5f, float debugSccoreWaitTime = 2f)
     {
         if (resultGroup != null) resultGroup.SetActive(true);// リザルトUIを有効化
 
@@ -63,6 +64,11 @@ public class Result : MonoBehaviour
         // 合計
         yield return ShowBothTeamScore(redSumPointText, greenSumPointText, redSumScore, greenSumScore, sumPointCountedSE);
 
+        // 待つ
+        yield return new WaitForSeconds(debugSccoreWaitTime);
+
+        // 非同期でカーテンのTimeline再生
+        yield return GameConstants.PlayTimeline(curtainTimeline.DirectorParent, curtainTimeline.Director);
 
         // 勝者によって切り替える
         if(redSumScore > greenSumScore)

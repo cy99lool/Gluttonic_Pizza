@@ -92,4 +92,31 @@ public static class GameConstants
         // 非有効化
         if (parent != null && parent.activeSelf) parent.SetActive(false);
     }
+
+    /// <summary>
+    /// Timelineを再生するコルーチン
+    /// </summary>
+    /// <param name="parent">Timelineの親オブジェクト</param>
+    /// <param name="director">再生するDirector</param>
+    /// <returns></returns>
+    public static IEnumerator PlayTimeline(GameObject parent, PlayableDirector director)
+    {
+        // nullチェック
+        if (director == null) yield break;
+
+        // 有効化
+        if (parent != null && !parent.activeSelf) parent.SetActive(true);
+
+        // 再生
+        director.Play();
+
+        // 確実に再生状態になるように1フレーム待っている
+        yield return null;
+
+        // 再生完了まで待機
+        yield return new WaitUntil(() => director.state != PlayState.Playing);
+
+        // 非有効化
+        if (parent != null && parent.activeSelf) parent.SetActive(false);
+    }
 }

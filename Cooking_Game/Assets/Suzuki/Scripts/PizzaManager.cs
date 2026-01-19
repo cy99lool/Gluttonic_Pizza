@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
+using System.Linq;
 
 public class PizzaManager : MonoBehaviour
 {
@@ -280,6 +280,28 @@ public class PizzaManager : MonoBehaviour
                 return;// 与えたらそれ以降の処理は行わない
             }
         }
+    }
+
+    /// <summary>
+    /// 点数計算（プレイヤーごと、実際に食べ物を取らない）
+    /// </summary>
+    /// <param name="playerColor">プレイヤーの色</param>
+    /// <returns></returns>
+    public int culcScore(TeamColor playerColor)
+    {
+        int score = 0;
+        foreach(PizzaSlice slice in pizzaSlices)
+        {
+            // スライス上の食べ物を取得
+            List<FoodMove> foods = slice.FoodList.Where(food => food.Team == playerColor).ToList();
+
+            foreach (FoodMove food in foods)
+            {
+                // スコア加算
+                score += food.ScorePoint;
+            }
+        }
+        return score;
     }
 
     /// <summary>

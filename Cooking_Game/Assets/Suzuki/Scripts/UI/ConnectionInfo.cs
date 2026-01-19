@@ -39,7 +39,7 @@ public class ConnectionInfo : MonoBehaviour
     void Update()
     {
         // 基本はbaseTextのみの表示
-        if (statusText.text != baseText) statusText.text = baseText;
+        if (statusText != null && statusText.text != baseText) statusText.text = baseText;
 
         // 接続中はアニメーションを行わないためreturn
         if (connect) return;

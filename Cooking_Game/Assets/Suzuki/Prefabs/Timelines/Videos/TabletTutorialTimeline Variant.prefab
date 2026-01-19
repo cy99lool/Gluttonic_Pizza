@@ -11,14 +11,74 @@ PrefabInstance:
       propertyPath: m_VideoClip
       value: 
       objectReference: {fileID: 32900000, guid: 084762a5d362b564f907127385a12374, type: 3}
+    - target: {fileID: 1116300040799172057, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_SortingOrder
+      value: 306
+      objectReference: {fileID: 0}
+    - target: {fileID: 1116300040799172057, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_OverrideSorting
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3724630767703854827, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_Name
-      value: TabletTutorialTimeline
+      value: TabletTutorialTimeline Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 800
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 1280.2507
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506756839639712216, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5700118518650670704, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_WrapMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5700118518650670704, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_PlayableAsset
       value: 
       objectReference: {fileID: 11400000, guid: a5e67032af19aec49b3f01933f5b1776, type: 2}
+    - target: {fileID: 7332153161308274770, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8183154613011502422, guid: 4cd9cc564e7ba82459b70926b5707028, type: 3}
       propertyPath: m_RootOrder
       value: 0
