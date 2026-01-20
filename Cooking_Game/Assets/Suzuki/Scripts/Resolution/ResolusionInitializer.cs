@@ -10,9 +10,18 @@ public class ResolusionInitializer
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void InitializeResolution()
     {
+        ResolutionConfig config = null;
+
         // Resourcesフォルダ内のアセットを読み込む
-        //ResolutionConfig config = Resources.Load<ResolutionConfig>("HostConfig");
-        ResolutionConfig config = Resources.Load<ResolutionConfig>("PlayerConfig");
+
+#if UNITY_STANDALONE_WIN
+        // Windowsビルド
+        config = Resources.Load<ResolutionConfig>("HostConfig");
+
+#elif UNITY_ANDROID
+        // Androidビルド
+        config = Resources.Load<ResolutionConfig>("PlayerConfig");
+#endif
 
         if (config != null)
         {
