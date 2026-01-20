@@ -203,7 +203,6 @@ public class UDPMulti : MonoBehaviour
     const int MessageStackSize = 30;                                // メッセージの待機列のサイズ
     const int PosDataMargin = 3;                                    // 受け取った位置情報の保有可能量
     const int RecieveBufferSize = 65536;                            // 受信バッファのサイズ
-    const int MaxParsePerFrame = 1000;                               // 1フレームごとのパース可能回数
     const int ThreadSleepMillisecond = 1;                           // スレッドの処理を一時停止する時間（ミリ秒）
 
     static int sendPerSecond = 10;                                // 1秒に何回送信するか
@@ -326,8 +325,8 @@ public class UDPMulti : MonoBehaviour
     {
         ReceivedUnit dequeued;
         int count = 0;
-        // パース可能回数が残っていて、かつ受信メッセージがある場合
-        while (count < MaxParsePerFrame && messageQueue.TryDequeue(out dequeued))
+        // かつ受信メッセージがある場合
+        while (messageQueue.TryDequeue(out dequeued))
         {
             // メッセージの中身を解読
             Parse(dequeued);

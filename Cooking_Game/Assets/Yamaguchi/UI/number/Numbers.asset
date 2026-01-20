@@ -20,14 +20,20 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: e31c361d878737b4a884ddba0f0d6e7f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - PixelSnap: 0
     - _ColorMask: 15
     - _CullMode: 0
+    - _EnableExternalAlpha: 0
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -37,6 +43,8 @@ Material:
     m_Colors:
     - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &11400000
 MonoBehaviour:
@@ -149,7 +157,7 @@ MonoBehaviour:
     m_GlyphRect:
       m_X: 0
       m_Y: 0
-      m_Width: 205
+      m_Width: 204
       m_Height: 205
     m_Scale: 1
     m_AtlasIndex: 0
@@ -165,7 +173,7 @@ MonoBehaviour:
     m_GlyphRect:
       m_X: 204
       m_Y: 0
-      m_Width: 205
+      m_Width: 204
       m_Height: 205
     m_Scale: 1
     m_AtlasIndex: 0
@@ -181,7 +189,7 @@ MonoBehaviour:
     m_GlyphRect:
       m_X: 409
       m_Y: 0
-      m_Width: 205
+      m_Width: 204
       m_Height: 205
     m_Scale: 1
     m_AtlasIndex: 0
@@ -197,7 +205,7 @@ MonoBehaviour:
     m_GlyphRect:
       m_X: 614
       m_Y: 0
-      m_Width: 205
+      m_Width: 204
       m_Height: 205
     m_Scale: 1
     m_AtlasIndex: 0
@@ -213,7 +221,7 @@ MonoBehaviour:
     m_GlyphRect:
       m_X: 819
       m_Y: 0
-      m_Width: 205
+      m_Width: 204
       m_Height: 205
     m_Scale: 1
     m_AtlasIndex: 0
@@ -229,7 +237,7 @@ MonoBehaviour:
     m_GlyphRect:
       m_X: 1024
       m_Y: 0
-      m_Width: 205
+      m_Width: 204
       m_Height: 205
     m_Scale: 1
     m_AtlasIndex: 0
@@ -245,7 +253,7 @@ MonoBehaviour:
     m_GlyphRect:
       m_X: 1228
       m_Y: 0
-      m_Width: 205
+      m_Width: 204
       m_Height: 205
     m_Scale: 1
     m_AtlasIndex: 0
@@ -261,7 +269,7 @@ MonoBehaviour:
     m_GlyphRect:
       m_X: 1433
       m_Y: 0
-      m_Width: 205
+      m_Width: 204
       m_Height: 205
     m_Scale: 1
     m_AtlasIndex: 0
@@ -277,7 +285,7 @@ MonoBehaviour:
     m_GlyphRect:
       m_X: 1638
       m_Y: 0
-      m_Width: 205
+      m_Width: 204
       m_Height: 205
     m_Scale: 1
     m_AtlasIndex: 0
@@ -293,7 +301,7 @@ MonoBehaviour:
     m_GlyphRect:
       m_X: 1843
       m_Y: 0
-      m_Width: 205
+      m_Width: 204
       m_Height: 205
     m_Scale: 1
     m_AtlasIndex: 0
