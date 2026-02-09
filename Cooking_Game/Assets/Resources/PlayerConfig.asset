@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 1200
   height: 1920
-  screenMode: 3
+  screenMode: 1
